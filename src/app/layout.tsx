@@ -12,8 +12,8 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className="h-full antialiased">
-      <body className="min-h-full bg-gray-50 text-gray-900" style={{ fontFamily: 'Inter, system-ui, -apple-system, sans-serif' }}>
+    <html lang="en" suppressHydrationWarning>
+      <body suppressHydrationWarning style={{ fontFamily: 'Inter, system-ui, -apple-system, sans-serif', minHeight: '100vh', backgroundColor: '#F9FAFB', color: '#111827' }}>
         {children}
       </body>
     </html>
