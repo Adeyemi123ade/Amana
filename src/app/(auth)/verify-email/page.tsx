@@ -2,150 +2,90 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Mail } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
-import { OTPInput } from '@/components/forms/OTPInput'
 
 export default function VerifyEmailPage() {
   const router = useRouter()
   const supabase = createClient()
-  const [otp, setOtp] = useState('')
   const [email, setEmail] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
   const [isResending, setIsResending] = useState(false)
-  const [error, setError] = useState('')
-  const [countdown, setCountdown] = useState(60)
+  const [countdown, setCountdown] = useState(30)
   const [canResend, setCanResend] = useState(false)
+  const [message, setMessage] = useState('')
 
   useEffect(() => {
-    const storedEmail = sessionStorage.getItem('ros_verify_email')
-    if (!storedEmail) {
-      router.replace('/sign-up')
-      return
-    }
-    setEmail(storedEmail)
+    const stored = sessionStorage.getItem('ros_verify_email')
+    if (!stored) { router.replace('/sign-up'); return }
+    setEmail(stored)
   }, [router])
 
   useEffect(() => {
     if (countdown > 0) {
-      const timer = setTimeout(() => setCountdown(countdown - 1), 1000)
-      return () => clearTimeout(timer)
+      const t = setTimeout(() => setCountdown(countdown - 1), 1000)
+      return () => clearTimeout(t)
     } else {
       setCanResend(true)
     }
   }, [countdown])
 
-  const handleVerify = async () => {
-    if (otp.length !== 6) {
-      setError('Please enter the complete 6-digit code.')
-      return
-    }
-
-    setIsLoading(true)
-    setError('')
-
-    try {
-      const { error } = await supabase.auth.verifyOtp({
-        email,
-        token: otp,
-        type: 'signup',
-      })
-
-      if (error) {
-        if (error.message.includes('expired')) {
-          setError('This code has expired. Please request a new one.')
-        } else {
-          setError('That code is incorrect. Please try again.')
-        }
-        return
-      }
-
-      router.push('/onboarding/identity-verification')
-    } catch {
-      setError('Something went wrong. Please try again.')
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
   const handleResend = async () => {
     setIsResending(true)
-    setError('')
-
+    setMessage('')
     try {
-      const { error } = await supabase.auth.resend({
-        type: 'signup',
-        email,
-      })
-
-      if (error) {
-        setError('Could not resend the code. Please try again.')
-        return
-      }
-
-      setOtp('')
-      setCountdown(60)
+      const { error } = await supabase.auth.resend({ type: 'signup', email })
+      if (error) { setMessage('Could not resend. Please try again.'); return }
+      setCountdown(30)
       setCanResend(false)
+      setMessage('Email resent successfully.')
     } catch {
-      setError('Something went wrong. Please try again.')
+      setMessage('Something went wrong. Please try again.')
     } finally {
       setIsResending(false)
     }
   }
 
   return (
-    <div className="space-y-8 text-center">
+    <div className="space-y-6 text-center">
+      {/* Purple email icon */}
       <div className="flex justify-center">
-        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-purple-100">
-          <Mail className="h-10 w-10 text-purple-600" />
+        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[#EDE9FE]">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+            <rect x="2" y="4" width="20" height="16" rx="3" fill="#7C3AED" opacity="0.15"/>
+            <rect x="2" y="4" width="20" height="16" rx="3" stroke="#7C3AED" strokeWidth="1.5"/>
+            <path d="M2 7l10 7 10-7" stroke="#7C3AED" strokeWidth="1.5" strokeLinecap="round"/>
+          </svg>
         </div>
       </div>
 
       <div>
-        <h2 className="text-2xl font-bold text-gray-900">Verify your email</h2>
+        <h2 className="text-xl font-bold text-gray-900">Verify your email</h2>
         <p className="mt-2 text-sm text-gray-500">
-          We&apos;ve sent a 6-digit verification code to
+          We have sent a verification link to
         </p>
-        <p className="mt-1 text-sm font-medium text-gray-900">{email}</p>
+        <p className="mt-1 text-sm font-semibold text-gray-900">{email}</p>
+        <p className="mt-2 text-sm text-gray-500">
+          Please check your inbox and click the link to verify your account.
+        </p>
       </div>
 
-      {error && (
-        <div className="rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-600">
-          {error}
-        </div>
+      {message && (
+        <p className="text-sm text-green-600">{message}</p>
       )}
 
-      <div className="space-y-4">
-        <OTPInput length={6} value={otp} onChange={setOtp} disabled={isLoading} />
+      <Button className="w-full" size="lg" onClick={() => window.open('mailto:', '_blank')}>
+        Open Email App
+      </Button>
 
-        <Button
-          onClick={handleVerify}
-          className="w-full"
-          size="lg"
-          loading={isLoading}
-          disabled={otp.length !== 6}
-        >
-          Verify Email
-        </Button>
-      </div>
-
-      <div className="text-sm text-gray-500">
+      <p className="text-sm text-gray-500">
         {canResend ? (
-          <button
-            onClick={handleResend}
-            disabled={isResending}
-            className="font-medium text-purple-600 hover:underline disabled:opacity-50"
-          >
-            {isResending ? 'Resending...' : 'Resend code'}
+          <button onClick={handleResend} disabled={isResending} className="font-medium text-[#7C3AED] hover:underline disabled:opacity-50">
+            {isResending ? 'Resending...' : 'Resend email'}
           </button>
         ) : (
-          <span>
-            Resend code in{' '}
-            <span className="font-medium text-gray-700">{countdown}s</span>
-          </span>
+          <span>Resend email <span className="font-medium text-gray-700">({countdown}s)</span></span>
         )}
-      </div>
+      </p>
     </div>
   )
 }
