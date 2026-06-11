@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-background: #F9FAFB;
+  --color-foreground: #111827;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #F9FAFB;
+  color: #111827;
+}
+
+/* Smooth focus transitions */
+*:focus-visible {
+  outline: 2px solid #7C3AED;
+  outline-offset: 2px;
+}
