@@ -14,13 +14,13 @@ import { Label } from '@/components/ui/label'
 import { PasswordStrengthBar } from '@/components/forms/PasswordStrengthBar'
 
 const COUNTRIES = [
-  { code: 'NG', name: 'Nigeria (+234)', dial: '+234' },
-  { code: 'GH', name: 'Ghana (+233)', dial: '+233' },
-  { code: 'KE', name: 'Kenya (+254)', dial: '+254' },
-  { code: 'ZA', name: 'South Africa (+27)', dial: '+27' },
-  { code: 'GB', name: 'United Kingdom (+44)', dial: '+44' },
-  { code: 'US', name: 'United States (+1)', dial: '+1' },
-  { code: 'CA', name: 'Canada (+1)', dial: '+1' },
+  { code: 'NG', name: 'Nigeria (+234)' },
+  { code: 'GH', name: 'Ghana (+233)' },
+  { code: 'KE', name: 'Kenya (+254)' },
+  { code: 'ZA', name: 'South Africa (+27)' },
+  { code: 'GB', name: 'United Kingdom (+44)' },
+  { code: 'US', name: 'United States (+1)' },
+  { code: 'CA', name: 'Canada (+1)' },
 ]
 
 export default function SignUpPage() {
@@ -70,7 +70,6 @@ export default function SignUpPage() {
         return
       }
 
-      // Store email for OTP verification screen
       sessionStorage.setItem('ros_verify_email', data.email)
       sessionStorage.setItem('ros_signup_data', JSON.stringify({
         fullName: data.fullName,
@@ -90,7 +89,9 @@ export default function SignUpPage() {
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-gray-900">Create your account</h2>
-        <p className="mt-1 text-sm text-gray-500">Let&apos;s get your business account set up.</p>
+        <p className="mt-1 text-sm text-gray-500">
+          Let us get your business account set up.
+        </p>
       </div>
 
       {serverError && (
@@ -134,7 +135,9 @@ export default function SignUpPage() {
               </option>
             ))}
           </select>
-          {errors.country && <p className="text-xs text-red-500">{errors.country.message}</p>}
+          {errors.country && (
+            <p className="text-xs text-red-500">{errors.country.message}</p>
+          )}
         </div>
 
         <div className="space-y-1.5">
@@ -164,7 +167,11 @@ export default function SignUpPage() {
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600"
             >
-              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              {showPassword ? (
+                <EyeOff className="h-4 w-4" />
+              ) : (
+                <Eye className="h-4 w-4" />
+              )}
             </button>
           </div>
           <PasswordStrengthBar password={password} />
@@ -186,7 +193,11 @@ export default function SignUpPage() {
               onClick={() => setShowConfirm(!showConfirm)}
               className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600"
             >
-              {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              {showConfirm ? (
+                <EyeOff className="h-4 w-4" />
+              ) : (
+                <Eye className="h-4 w-4" />
+              )}
             </button>
           </div>
         </div>
@@ -199,14 +210,7 @@ export default function SignUpPage() {
             className="mt-0.5 h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-purple-600"
           />
           <label htmlFor="termsAccepted" className="text-xs text-gray-600">
-            I agree to the{' '}
-            <Link href="/terms" className="text-purple-600 hover:underline">
-              Terms of Service
-            </Link>{' '}
-            and{' '}
-            <Link href="/privacy" className="text-purple-600 hover:underline">
-              Privacy Policy
-            </Link>
+            I agree to the Terms of Service and Privacy Policy
           </label>
         </div>
         {errors.termsAccepted && (
