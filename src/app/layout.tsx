@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'ROS — Revenue Operating System',
+  title: 'Amana — Revenue Operating System',
   description: 'Run your business. Get paid faster. Stay organized.',
 }
 

@@ -8,9 +8,6 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Eye, EyeOff } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { signUpSchema, type SignUpFormData } from '@/lib/validations/auth'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { PasswordStrengthBar } from '@/components/forms/PasswordStrengthBar'
 
 const COUNTRIES = [
@@ -22,6 +19,9 @@ const COUNTRIES = [
   { code: 'US', name: 'United States (+1)' },
   { code: 'CA', name: 'Canada (+1)' },
 ]
+
+const inputClass = "w-full h-11 px-4 rounded-xl border border-gray-200 bg-white text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#7C3AED] focus:border-transparent transition-colors"
+const labelClass = "block text-sm font-medium text-gray-700 mb-1.5"
 
 export default function SignUpPage() {
   const router = useRouter()
@@ -47,7 +47,6 @@ export default function SignUpPage() {
         password: data.password,
         options: {
           data: { full_name: data.fullName, phone: data.phone, country: data.country },
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
         },
       })
       if (error) {
@@ -66,77 +65,106 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className="space-y-4">
-      <div>
-        <h2 className="text-xl font-bold text-gray-900">Create your account</h2>
-        <p className="mt-0.5 text-sm text-gray-500">Let us get your business account set up.</p>
+    <div>
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold text-gray-900">Create your account</h2>
+        <p className="mt-1 text-sm text-gray-500">Let us get your business account set up.</p>
       </div>
 
       {serverError && (
-        <div className="rounded-lg bg-red-50 border border-red-100 p-3 text-sm text-red-600">{serverError}</div>
+        <div className="mb-4 rounded-xl bg-red-50 border border-red-100 px-4 py-3 text-sm text-red-600">{serverError}</div>
       )}
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
-        {/* Country */}
-        <div className="space-y-1">
-          <Label>Country</Label>
-          <select {...register('country')} className="flex h-10 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#7C3AED]">
-            {COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.name}</option>)}
-          </select>
-        </div>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <div className="space-y-4">
 
-        {/* Full name */}
-        <div className="space-y-1">
-          <Label>Full name</Label>
-          <Input placeholder="John Doe" {...register('fullName')} error={errors.fullName?.message} />
-        </div>
-
-        {/* Email */}
-        <div className="space-y-1">
-          <Label>Email address</Label>
-          <Input type="email" placeholder="john@example.com" {...register('email')} error={errors.email?.message} />
-        </div>
-
-        {/* Phone */}
-        <div className="space-y-1">
-          <Label>Phone number</Label>
-          <Input type="tel" placeholder="+234 812 345 6789" {...register('phone')} error={errors.phone?.message} />
-        </div>
-
-        {/* Password */}
-        <div className="space-y-1">
-          <Label>Password</Label>
-          <div className="relative">
-            <Input type={showPassword ? 'text' : 'password'} placeholder="Create a strong password" {...register('password')} error={errors.password?.message} className="pr-10" />
-            <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-2.5 text-gray-400">
-              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-            </button>
+          {/* Country */}
+          <div>
+            <label className={labelClass}>Country</label>
+            <select {...register('country')} className={inputClass}>
+              {COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.name}</option>)}
+            </select>
+            {errors.country && <p className="mt-1 text-xs text-red-500">{errors.country.message}</p>}
           </div>
-          <PasswordStrengthBar password={password} />
-        </div>
 
-        {/* Confirm password */}
-        <div className="space-y-1">
-          <Label>Confirm password</Label>
-          <div className="relative">
-            <Input type={showConfirm ? 'text' : 'password'} placeholder="Repeat your password" {...register('confirmPassword')} error={errors.confirmPassword?.message} className="pr-10" />
-            <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-3 top-2.5 text-gray-400">
-              {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-            </button>
+          {/* Full name */}
+          <div>
+            <label className={labelClass}>Full name</label>
+            <input className={inputClass} placeholder="John Doe" {...register('fullName')} />
+            {errors.fullName && <p className="mt-1 text-xs text-red-500">{errors.fullName.message}</p>}
           </div>
-        </div>
 
-        {/* Terms */}
-        <div className="flex items-start gap-2">
-          <input id="terms" type="checkbox" {...register('termsAccepted')} className="mt-0.5 h-4 w-4 rounded border-gray-300 accent-[#7C3AED]" />
-          <label htmlFor="terms" className="text-xs text-gray-500">I agree to the Terms of Service and Privacy Policy</label>
-        </div>
-        {errors.termsAccepted && <p className="text-xs text-red-500">{errors.termsAccepted.message}</p>}
+          {/* Email */}
+          <div>
+            <label className={labelClass}>Email address</label>
+            <input type="email" className={inputClass} placeholder="john@example.com" {...register('email')} />
+            {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email.message}</p>}
+          </div>
 
-        <Button type="submit" className="w-full" size="lg" loading={isLoading}>Create Account</Button>
+          {/* Phone */}
+          <div>
+            <label className={labelClass}>Phone number</label>
+            <input type="tel" className={inputClass} placeholder="+234 812 345 6789" {...register('phone')} />
+            {errors.phone && <p className="mt-1 text-xs text-red-500">{errors.phone.message}</p>}
+          </div>
+
+          {/* Password */}
+          <div>
+            <label className={labelClass}>Password</label>
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                className={inputClass + ' pr-11'}
+                placeholder="Create a strong password"
+                {...register('password')}
+              />
+              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-3 text-gray-400 hover:text-gray-600">
+                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+              </button>
+            </div>
+            {errors.password && <p className="mt-1 text-xs text-red-500">{errors.password.message}</p>}
+            <PasswordStrengthBar password={password} />
+          </div>
+
+          {/* Confirm password */}
+          <div>
+            <label className={labelClass}>Confirm password</label>
+            <div className="relative">
+              <input
+                type={showConfirm ? 'text' : 'password'}
+                className={inputClass + ' pr-11'}
+                placeholder="Repeat your password"
+                {...register('confirmPassword')}
+              />
+              <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-3 top-3 text-gray-400 hover:text-gray-600">
+                {showConfirm ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+              </button>
+            </div>
+            {errors.confirmPassword && <p className="mt-1 text-xs text-red-500">{errors.confirmPassword.message}</p>}
+          </div>
+
+          {/* Terms */}
+          <div className="flex items-start gap-3 pt-1">
+            <input id="terms" type="checkbox" {...register('termsAccepted')} className="mt-0.5 h-4 w-4 rounded border-gray-300 accent-[#7C3AED] flex-shrink-0" />
+            <label htmlFor="terms" className="text-xs text-gray-500 leading-relaxed">
+              I agree to the <span className="text-[#7C3AED]">Terms of Service</span> and <span className="text-[#7C3AED]">Privacy Policy</span>
+            </label>
+          </div>
+          {errors.termsAccepted && <p className="text-xs text-red-500">{errors.termsAccepted.message}</p>}
+
+          {/* Submit */}
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full h-12 rounded-xl bg-[#7C3AED] text-white font-semibold text-base hover:bg-[#6D28D9] transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-2"
+          >
+            {isLoading && <span className="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin" />}
+            Create Account
+          </button>
+        </div>
       </form>
 
-      <p className="text-center text-sm text-gray-500">
+      <p className="mt-5 text-center text-sm text-gray-500">
         Already have an account?{' '}
         <Link href="/sign-in" className="font-medium text-[#7C3AED] hover:underline">Sign in</Link>
       </p>

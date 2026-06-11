@@ -60,7 +60,7 @@ export default function SignInPage() {
     <div className="space-y-4">
       <div>
         <h2 className="text-xl font-bold text-gray-900">Welcome back 👋</h2>
-        <p className="mt-0.5 text-sm text-gray-500">Sign in to your ROS account.</p>
+        <p className="mt-0.5 text-sm text-gray-500">Sign in to your Amana account.</p>
       </div>
 
       {serverError && (
