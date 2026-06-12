@@ -6,17 +6,36 @@ import { redirect } from 'next/navigation'
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { user }, error } = await supabase.auth.getUser()
 
-  if (!user) redirect('/sign-in')
+  if (error || !user) redirect('/sign-in')
+
+  // Get full name from users table if metadata is empty
+  let fullName = user.user_metadata?.full_name || ''
+  if (!fullName) {
+    const { data: profile } = await supabase
+      .from('users')
+      .select('full_name')
+      .eq('supabase_id', user.id)
+      .single()
+    if (profile?.full_name) fullName = profile.full_name
+  }
+
+  const enrichedUser = {
+    ...user,
+    user_metadata: {
+      ...user.user_metadata,
+      full_name: fullName || user.email,
+    }
+  }
 
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
-      <Sidebar user={user} />
-      <div className="flex flex-1 flex-col overflow-hidden min-w-0">
-        <Topbar user={user} />
-        <main className="flex-1 overflow-y-auto">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div style={{display:'flex', height:'100vh', background:'#F9FAFB', overflow:'hidden'}}>
+      <Sidebar user={enrichedUser} />
+      <div style={{display:'flex', flex:1, flexDirection:'column', overflow:'hidden', minWidth:0}}>
+        <Topbar user={enrichedUser} />
+        <main style={{flex:1, overflowY:'auto'}}>
+          <div style={{maxWidth:1280, margin:'0 auto', padding:'24px 24px'}}>
             {children}
           </div>
         </main>

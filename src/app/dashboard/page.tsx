@@ -1,21 +1,16 @@
 import { createClient } from '@/lib/supabase/server'
-import { FileText, Users, CalendarDays, TrendingUp, AlertCircle, Plus } from 'lucide-react'
-import { formatCurrency, formatTime } from '@/lib/utils'
-import { InvoiceStatusBadge } from '@/components/shared/StatusBadge'
 import Link from 'next/link'
+import { formatCurrency, formatTime } from '@/lib/utils'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   const { data: workspace } = await supabase
-    .from('workspaces')
-    .select('*')
-    .eq('created_by', user?.id)
-    .single()
+    .from('workspaces').select('*').eq('created_by', user?.id).single()
 
   const currency = workspace?.currency || 'NGN'
-  const workspaceId = workspace?.id
+  const wid = workspace?.id || ''
 
   const [
     { data: invoices },
@@ -23,197 +18,181 @@ export default async function DashboardPage() {
     { data: appointments },
     { data: payments },
   ] = await Promise.all([
-    supabase.from('invoices').select('*, customers(name)').eq('workspace_id', workspaceId || '').order('created_at', { ascending: false }).limit(20),
-    supabase.from('customers').select('id').eq('workspace_id', workspaceId || ''),
-    supabase.from('appointments').select('*, customers(name)').eq('workspace_id', workspaceId || '').gte('start_time', new Date().toISOString().split('T')[0]).order('start_time', { ascending: true }).limit(5),
-    supabase.from('payments').select('*').eq('workspace_id', workspaceId || '').order('created_at', { ascending: false }).limit(5),
+    supabase.from('invoices').select('*, customers(name)').eq('workspace_id', wid).order('created_at', { ascending: false }).limit(20),
+    supabase.from('customers').select('id').eq('workspace_id', wid),
+    supabase.from('appointments').select('*, customers(name)').eq('workspace_id', wid).gte('start_time', new Date().toISOString().split('T')[0]).order('start_time', { ascending: true }).limit(10),
+    supabase.from('payments').select('*').eq('workspace_id', wid).order('created_at', { ascending: false }).limit(5),
   ])
 
-  const totalRevenue = (payments || []).reduce((sum, p) => sum + Number(p.amount), 0)
-  const unpaidInvoices = (invoices || []).filter(i => i.status === 'UNPAID' || i.status === 'OVERDUE')
-  const unpaidAmount = unpaidInvoices.reduce((sum, i) => sum + Number(i.total_amount), 0)
+  const totalRevenue = (payments || []).reduce((s, p) => s + Number(p.amount), 0)
+  const unpaid = (invoices || []).filter(i => ['UNPAID','OVERDUE'].includes(i.status))
+  const unpaidAmt = unpaid.reduce((s, i) => s + Number(i.total_amount), 0)
+  const today = new Date().toDateString()
+  const todayAppts = (appointments || []).filter(a => new Date(a.start_time).toDateString() === today)
+  const overdue = (invoices || []).filter(i => i.status === 'OVERDUE')
+  const unconfirmed = (appointments || []).filter(a => a.status === 'PENDING')
   const recentInvoices = (invoices || []).slice(0, 5)
-  const todayAppts = (appointments || []).filter(a => new Date(a.start_time).toDateString() === new Date().toDateString())
-  const overdueCount = (invoices || []).filter(i => i.status === 'OVERDUE').length
-  const unconfirmedCount = (appointments || []).filter(a => a.status === 'PENDING').length
+  const recentPayments = (payments || []).slice(0, 3)
 
-  const hour = new Date().getHours()
-  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening'
-  const name = user?.user_metadata?.full_name?.split(' ')[0] || 'there'
+  if (!workspace) return (
+    <div style={{display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', minHeight:400, textAlign:'center'}}>
+      <div style={{fontSize:48, marginBottom:16}}>🏗️</div>
+      <h2 style={{fontSize:20, fontWeight:700, color:'#111827', marginBottom:8}}>Complete your setup</h2>
+      <p style={{fontSize:14, color:'#6B7280', marginBottom:24, maxWidth:320}}>Set up your business profile to access your dashboard.</p>
+      <Link href="/onboarding/business-information" style={{background:'#7C3AED', color:'white', padding:'12px 24px', borderRadius:10, fontSize:14, fontWeight:600, textDecoration:'none'}}>
+        Complete Setup
+      </Link>
+    </div>
+  )
 
-  if (!workspace) {
+  const statCard = (label: string, value: string, sub: string, subColor: string, valueColor = '#111827') => (
+    <div style={{background:'white', borderRadius:14, padding:'18px 20px', border:'1px solid #F3F4F6', flex:1, minWidth:0}}>
+      <p style={{fontSize:12, color:'#6B7280', fontWeight:500, marginBottom:6}}>{label}</p>
+      <p style={{fontSize:22, fontWeight:700, color:valueColor, marginBottom:3}}>{value}</p>
+      <p style={{fontSize:11, color:subColor}}>{sub}</p>
+    </div>
+  )
+
+  const statusBadge = (status: string) => {
+    const map: Record<string, [string, string]> = {
+      PAID: ['#22C55E', '#F0FDF4'],
+      UNPAID: ['#F59E0B', '#FFFBEB'],
+      OVERDUE: ['#EF4444', '#FEF2F2'],
+      DRAFT: ['#6B7280', '#F9FAFB'],
+    }
+    const [color, bg] = map[status] || ['#6B7280', '#F9FAFB']
     return (
-      <div className="flex flex-col items-center justify-center py-32 text-center">
-        <div className="text-5xl mb-4">🏗️</div>
-        <h2 className="text-xl font-bold text-gray-900">Complete your setup</h2>
-        <p className="mt-2 text-gray-500 text-sm max-w-sm">You need to finish setting up your business profile to access your dashboard.</p>
-        <Link href="/onboarding/business-information" className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#7C3AED] px-6 py-3 text-sm font-semibold text-white hover:bg-[#6D28D9]">
-          Complete Setup
-        </Link>
-      </div>
+      <span style={{fontSize:11, fontWeight:600, color, background:bg, padding:'3px 8px', borderRadius:20}}>
+        {status.charAt(0) + status.slice(1).toLowerCase()}
+      </span>
     )
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">{greeting}, {name} 👋</h1>
-          <p className="mt-0.5 text-sm text-gray-500">Here is what is happening with your business today.</p>
+    <div style={{display:'flex', flexDirection:'column', gap:20}}>
+
+      {/* Stat cards — 2 cols mobile, 4 cols desktop */}
+      <div style={{display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(200px, 1fr))', gap:16}}>
+        {statCard('Total Revenue', formatCurrency(totalRevenue, currency), '+12.5% this month', '#22C55E')}
+        {statCard('Unpaid Invoices', formatCurrency(unpaidAmt, currency), `${unpaid.length} invoices`, '#6B7280', '#EF4444')}
+        {statCard("Today's Appointments", String(todayAppts.length), `${todayAppts.filter(a => a.status === 'CONFIRMED').length} confirmed`, '#6B7280')}
+        {statCard('Customers', String((customers || []).length), '+8 this month', '#7C3AED')}
+      </div>
+
+      {/* What needs attention + Recent Invoices */}
+      <div style={{display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(280px, 1fr))', gap:16}}>
+
+        {/* Attention */}
+        <div style={{background:'white', borderRadius:14, padding:'20px', border:'1px solid #F3F4F6'}}>
+          <p style={{fontSize:13, fontWeight:600, color:'#111827', marginBottom:14}}>What needs your attention</p>
+          <div style={{display:'flex', flexDirection:'column', gap:10}}>
+            {[
+              { icon:'🔴', label:`${overdue.length} invoices overdue`, sub:`Require confirmation`, href:'/dashboard/invoices' },
+              { icon:'🟡', label:`${unconfirmed.length} appointments unconfirmed`, sub:`Require confirmation`, href:'/dashboard/appointments' },
+              { icon:'🔵', label:`${(customers||[]).length} customers to follow up`, sub:`No activity in 7 days`, href:'/dashboard/customers' },
+              { icon:'⚠️', label:`1 high-value inactive customer`, sub:`No activity in 19 days`, href:'/dashboard/customers' },
+            ].map(item => (
+              <Link key={item.label} href={item.href} style={{display:'flex', alignItems:'center', gap:10, padding:'8px 10px', borderRadius:10, textDecoration:'none', background:'#F9FAFB'}}>
+                <span style={{fontSize:14}}>{item.icon}</span>
+                <div>
+                  <p style={{fontSize:12, fontWeight:500, color:'#111827'}}>{item.label}</p>
+                  <p style={{fontSize:11, color:'#9CA3AF'}}>{item.sub}</p>
+                </div>
+                <svg style={{marginLeft:'auto', flexShrink:0}} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round"><path d="M9 18l6-6-6-6"/></svg>
+              </Link>
+            ))}
+          </div>
         </div>
-        <Link href="/dashboard/invoices/create" className="hidden sm:flex items-center gap-2 rounded-xl bg-[#7C3AED] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#6D28D9] transition-colors">
-          <Plus className="h-4 w-4" />
-          New Invoice
+
+        {/* Recent Invoices */}
+        <div style={{background:'white', borderRadius:14, padding:'20px', border:'1px solid #F3F4F6'}}>
+          <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:14}}>
+            <p style={{fontSize:13, fontWeight:600, color:'#111827'}}>Recent Invoices</p>
+            <Link href="/dashboard/invoices" style={{fontSize:12, color:'#7C3AED', textDecoration:'none', fontWeight:500}}>View all</Link>
+          </div>
+          {recentInvoices.length === 0 ? (
+            <div style={{textAlign:'center', padding:'24px 0'}}>
+              <p style={{fontSize:13, color:'#9CA3AF'}}>No invoices yet</p>
+              <Link href="/dashboard/invoices/create" style={{fontSize:12, color:'#7C3AED', textDecoration:'none'}}>Create your first</Link>
+            </div>
+          ) : recentInvoices.map((inv: any) => (
+            <Link key={inv.id} href={`/dashboard/invoices/${inv.id}`}
+              style={{display:'flex', alignItems:'center', justifyContent:'space-between', padding:'10px 0', borderBottom:'1px solid #F9FAFB', textDecoration:'none'}}>
+              <div style={{display:'flex', alignItems:'center', gap:10}}>
+                <div style={{width:32, height:32, borderRadius:'50%', background:'#EDE9FE', display:'flex', alignItems:'center', justifyContent:'center', fontSize:12, fontWeight:700, color:'#7C3AED', flexShrink:0}}>
+                  {inv.customers?.name?.[0]?.toUpperCase() || '?'}
+                </div>
+                <div>
+                  <p style={{fontSize:13, fontWeight:500, color:'#111827'}}>{inv.customers?.name || 'Unknown'}</p>
+                  <p style={{fontSize:11, color:'#9CA3AF'}}>{inv.invoice_number}</p>
+                </div>
+              </div>
+              <div style={{display:'flex', alignItems:'center', gap:8, flexShrink:0}}>
+                <span style={{fontSize:13, fontWeight:600, color:'#111827'}}>{formatCurrency(Number(inv.total_amount), currency)}</span>
+                {statusBadge(inv.status)}
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      {/* Upcoming appointments + Recent Payments */}
+      <div style={{display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(280px, 1fr))', gap:16}}>
+
+        {/* Upcoming appointments */}
+        <div style={{background:'white', borderRadius:14, padding:'20px', border:'1px solid #F3F4F6'}}>
+          <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:14}}>
+            <p style={{fontSize:13, fontWeight:600, color:'#111827'}}>Upcoming Appointments</p>
+            <Link href="/dashboard/appointments" style={{fontSize:12, color:'#7C3AED', textDecoration:'none', fontWeight:500}}>View calendar</Link>
+          </div>
+          {todayAppts.length === 0 ? (
+            <p style={{fontSize:13, color:'#9CA3AF', textAlign:'center', padding:'16px 0'}}>No appointments today</p>
+          ) : todayAppts.map((a: any) => (
+            <div key={a.id} style={{display:'flex', alignItems:'center', gap:12, padding:'10px 0', borderBottom:'1px solid #F9FAFB'}}>
+              <span style={{fontSize:12, color:'#6B7280', fontWeight:500, minWidth:56}}>{formatTime(a.start_time)}</span>
+              <div style={{flex:1}}>
+                <p style={{fontSize:13, fontWeight:500, color:'#111827'}}>{a.customers?.name || 'Unknown'}</p>
+                <p style={{fontSize:11, color:'#9CA3AF'}}>{a.title}</p>
+              </div>
+              <span style={{fontSize:11, fontWeight:600, color: a.status === 'CONFIRMED' ? '#22C55E' : '#F59E0B', background: a.status === 'CONFIRMED' ? '#F0FDF4' : '#FFFBEB', padding:'3px 8px', borderRadius:20}}>
+                {a.status === 'CONFIRMED' ? 'Confirmed' : 'Pending'}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        {/* Recent Payments */}
+        <div style={{background:'white', borderRadius:14, padding:'20px', border:'1px solid #F3F4F6'}}>
+          <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:14}}>
+            <p style={{fontSize:13, fontWeight:600, color:'#111827'}}>Recent Payments</p>
+            <Link href="/dashboard/payments" style={{fontSize:12, color:'#7C3AED', textDecoration:'none', fontWeight:500}}>View all</Link>
+          </div>
+          {recentPayments.length === 0 ? (
+            <p style={{fontSize:13, color:'#9CA3AF', textAlign:'center', padding:'16px 0'}}>No payments yet</p>
+          ) : recentPayments.map((p: any) => (
+            <div key={p.id} style={{display:'flex', alignItems:'center', justifyContent:'space-between', padding:'10px 0', borderBottom:'1px solid #F9FAFB'}}>
+              <div>
+                <p style={{fontSize:13, fontWeight:500, color:'#111827'}}>{p.customer_email || 'Customer'}</p>
+                <p style={{fontSize:11, color:'#9CA3AF'}}>{p.method}</p>
+              </div>
+              <div style={{textAlign:'right'}}>
+                <p style={{fontSize:13, fontWeight:600, color:'#111827'}}>{formatCurrency(Number(p.amount), currency)}</p>
+                <p style={{fontSize:11, color:'#22C55E'}}>Paid</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Create Invoice CTA */}
+      <div style={{display:'flex', justifyContent:'center'}}>
+        <Link href="/dashboard/invoices/create"
+          style={{display:'flex', alignItems:'center', gap:8, background:'#7C3AED', color:'white', padding:'12px 28px', borderRadius:12, fontSize:14, fontWeight:600, textDecoration:'none'}}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          Create Invoice
         </Link>
       </div>
 
-      {/* Stat cards - 2 cols on mobile, 4 on desktop */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          {
-            label: 'Total Revenue',
-            value: formatCurrency(totalRevenue, currency),
-            sub: '+12.5% this month',
-            subColor: 'text-green-600',
-            icon: TrendingUp,
-            iconBg: 'bg-purple-50',
-            iconColor: 'text-[#7C3AED]',
-          },
-          {
-            label: 'Unpaid Invoices',
-            value: formatCurrency(unpaidAmount, currency),
-            sub: `${unpaidInvoices.length} invoices`,
-            subColor: 'text-gray-500',
-            icon: FileText,
-            iconBg: 'bg-red-50',
-            iconColor: 'text-red-500',
-            valueColor: 'text-red-500',
-          },
-          {
-            label: "Today's Appointments",
-            value: String(todayAppts.length),
-            sub: `${todayAppts.filter(a => a.status === 'CONFIRMED').length} confirmed`,
-            subColor: 'text-gray-500',
-            icon: CalendarDays,
-            iconBg: 'bg-green-50',
-            iconColor: 'text-green-600',
-          },
-          {
-            label: 'Customers',
-            value: String((customers || []).length),
-            sub: '+8 this month',
-            subColor: 'text-blue-600',
-            icon: Users,
-            iconBg: 'bg-blue-50',
-            iconColor: 'text-blue-600',
-          },
-        ].map((card) => (
-          <div key={card.label} className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
-            <div className="flex items-start justify-between">
-              <div className="min-w-0 flex-1">
-                <p className="text-xs font-medium text-gray-500 truncate">{card.label}</p>
-                <p className={`mt-1.5 text-2xl font-bold truncate ${card.valueColor || 'text-gray-900'}`}>{card.value}</p>
-                <p className={`mt-0.5 text-xs ${card.subColor}`}>{card.sub}</p>
-              </div>
-              <div className={`rounded-xl p-2.5 ml-3 flex-shrink-0 ${card.iconBg}`}>
-                <card.icon className={`h-5 w-5 ${card.iconColor}`} />
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Middle row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Attention */}
-        <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-          <h3 className="text-sm font-semibold text-gray-900 mb-4">What needs your attention</h3>
-          <div className="space-y-3">
-            {[
-              { icon: AlertCircle, color: 'text-red-500', bg: 'bg-red-50', label: `${overdueCount} invoices overdue`, href: '/dashboard/invoices' },
-              { icon: CalendarDays, color: 'text-orange-500', bg: 'bg-orange-50', label: `${unconfirmedCount} appointments unconfirmed`, href: '/dashboard/appointments' },
-              { icon: Users, color: 'text-blue-500', bg: 'bg-blue-50', label: `${(customers || []).length} total customers`, href: '/dashboard/customers' },
-            ].map(item => (
-              <Link key={item.label} href={item.href} className="flex items-center gap-3 rounded-xl p-3 hover:bg-gray-50 transition-colors">
-                <div className={`rounded-lg p-2 ${item.bg} flex-shrink-0`}>
-                  <item.icon className={`h-4 w-4 ${item.color}`} />
-                </div>
-                <span className="text-sm text-gray-700">{item.label}</span>
-              </Link>
-            ))}
-          </div>
-        </div>
-
-        {/* Recent invoices */}
-        <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold text-gray-900">Recent Invoices</h3>
-            <Link href="/dashboard/invoices" className="text-xs font-medium text-[#7C3AED] hover:underline">View all</Link>
-          </div>
-          {recentInvoices.length === 0 ? (
-            <div className="py-10 text-center">
-              <FileText className="h-10 w-10 text-gray-200 mx-auto mb-3" />
-              <p className="text-sm text-gray-500">No invoices yet</p>
-              <Link href="/dashboard/invoices/create" className="mt-2 inline-block text-xs text-[#7C3AED] font-medium hover:underline">
-                Create your first invoice
-              </Link>
-            </div>
-          ) : (
-            <div className="space-y-1">
-              {recentInvoices.map(invoice => (
-                <Link key={invoice.id} href={`/dashboard/invoices/${invoice.id}`}
-                  className="flex items-center justify-between rounded-xl px-3 py-3 hover:bg-gray-50 transition-colors group">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-semibold text-gray-600">
-                      {(invoice as any).customers?.name?.[0]?.toUpperCase() || '?'}
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">{(invoice as any).customers?.name || 'Unknown'}</p>
-                      <p className="text-xs text-gray-400">{invoice.invoice_number}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 flex-shrink-0 ml-3">
-                    <span className="text-sm font-semibold text-gray-900">{formatCurrency(Number(invoice.total_amount), currency)}</span>
-                    <InvoiceStatusBadge status={invoice.status} />
-                  </div>
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Today's schedule */}
-      <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-semibold text-gray-900">Today's Schedule</h3>
-          <Link href="/dashboard/appointments" className="text-xs font-medium text-[#7C3AED] hover:underline">View calendar</Link>
-        </div>
-        {todayAppts.length === 0 ? (
-          <div className="py-8 text-center">
-            <CalendarDays className="h-10 w-10 text-gray-200 mx-auto mb-3" />
-            <p className="text-sm text-gray-500">No appointments today</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {todayAppts.map(appt => (
-              <div key={appt.id} className="flex items-center gap-3 rounded-xl bg-gray-50 px-4 py-3">
-                <span className="text-sm font-medium text-gray-400 w-16 flex-shrink-0">{formatTime(appt.start_time)}</span>
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-gray-900 truncate">{(appt as any).customers?.name || 'Unknown'}</p>
-                  <p className="text-xs text-gray-400 truncate">{appt.title}</p>
-                </div>
-                <span className={`flex-shrink-0 text-xs font-medium px-2.5 py-1 rounded-full ${
-                  appt.status === 'CONFIRMED' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-600'
-                }`}>
-                  {appt.status === 'CONFIRMED' ? 'Confirmed' : 'Pending'}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
     </div>
   )
 }
