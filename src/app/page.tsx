@@ -11,7 +11,7 @@ export default function LandingPage() {
             <div style={{width:32, height:32, background:'#7C3AED', borderRadius:8, display:'flex', alignItems:'center', justifyContent:'center'}}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z" fill="white"/></svg>
             </div>
-            <span style={{color:'white', fontWeight:700, fontSize:16, letterSpacing:-0.3}}>ROS</span>
+            <span style={{color:'white', fontWeight:700, fontSize:16, letterSpacing:-0.3}}>Amana</span>
           </div>
           <div style={{display:'flex', flexDirection:'column', gap:4, cursor:'pointer', padding:4}}>
             <span style={{display:'block', width:20, height:2, background:'white', borderRadius:2}}/>

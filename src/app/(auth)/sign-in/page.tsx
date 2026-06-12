@@ -38,7 +38,7 @@ export default function SignInPage() {
   return (
     <div>
       <h2 style={{fontSize:20, fontWeight:700, color:'#111827', marginBottom:4}}>Welcome back 👋</h2>
-      <p style={{fontSize:13, color:'#6B7280', marginBottom:20}}>Sign in to your ROS account</p>
+      <p style={{fontSize:13, color:'#6B7280', marginBottom:20}}>Sign in to your Amana account</p>
 
       {serverError && <div style={{background:'#FEF2F2', border:'1px solid #FEE2E2', borderRadius:8, padding:'10px 12px', fontSize:13, color:'#DC2626', marginBottom:16}}>{serverError}</div>}
 
