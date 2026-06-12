@@ -1,16 +1,11 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
-  LayoutDashboard,
-  FileText,
-  Users,
-  CalendarDays,
-  CreditCard,
-  Bell,
-  BarChart2,
-  Settings,
+  LayoutDashboard, FileText, Users, CalendarDays,
+  CreditCard, Bell, BarChart2, Settings, Menu, X
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -27,35 +22,35 @@ const NAV_ITEMS = [
 
 export function Sidebar() {
   const pathname = usePathname()
+  const [mobileOpen, setMobileOpen] = useState(false)
 
-  const isActive = (href: string, exact?: boolean) => {
-    if (exact) return pathname === href
-    return pathname.startsWith(href)
-  }
+  const isActive = (href: string, exact?: boolean) =>
+    exact ? pathname === href : pathname.startsWith(href)
 
-  return (
-    <aside className="flex h-full w-60 flex-col bg-[#111827] text-white flex-shrink-0">
+  const NavContent = () => (
+    <>
       {/* Logo */}
-      <div className="flex items-center gap-3 px-6 py-5 border-b border-white/10">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-600">
-          <BarChart2 className="h-4 w-4 text-white" />
+      <div className="flex items-center gap-3 px-5 py-5 border-b border-white/10">
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#7C3AED] flex-shrink-0">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z" fill="white"/></svg>
         </div>
-        <span className="text-lg font-bold">Amana</span>
+        <span className="text-lg font-bold text-white">Amana</span>
       </div>
 
-      {/* Nav */}
-      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+      {/* Nav items */}
+      <nav className="flex-1 px-3 py-5 space-y-1 overflow-y-auto">
         {NAV_ITEMS.map((item) => {
           const active = isActive(item.href, item.exact)
           return (
             <Link
               key={item.href}
               href={item.href}
+              onClick={() => setMobileOpen(false)}
               className={cn(
-                'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+                'flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all',
                 active
-                  ? 'bg-purple-600 text-white'
-                  : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                  ? 'bg-[#7C3AED] text-white shadow-sm'
+                  : 'text-gray-400 hover:bg-white/8 hover:text-white'
               )}
             >
               <item.icon className="h-4 w-4 flex-shrink-0" />
@@ -65,18 +60,50 @@ export function Sidebar() {
         })}
       </nav>
 
-      {/* User profile stub at bottom */}
+      {/* User at bottom */}
       <div className="border-t border-white/10 px-4 py-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-purple-600 text-xs font-bold text-white flex-shrink-0">
-            JD
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#7C3AED] text-xs font-bold text-white flex-shrink-0">
+            A
           </div>
           <div className="min-w-0">
-            <p className="truncate text-sm font-medium text-white">John Doe</p>
-            <p className="truncate text-xs text-gray-400">john@example.com</p>
+            <p className="truncate text-sm font-medium text-white">My Account</p>
+            <p className="truncate text-xs text-gray-400">amana user</p>
           </div>
         </div>
       </div>
-    </aside>
+    </>
+  )
+
+  return (
+    <>
+      {/* Desktop sidebar */}
+      <aside className="hidden lg:flex h-full w-64 flex-col bg-[#111827] text-white flex-shrink-0">
+        <NavContent />
+      </aside>
+
+      {/* Mobile hamburger button */}
+      <button
+        onClick={() => setMobileOpen(true)}
+        className="lg:hidden fixed top-4 left-4 z-50 flex h-10 w-10 items-center justify-center rounded-xl bg-[#111827] text-white shadow-lg"
+      >
+        <Menu className="h-5 w-5" />
+      </button>
+
+      {/* Mobile overlay */}
+      {mobileOpen && (
+        <div className="lg:hidden fixed inset-0 z-50 flex">
+          <div className="flex w-72 flex-col bg-[#111827] text-white">
+            <div className="flex items-center justify-end px-4 pt-4">
+              <button onClick={() => setMobileOpen(false)} className="text-gray-400 hover:text-white p-1">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <NavContent />
+          </div>
+          <div className="flex-1 bg-black/50" onClick={() => setMobileOpen(false)} />
+        </div>
+      )}
+    </>
   )
 }
