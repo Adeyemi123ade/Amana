@@ -10,7 +10,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
 
   if (error || !user) redirect('/sign-in')
 
-  // Get full name from users table if metadata is empty
+  // Pull full name from users table if not in metadata
   let fullName = user.user_metadata?.full_name || ''
   if (!fullName) {
     const { data: profile } = await supabase
@@ -30,14 +30,29 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   }
 
   return (
-    <div style={{display:'flex', height:'100vh', background:'#F9FAFB', overflow:'hidden'}}>
+    <div style={{
+      display: 'flex',
+      width: '100vw',
+      height: '100vh',
+      overflow: 'hidden',
+      background: '#F9FAFB',
+    }}>
       <Sidebar user={enrichedUser} />
-      <div style={{display:'flex', flex:1, flexDirection:'column', overflow:'hidden', minWidth:0}}>
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        flex: 1,
+        minWidth: 0,
+        height: '100vh',
+        overflow: 'hidden',
+      }}>
         <Topbar user={enrichedUser} />
-        <main style={{flex:1, overflowY:'auto'}}>
-          <div style={{maxWidth:1280, margin:'0 auto', padding:'24px 24px'}}>
-            {children}
-          </div>
+        <main style={{
+          flex: 1,
+          overflowY: 'auto',
+          padding: '24px',
+        }}>
+          {children}
         </main>
       </div>
     </div>
