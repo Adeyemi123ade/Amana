@@ -94,6 +94,11 @@ export default function SignInPage() {
         Don't have an account?{' '}
         <Link href="/sign-up" style={{color:'#7C3AED', fontWeight:500, textDecoration:'none'}}>Sign up</Link>
       </p>
+
+      <div style={{display:'flex', justifyContent:'center', gap:16, marginTop:16, paddingTop:16, borderTop:'1px solid #F3F4F6'}}>
+        <Link href="/terms" style={{fontSize:11, color:'#9CA3AF', textDecoration:'none'}}>Terms of Service</Link>
+        <Link href="/privacy" style={{fontSize:11, color:'#9CA3AF', textDecoration:'none'}}>Privacy Policy</Link>
+      </div>
     </div>
   )
 }
