@@ -37,7 +37,8 @@ export default function CustomersPage() {
   )
 
   const handleAdd = async () => {
-    if (!form.name.trim()) { setError('Customer name is required'); return }
+    if (!form.name.trim()) { setError('Please enter the customer name'); return }
+    if (!workspace) { setError('Your workspace is still loading. Please wait a moment and try again.'); return }
     setSaving(true); setError('')
     try {
       const { error: err } = await supabase.from('customers').insert({
@@ -49,12 +50,20 @@ export default function CustomersPage() {
         notes: form.notes.trim() || null,
         total_spent: 0,
       })
-      if (err) throw err
+      if (err) {
+        if (err.message?.includes('duplicate')) {
+          setError('A customer with this name already exists.')
+        } else {
+          setError('We could not save this customer. Please check your connection and try again.')
+        }
+        setSaving(false)
+        return
+      }
       setForm({ name:'', email:'', phone:'', address:'', notes:'' })
       setShowModal(false)
       await load()
     } catch (e: any) {
-      setError(e.message || 'Could not save customer. Please try again.')
+      setError('Something went wrong while saving. Please check your connection and try again.')
     } finally {
       setSaving(false)
     }

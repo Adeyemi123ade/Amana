@@ -35,9 +35,10 @@ export default function CreateInvoicePage() {
   const currencySymbol = workspace?.currency === 'USD' ? '$' : workspace?.currency === 'GBP' ? '£' : '₦'
 
   const handleSubmit = async (status: 'DRAFT' | 'UNPAID') => {
-    if (!form.customerId) { setError('Please select a customer'); return }
-    if (!form.dueDate) { setError('Please set a due date'); return }
-    if (items.every(i => !i.description)) { setError('Add at least one item'); return }
+    if (!form.customerId) { setError('Please select a customer first'); return }
+    if (!form.dueDate) { setError('Please set a due date for this invoice'); return }
+    if (items.every(i => !i.description)) { setError('Please add at least one item or service'); return }
+    if (!workspace) { setError('Your workspace is still loading. Please wait a moment and try again.'); return }
     setIsLoading(true); setError('')
     try {
       const { data: { user } } = await supabase.auth.getUser()
@@ -59,7 +60,7 @@ export default function CreateInvoicePage() {
       if (invErr) throw invErr
       router.push(`/dashboard/invoices/${inv.id}`)
     } catch (e: any) {
-      setError(e.message || 'Could not create invoice. Please try again.')
+      setError('We could not create this invoice. Please check your connection and try again.')
     } finally {
       setIsLoading(false)
     }

@@ -56,9 +56,10 @@ export default function AppointmentsPage() {
   const nextMonth = () => { if (month === 11) { setMonth(0); setYear(y => y+1) } else setMonth(m => m+1) }
 
   const handleSave = async () => {
-    if (!form.title.trim()) { setError('Appointment title is required'); return }
+    if (!form.title.trim()) { setError('Please enter an appointment title'); return }
     if (!form.date) { setError('Please select a date'); return }
     if (!form.time) { setError('Please select a time'); return }
+    if (!workspace) { setError('Your workspace is still loading. Please wait a moment and try again.'); return }
     setSaving(true); setError('')
     try {
       const startTime = new Date(`${form.date}T${form.time}:00`)
@@ -78,7 +79,7 @@ export default function AppointmentsPage() {
       setShowModal(false)
       await load()
     } catch (e: any) {
-      setError(e.message || 'Could not save appointment.')
+      setError('We could not save this appointment. Please check your connection and try again.')
     } finally {
       setSaving(false)
     }
