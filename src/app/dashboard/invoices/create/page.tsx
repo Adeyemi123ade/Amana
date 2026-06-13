@@ -67,14 +67,11 @@ export default function CreateInvoicePage() {
 
   return (
     <div style={{maxWidth:640,margin:'0 auto'}}>
-      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:24}}>
-        <div style={{display:'flex',alignItems:'center',gap:12}}>
-          <Link href="/dashboard/invoices" style={{color:'#6B7280',textDecoration:'none',display:'flex',alignItems:'center',gap:4,fontSize:14}}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-          </Link>
-          <h1 style={{fontSize:20,fontWeight:700,color:'#111827'}}>Create Invoice</h1>
-        </div>
-        <button style={{padding:'8px 16px',background:'white',border:'1px solid #E5E7EB',borderRadius:8,fontSize:13,fontWeight:500,color:'#374151',cursor:'pointer'}}>Preview</button>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <Link href="/dashboard/invoices" style={{color:'#6B7280',textDecoration:'none',display:'flex',alignItems:'center'}}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        </Link>
+        <h1 style={{fontSize:20,fontWeight:700,color:'#111827'}}>Create Invoice</h1>
       </div>
 
       {error && <div style={{background:'#FEF2F2',border:'1px solid #FEE2E2',borderRadius:8,padding:'10px 12px',fontSize:13,color:'#DC2626',marginBottom:16}}>{error}</div>}

@@ -1,61 +1,167 @@
-import { createClient } from '@/lib/supabase/server'
+'use client'
+
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase/client'
 import { formatCurrency } from '@/lib/utils'
 
-export default async function CustomersPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  const { data: workspace } = await supabase.from('workspaces').select('id,currency').eq('created_by', user?.id).single()
-  const { data: customers } = await supabase.from('customers').select('*').eq('workspace_id', workspace?.id || '').order('created_at', { ascending: false })
+const inp: React.CSSProperties = { width:'100%', height:44, padding:'0 12px', borderRadius:8, border:'1px solid #E5E7EB', fontSize:14, color:'#111827', outline:'none', boxSizing:'border-box', background:'white' }
+const lbl: React.CSSProperties = { display:'block', fontSize:13, fontWeight:500, color:'#374151', marginBottom:6 }
+
+export default function CustomersPage() {
+  const supabase = createClient()
+  const [customers, setCustomers] = useState<any[]>([])
+  const [workspace, setWorkspace] = useState<any>(null)
+  const [search, setSearch] = useState('')
+  const [showModal, setShowModal] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
+  const [form, setForm] = useState({ name:'', email:'', phone:'', address:'', notes:'' })
+
+  const load = async () => {
+    const { data: { user } } = await supabase.auth.getUser()
+    const { data: ws } = await supabase.from('workspaces').select('id,currency').eq('created_by', user?.id).single()
+    setWorkspace(ws)
+    if (ws) {
+      const { data } = await supabase.from('customers').select('*').eq('workspace_id', ws.id).order('created_at', { ascending: false })
+      setCustomers(data || [])
+    }
+  }
+
+  useEffect(() => { load() }, [])
+
+  const filtered = customers.filter(c =>
+    c.name?.toLowerCase().includes(search.toLowerCase()) ||
+    c.email?.toLowerCase().includes(search.toLowerCase()) ||
+    c.phone?.includes(search)
+  )
+
+  const handleAdd = async () => {
+    if (!form.name.trim()) { setError('Customer name is required'); return }
+    setSaving(true); setError('')
+    try {
+      const { error: err } = await supabase.from('customers').insert({
+        workspace_id: workspace.id,
+        name: form.name.trim(),
+        email: form.email.trim() || null,
+        phone: form.phone.trim() || null,
+        address: form.address.trim() || null,
+        notes: form.notes.trim() || null,
+        total_spent: 0,
+      })
+      if (err) throw err
+      setForm({ name:'', email:'', phone:'', address:'', notes:'' })
+      setShowModal(false)
+      await load()
+    } catch (e: any) {
+      setError(e.message || 'Could not save customer. Please try again.')
+    } finally {
+      setSaving(false)
+    }
+  }
 
   const currency = workspace?.currency || 'NGN'
 
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:24}}>
-        <h1 style={{fontSize:22,fontWeight:700,color:'#111827'}}>Customers</h1>
-        <button style={{display:'flex',alignItems:'center',gap:6,background:'#7C3AED',color:'white',padding:'10px 18px',borderRadius:10,fontSize:14,fontWeight:600,border:'none',cursor:'pointer'}}>
+      <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:20}}>
+        <h1 style={{fontSize:22, fontWeight:700, color:'var(--text)'}}>Customers</h1>
+        <button onClick={() => { setShowModal(true); setError('') }}
+          style={{display:'flex', alignItems:'center', gap:6, background:'var(--accent)', color:'white', padding:'10px 18px', borderRadius:10, fontSize:14, fontWeight:600, border:'none', cursor:'pointer'}}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
           Add Customer
         </button>
       </div>
 
-      <div style={{background:'white',borderRadius:14,border:'1px solid #F3F4F6',overflow:'hidden'}}>
-        <div style={{padding:'16px 20px',borderBottom:'1px solid #F3F4F6'}}>
+      <div style={{background:'var(--card)', borderRadius:14, border:'1px solid var(--border)', overflow:'hidden'}}>
+        <div style={{padding:'16px 20px', borderBottom:'1px solid var(--border)'}}>
           <div style={{position:'relative'}}>
-            <svg style={{position:'absolute',left:10,top:10}} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-            <input placeholder="Search customers..." style={{width:'100%',height:36,paddingLeft:34,paddingRight:12,borderRadius:8,border:'1px solid #E5E7EB',fontSize:13,outline:'none',boxSizing:'border-box'}} />
+            <svg style={{position:'absolute', left:10, top:10}} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input placeholder="Search customers..." value={search} onChange={e => setSearch(e.target.value)}
+              style={{width:'100%', height:36, paddingLeft:34, paddingRight:12, borderRadius:8, border:'1px solid #E5E7EB', fontSize:13, outline:'none', boxSizing:'border-box', background:'white'}} />
           </div>
         </div>
 
-        {!customers || customers.length === 0 ? (
-          <div style={{padding:'48px 20px',textAlign:'center'}}>
-            <div style={{fontSize:40,marginBottom:12}}>👥</div>
-            <p style={{fontSize:15,fontWeight:600,color:'#111827',marginBottom:4}}>No customers yet</p>
-            <p style={{fontSize:13,color:'#6B7280'}}>Add your first customer to get started</p>
+        {filtered.length === 0 ? (
+          <div style={{padding:'48px 20px', textAlign:'center'}}>
+            <div style={{fontSize:40, marginBottom:12}}>👥</div>
+            <p style={{fontSize:15, fontWeight:600, color:'var(--text)', marginBottom:4}}>{search ? 'No customers found' : 'No customers yet'}</p>
+            <p style={{fontSize:13, color:'var(--text-muted)', marginBottom:16}}>Add your first customer to get started</p>
+            <button onClick={() => setShowModal(true)}
+              style={{background:'var(--accent)', color:'white', padding:'10px 20px', borderRadius:10, fontSize:14, fontWeight:600, border:'none', cursor:'pointer'}}>
+              Add Customer
+            </button>
           </div>
-        ) : customers.map((c: any) => (
+        ) : filtered.map((c: any) => (
           <Link key={c.id} href={`/dashboard/customers/${c.id}`}
-            style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'14px 20px',borderTop:'1px solid #F9FAFB',textDecoration:'none'}}>
-            <div style={{display:'flex',alignItems:'center',gap:12}}>
-              <div style={{width:40,height:40,borderRadius:'50%',background:'#EDE9FE',display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,fontWeight:700,color:'#7C3AED',flexShrink:0}}>
+            style={{display:'flex', alignItems:'center', justifyContent:'space-between', padding:'14px 20px', borderTop:'1px solid var(--border)', textDecoration:'none'}}>
+            <div style={{display:'flex', alignItems:'center', gap:12}}>
+              <div style={{width:40, height:40, borderRadius:'50%', background:'var(--accent-light)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:14, fontWeight:700, color:'var(--accent)', flexShrink:0}}>
                 {c.name[0].toUpperCase()}
               </div>
               <div>
-                <p style={{fontSize:14,fontWeight:500,color:'#111827'}}>{c.name}</p>
-                <p style={{fontSize:12,color:'#9CA3AF'}}>{c.phone || c.email || ''}</p>
+                <p style={{fontSize:14, fontWeight:500, color:'var(--text)'}}>{c.name}</p>
+                <p style={{fontSize:12, color:'var(--text-muted)'}}>{c.phone || c.email || 'No contact info'}</p>
               </div>
             </div>
-            <div style={{display:'flex',alignItems:'center',gap:12}}>
+            <div style={{display:'flex', alignItems:'center', gap:10}}>
               <div style={{textAlign:'right'}}>
-                <p style={{fontSize:11,color:'#9CA3AF'}}>Total Spent</p>
-                <p style={{fontSize:13,fontWeight:600,color:'#111827'}}>{formatCurrency(Number(c.total_spent), currency)}</p>
+                <p style={{fontSize:11, color:'var(--text-muted)'}}>Total Spent</p>
+                <p style={{fontSize:13, fontWeight:600, color:'var(--text)'}}>{formatCurrency(Number(c.total_spent || 0), currency)}</p>
               </div>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" strokeWidth="2" strokeLinecap="round"><path d="M9 18l6-6-6-6"/></svg>
             </div>
           </Link>
         ))}
       </div>
+
+      {/* Add Customer Modal */}
+      {showModal && (
+        <div style={{position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:16}}>
+          <div style={{background:'white', borderRadius:16, padding:'24px', width:'100%', maxWidth:480, maxHeight:'90vh', overflowY:'auto'}}>
+            <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20}}>
+              <h2 style={{fontSize:18, fontWeight:700, color:'#111827'}}>Add Customer</h2>
+              <button onClick={() => setShowModal(false)} style={{background:'none', border:'none', cursor:'pointer', color:'#9CA3AF', fontSize:20, lineHeight:1}}>×</button>
+            </div>
+
+            {error && <div style={{background:'#FEF2F2', border:'1px solid #FEE2E2', borderRadius:8, padding:'10px 12px', fontSize:13, color:'#DC2626', marginBottom:14}}>{error}</div>}
+
+            <div style={{display:'flex', flexDirection:'column', gap:14}}>
+              <div>
+                <label style={lbl}>Full Name <span style={{color:'#EF4444'}}>*</span></label>
+                <input style={inp} placeholder="e.g. Tunde Oladipo" value={form.name} onChange={e => setForm({...form, name:e.target.value})} />
+              </div>
+              <div>
+                <label style={lbl}>Email Address</label>
+                <input type="email" style={inp} placeholder="tunde@example.com" value={form.email} onChange={e => setForm({...form, email:e.target.value})} />
+              </div>
+              <div>
+                <label style={lbl}>Phone Number</label>
+                <input type="tel" style={inp} placeholder="+234 812 345 6789" value={form.phone} onChange={e => setForm({...form, phone:e.target.value})} />
+              </div>
+              <div>
+                <label style={lbl}>Address</label>
+                <input style={inp} placeholder="Lagos, Nigeria" value={form.address} onChange={e => setForm({...form, address:e.target.value})} />
+              </div>
+              <div>
+                <label style={lbl}>Notes</label>
+                <textarea style={{...inp, height:80, paddingTop:10, resize:'none'}} placeholder="Any notes about this customer..." value={form.notes} onChange={e => setForm({...form, notes:e.target.value})} />
+              </div>
+              <div style={{display:'flex', gap:10, marginTop:4}}>
+                <button onClick={() => setShowModal(false)}
+                  style={{flex:1, height:44, background:'white', border:'1px solid #E5E7EB', borderRadius:10, fontSize:14, fontWeight:500, color:'#374151', cursor:'pointer'}}>
+                  Cancel
+                </button>
+                <button onClick={handleAdd} disabled={saving}
+                  style={{flex:2, height:44, background:'#7C3AED', border:'none', borderRadius:10, fontSize:14, fontWeight:600, color:'white', cursor:'pointer', opacity:saving?0.7:1, display:'flex', alignItems:'center', justifyContent:'center', gap:6}}>
+                  {saving && <span style={{width:14, height:14, border:'2px solid white', borderTopColor:'transparent', borderRadius:'50%', display:'inline-block', animation:'spin 0.8s linear infinite'}}/>}
+                  Save Customer
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
