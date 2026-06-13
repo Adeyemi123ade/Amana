@@ -24,31 +24,24 @@ export const updateSession = async (request: NextRequest) => {
   const { data: { user } } = await supabase.auth.getUser()
   const { pathname } = request.nextUrl
 
-  const protectedRoutes = ['/dashboard']
-  const authRoutes = ['/sign-in', '/sign-up', '/forgot-password', '/reset-password', '/verify-email', '/verification', '/registration-success']
-  // Theme page and business-info are onboarding — only check workspace for non-theme pages
-  const onboardingExceptTheme = ['/onboarding/business-information', '/onboarding/identity-verification']
-
-  const isProtected = protectedRoutes.some(r => pathname.startsWith(r))
-  const isAuthRoute = authRoutes.some(r => pathname.startsWith(r))
-  const isOnboardingExceptTheme = onboardingExceptTheme.some(r => pathname.startsWith(r))
-
-  // Not logged in → sign-in
-  if (!user && isProtected) {
+  // 1. Not logged in trying to access dashboard → send to sign-in
+  if (!user && pathname.startsWith('/dashboard')) {
     const url = request.nextUrl.clone()
     url.pathname = '/sign-in'
     return NextResponse.redirect(url)
   }
 
-  // Logged in on auth pages → dashboard
-  if (user && isAuthRoute) {
+  // 2. Not logged in trying to access onboarding → send to sign-up
+  if (!user && pathname.startsWith('/onboarding')) {
     const url = request.nextUrl.clone()
-    url.pathname = '/dashboard'
+    url.pathname = '/sign-up'
     return NextResponse.redirect(url)
   }
 
-  // Logged in on onboarding (not theme picker) → check workspace
-  if (user && isOnboardingExceptTheme) {
+  // 3. Logged-in user visiting /sign-in or /sign-up
+  //    Only redirect to dashboard if they have a COMPLETE setup (workspace + theme chosen)
+  //    Otherwise let them through — they may need to finish onboarding
+  if (user && (pathname === '/sign-in' || pathname === '/sign-up')) {
     const { data: workspace } = await supabase
       .from('workspaces')
       .select('id')
@@ -56,7 +49,25 @@ export const updateSession = async (request: NextRequest) => {
       .single()
 
     if (workspace) {
-      // Has workspace already — skip to theme if they haven't chosen, else dashboard
+      // Account fully set up — send to dashboard
+      const url = request.nextUrl.clone()
+      url.pathname = '/dashboard'
+      return NextResponse.redirect(url)
+    }
+    // No workspace yet — let them through to sign-up/sign-in
+    // They may be mid-onboarding
+  }
+
+  // 4. Logged-in user visiting onboarding/business-information
+  //    If they already have a workspace, skip to theme or dashboard
+  if (user && pathname === '/onboarding/business-information') {
+    const { data: workspace } = await supabase
+      .from('workspaces')
+      .select('id')
+      .eq('created_by', user.id)
+      .single()
+
+    if (workspace) {
       const hasTheme = user.user_metadata?.theme
       const url = request.nextUrl.clone()
       url.pathname = hasTheme ? '/dashboard' : '/onboarding/theme'
