@@ -28,7 +28,7 @@ export function Sidebar({ user }: SidebarProps) {
 
   const fullName = user.user_metadata?.full_name || user.email || 'User'
   const email = user.email || ''
-  const initials = fullName.split(' ').map((n:string) => n[0]).join('').toUpperCase().slice(0,2)
+  const initials = fullName.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
 
   const isActive = (href: string, exact?: boolean) =>
     exact ? pathname === href : pathname.startsWith(href)
@@ -40,48 +40,45 @@ export function Sidebar({ user }: SidebarProps) {
     router.refresh()
   }
 
-  const NavList = ({ onNav }: { onNav?: () => void }) => (
-    <nav style={{flex:1, padding:'12px 12px', overflowY:'auto'}}>
-      {NAV.map(item => {
-        const active = isActive(item.href, item.exact)
-        return (
-          <Link key={item.href} href={item.href} onClick={onNav}
-            style={{display:'flex', alignItems:'center', gap:12, padding:'11px 12px', borderRadius:10, marginBottom:2, textDecoration:'none', background: active ? '#7C3AED' : 'transparent', color: active ? 'white' : '#9CA3AF', fontWeight: active ? 600 : 500, fontSize:14, transition:'all 0.15s'}}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-              <path d={item.icon}/>
-            </svg>
-            {item.label}
-          </Link>
-        )
-      })}
-    </nav>
-  )
-
-  const SidebarContent = ({ onNav }: { onNav?: () => void }) => (
-    <div style={{display:'flex', flexDirection:'column', height:'100%'}}>
+  const NavContent = ({ onNav }: { onNav?: () => void }) => (
+    <div style={{ display:'flex', flexDirection:'column', height:'100%', overflow:'hidden' }}>
       {/* Logo */}
-      <div style={{display:'flex', alignItems:'center', gap:10, padding:'20px 16px 16px', borderBottom:'1px solid rgba(255,255,255,0.08)'}}>
-        <div style={{width:34, height:34, background:'#7C3AED', borderRadius:8, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0}}>
+      <div style={{ display:'flex', alignItems:'center', gap:10, padding:'18px 16px 16px', borderBottom:'1px solid rgba(255,255,255,0.08)', flexShrink:0 }}>
+        <div style={{ width:34, height:34, background:'#7C3AED', borderRadius:8, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z" fill="white"/></svg>
         </div>
-        <span style={{color:'white', fontWeight:700, fontSize:17, letterSpacing:-0.3}}>Amana</span>
+        <span style={{ color:'white', fontWeight:800, fontSize:17, letterSpacing:-0.5 }}>Amana</span>
       </div>
 
-      <NavList onNav={onNav} />
+      {/* Nav */}
+      <nav style={{ flex:1, padding:'10px', overflowY:'auto' }}>
+        {NAV.map(item => {
+          const active = isActive(item.href, item.exact)
+          return (
+            <Link key={item.href} href={item.href} onClick={onNav}
+              style={{ display:'flex', alignItems:'center', gap:11, padding:'11px 12px', borderRadius:10, marginBottom:2, textDecoration:'none', background: active ? '#7C3AED' : 'transparent', color: active ? 'white' : '#9CA3AF', fontWeight: active ? 600 : 400, fontSize:14, transition:'background 0.15s, color 0.15s', whiteSpace:'nowrap' }}>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink:0 }}>
+                <path d={item.icon}/>
+              </svg>
+              {item.label}
+            </Link>
+          )
+        })}
+      </nav>
 
-      {/* User */}
-      <div style={{padding:'12px 16px', borderTop:'1px solid rgba(255,255,255,0.08)'}}>
-        <div style={{display:'flex', alignItems:'center', gap:10}}>
-          <div style={{width:34, height:34, borderRadius:'50%', background:'#7C3AED', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, fontSize:12, fontWeight:700, color:'white'}}>
+      {/* User bottom */}
+      <div style={{ padding:'12px 14px', borderTop:'1px solid rgba(255,255,255,0.08)', flexShrink:0 }}>
+        <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+          <div style={{ width:34, height:34, borderRadius:'50%', background:'#7C3AED', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, fontSize:12, fontWeight:700, color:'white' }}>
             {initials}
           </div>
-          <div style={{flex:1, minWidth:0}}>
-            <p style={{color:'white', fontSize:13, fontWeight:600, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>{fullName}</p>
-            <p style={{color:'#6B7280', fontSize:11, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>{email}</p>
+          <div style={{ flex:1, minWidth:0 }}>
+            <p style={{ color:'white', fontSize:13, fontWeight:600, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{fullName}</p>
+            <p style={{ color:'#6B7280', fontSize:11, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{email}</p>
           </div>
           <button onClick={signOut} disabled={signingOut} title="Sign out"
-            style={{background:'none', border:'none', cursor:'pointer', color:'#6B7280', padding:4, flexShrink:0, opacity:signingOut?0.5:1}}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            style={{ background:'none', border:'none', cursor:'pointer', color:'#6B7280', padding:4, flexShrink:0, opacity:signingOut ? 0.5 : 1 }}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/>
             </svg>
           </button>
@@ -92,41 +89,39 @@ export function Sidebar({ user }: SidebarProps) {
 
   return (
     <>
-      {/* Desktop sidebar - always visible on lg+ */}
-      <aside style={{width:240, flexShrink:0, background:'#111827', height:'100%', display:'none'}} className="lg-sidebar">
-        <SidebarContent />
+      {/* Desktop sidebar — CSS class handles visibility */}
+      <aside className="dashboard-sidebar">
+        <NavContent />
       </aside>
 
-      {/* Mobile hamburger button */}
-      <button onClick={() => setOpen(true)}
-        style={{position:'fixed', top:12, left:12, zIndex:100, width:40, height:40, background:'#111827', border:'none', borderRadius:10, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 2px 8px rgba(0,0,0,0.2)'}}
-        className="mobile-menu-btn">
+      {/* Hamburger — CSS class shows on tablet/mobile */}
+      <button
+        className="mobile-hamburger"
+        onClick={() => setOpen(true)}
+        aria-label="Open navigation"
+      >
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round">
           <path d="M3 12h18M3 6h18M3 18h18"/>
         </svg>
       </button>
 
-      {/* Mobile drawer */}
-      {open && (
-        <div style={{position:'fixed', inset:0, zIndex:200, display:'flex'}}>
-          <div style={{width:260, background:'#111827', height:'100%', display:'flex', flexDirection:'column'}}>
-            <div style={{display:'flex', justifyContent:'flex-end', padding:'12px 12px 0'}}>
-              <button onClick={() => setOpen(false)} style={{background:'none', border:'none', cursor:'pointer', color:'#9CA3AF', padding:4}}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M6 18L18 6M6 6l12 12"/></svg>
-              </button>
-            </div>
-            <SidebarContent onNav={() => setOpen(false)} />
+      {/* Mobile drawer overlay */}
+      <div className={`mobile-drawer-overlay${open ? ' open' : ''}`} onClick={() => setOpen(false)}>
+        <div
+          style={{ width:264, background:'#111827', height:'100%', display:'flex', flexDirection:'column', boxShadow:'4px 0 24px rgba(0,0,0,0.4)' }}
+          onClick={e => e.stopPropagation()}
+        >
+          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'14px 14px 4px' }}>
+            <span style={{ color:'white', fontWeight:800, fontSize:16 }}>Amana</span>
+            <button onClick={() => setOpen(false)} style={{ background:'none', border:'none', cursor:'pointer', color:'#9CA3AF', padding:4 }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <path d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
           </div>
-          <div style={{flex:1, background:'rgba(0,0,0,0.5)'}} onClick={() => setOpen(false)} />
+          <NavContent onNav={() => setOpen(false)} />
         </div>
-      )}
-
-      <style>{`
-        @media (min-width: 1024px) {
-          .lg-sidebar { display: block !important; }
-          .mobile-menu-btn { display: none !important; }
-        }
-      `}</style>
+      </div>
     </>
   )
 }
