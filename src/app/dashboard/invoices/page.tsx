@@ -51,10 +51,7 @@ export default async function InvoicesPage() {
               <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/>
             </svg>
             <p style={{fontSize:15,fontWeight:600,color:'#111827',marginBottom:4}}>No invoices yet</p>
-            <p style={{fontSize:13,color:'#6B7280',marginBottom:20}}>Create your first invoice to get started</p>
-            <Link href="/dashboard/invoices/create" style={{background:'#7C3AED',color:'white',padding:'10px 24px',borderRadius:10,fontSize:14,fontWeight:600,textDecoration:'none'}}>
-              Create Invoice
-            </Link>
+            <p style={{fontSize:13,color:'#6B7280'}}>Click the Create Invoice button above to get started</p>
           </div>
         ) : (
           <div>

@@ -86,11 +86,7 @@ export default function CustomersPage() {
           <div style={{padding:'48px 20px', textAlign:'center'}}>
             <div style={{fontSize:40, marginBottom:12}}>👥</div>
             <p style={{fontSize:15, fontWeight:600, color:'var(--text)', marginBottom:4}}>{search ? 'No customers found' : 'No customers yet'}</p>
-            <p style={{fontSize:13, color:'var(--text-muted)', marginBottom:16}}>Add your first customer to get started</p>
-            <button onClick={() => setShowModal(true)}
-              style={{background:'var(--accent)', color:'white', padding:'10px 20px', borderRadius:10, fontSize:14, fontWeight:600, border:'none', cursor:'pointer'}}>
-              Add Customer
-            </button>
+            <p style={{fontSize:13, color:'var(--text-muted)'}}>{search ? 'Try a different search term' : 'Click the Add Customer button above to get started'}</p>
           </div>
         ) : filtered.map((c: any) => (
           <Link key={c.id} href={`/dashboard/customers/${c.id}`}

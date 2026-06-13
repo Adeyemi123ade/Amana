@@ -137,11 +137,8 @@ export default function AppointmentsPage() {
             {selectedAppts.length === 0 ? (
               <div style={{textAlign:'center', padding:'32px 0'}}>
                 <div style={{fontSize:36, marginBottom:8}}>📅</div>
-                <p style={{fontSize:14, color:'var(--text-muted)', marginBottom:12}}>No appointments this day</p>
-                <button onClick={() => { setShowModal(true); setForm(f => ({...f, date: selectedDateStr})) }}
-                  style={{background:'var(--accent-light)', color:'var(--accent)', border:'none', borderRadius:8, padding:'8px 16px', fontSize:13, fontWeight:600, cursor:'pointer'}}>
-                  + Add Appointment
-                </button>
+                <p style={{fontSize:14, color:'var(--text-muted)'}}>No appointments this day</p>
+                <p style={{fontSize:12, color:'var(--text-muted)', marginTop:4}}>Click New Appointment above to add one</p>
               </div>
             ) : selectedAppts.map((a: any) => (
               <div key={a.id} style={{display:'flex', alignItems:'center', gap:12, padding:'12px', borderRadius:10, background:'var(--bg-secondary)', marginBottom:8}}>
