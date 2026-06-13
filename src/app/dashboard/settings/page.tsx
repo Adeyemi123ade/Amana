@@ -262,7 +262,20 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          <SaveBtn onClick={saveBusiness} saving={savingBusiness} label="Save Business Profile" />
+          <button
+            onClick={saveBusiness}
+            disabled={savingBusiness}
+            style={{
+              height:48, padding:'0 28px', background:'#7C3AED', color:'white',
+              border:'none', borderRadius:10, fontSize:14, fontWeight:600,
+              cursor: savingBusiness ? 'not-allowed' : 'pointer',
+              opacity: savingBusiness ? 0.7 : 1,
+              display:'flex', alignItems:'center', gap:8,
+            }}
+          >
+            {savingBusiness && <span style={{width:14, height:14, border:'2px solid white', borderTopColor:'transparent', borderRadius:'50%', display:'inline-block', animation:'spin 0.8s linear infinite'}}/>}
+            {savingBusiness ? 'Saving...' : 'Save Business Profile'}
+          </button>
         </div>
       )}
     </div>
@@ -293,7 +306,14 @@ export default function SettingsPage() {
           <label style={lbl}>Country</label>
           <input style={inp} value={profile.country} onChange={e => setProfile({...profile, country:e.target.value})} placeholder="Nigeria" />
         </div>
-        <SaveBtn onClick={saveProfile} saving={savingProfile} />
+        <button
+          onClick={saveProfile}
+          disabled={savingProfile}
+          style={{height:48, padding:'0 28px', background:'#7C3AED', color:'white', border:'none', borderRadius:10, fontSize:14, fontWeight:600, cursor:savingProfile?'not-allowed':'pointer', opacity:savingProfile?0.7:1, display:'flex', alignItems:'center', gap:8}}
+        >
+          {savingProfile && <span style={{width:14, height:14, border:'2px solid white', borderTopColor:'transparent', borderRadius:'50%', display:'inline-block', animation:'spin 0.8s linear infinite'}}/>}
+          {savingProfile ? 'Saving...' : 'Save Profile'}
+        </button>
       </div>
     </div>
   )
@@ -331,7 +351,14 @@ export default function SettingsPage() {
             </div>
           ))}
         </div>
-        <SaveBtn onClick={savePassword} saving={savingPassword} label="Change Password" />
+        <button
+          onClick={savePassword}
+          disabled={savingPassword}
+          style={{height:48, padding:'0 28px', background:'#7C3AED', color:'white', border:'none', borderRadius:10, fontSize:14, fontWeight:600, cursor:savingPassword?'not-allowed':'pointer', opacity:savingPassword?0.7:1, display:'flex', alignItems:'center', gap:8}}
+        >
+          {savingPassword && <span style={{width:14, height:14, border:'2px solid white', borderTopColor:'transparent', borderRadius:'50%', display:'inline-block', animation:'spin 0.8s linear infinite'}}/>}
+          {savingPassword ? 'Saving...' : 'Change Password'}
+        </button>
       </div>
     </div>
   )
