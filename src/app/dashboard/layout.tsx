@@ -12,26 +12,38 @@ export default async function DashboardLayout({ children }: { children: ReactNod
 
   if (error || !user) redirect('/sign-in')
 
-  // Get name from users table if metadata empty
+  // Get workspace to use business name as primary identity
+  const { data: workspace } = await supabase
+    .from('workspaces')
+    .select('name, business_type')
+    .eq('created_by', user.id)
+    .maybeSingle()
+
+  // Get personal name as fallback
   let fullName = user.user_metadata?.full_name || ''
   if (!fullName) {
     const { data: profile } = await supabase
       .from('users')
       .select('full_name')
       .eq('supabase_id', user.id)
-      .single()
+      .maybeSingle()
     if (profile?.full_name) fullName = profile.full_name
   }
+
+  // Business name is primary — used in sidebar and greeting
+  // Falls back to personal name if no workspace yet
+  const displayName = workspace?.name || fullName || user.email || 'User'
 
   const enrichedUser = {
     ...user,
     user_metadata: {
       ...user.user_metadata,
       full_name: fullName || user.email,
+      business_name: workspace?.name || '',
+      display_name: displayName,
     }
   }
 
-  // Get saved theme from user metadata
   const savedTheme = (user.user_metadata?.theme as ThemeId) || 'light'
 
   return (

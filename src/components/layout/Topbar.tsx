@@ -30,7 +30,8 @@ export function Topbar({ user }: TopbarProps) {
   }, [])
 
   const fullName = user.user_metadata?.full_name || user.email || 'User'
-  const firstName = displayName || fullName.split(' ')[0]
+  const businessName = user.user_metadata?.business_name || ''
+  const greetingName = businessName || fullName.split(' ')[0]
   const initials = fullName.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
   const hour = new Date().getHours()
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening'
@@ -84,7 +85,7 @@ export function Topbar({ user }: TopbarProps) {
       {/* Greeting — shows real user name */}
       <div style={{ minWidth: 0, flex: 1 }}>
         <p style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-          {greeting}, {firstName} 👋
+          {greeting}, {greetingName} 👋
         </p>
         <p className="topbar-subtitle" style={{ fontSize: 12, color: 'var(--text-muted)' }}>
           Here's what's happening with your business today.

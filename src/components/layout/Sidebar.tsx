@@ -28,6 +28,8 @@ export function Sidebar({ user }: SidebarProps) {
 
   const fullName = user.user_metadata?.full_name || user.email || 'User'
   const email = user.email || ''
+  // Business name shows as primary identity — personal name as secondary
+  const businessName = user.user_metadata?.business_name || fullName
   const initials = fullName.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
 
   const isActive = (href: string, exact?: boolean) =>
@@ -73,8 +75,8 @@ export function Sidebar({ user }: SidebarProps) {
             {initials}
           </div>
           <div style={{ flex:1, minWidth:0 }}>
-            <p style={{ color:'white', fontSize:13, fontWeight:600, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{fullName}</p>
-            <p style={{ color:'#6B7280', fontSize:11, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{email}</p>
+            <p style={{ color:'white', fontSize:13, fontWeight:600, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{businessName || fullName}</p>
+            <p style={{ color:'#6B7280', fontSize:11, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{businessName ? fullName : email}</p>
           </div>
           <button onClick={signOut} disabled={signingOut} title="Sign out"
             style={{ background:'none', border:'none', cursor:'pointer', color:'#6B7280', padding:4, flexShrink:0, opacity:signingOut ? 0.5 : 1 }}>
