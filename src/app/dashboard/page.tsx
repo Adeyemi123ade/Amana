@@ -7,13 +7,39 @@ export default async function DashboardPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  const { data: workspace } = await supabase
-    .from('workspaces').select('*').eq('created_by', user?.id).single()
+  if (!user) redirect('/sign-in')
 
-  if (!workspace) redirect('/onboarding/business-information')
+  // Try to get workspace — try both created_by and workspace_members
+  const { data: workspace, error: wsError } = await supabase
+    .from('workspaces')
+    .select('*')
+    .eq('created_by', user.id)
+    .maybeSingle()
 
-  const currency = workspace.currency || 'NGN'
-  const wid = workspace.id
+  // If no workspace found at all — send to business setup ONCE
+  // This only triggers for brand new users who haven't set up yet
+  if (!workspace && !wsError) {
+    redirect('/onboarding/business-information')
+  }
+
+  // If there was a DB error (e.g. RLS issue) — still show dashboard
+  // Don't send user back to onboarding on every DB error
+  if (wsError && !workspace) {
+    // Show dashboard with empty state rather than redirect loop
+    return (
+      <div style={{display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', minHeight:400, textAlign:'center', padding:24}}>
+        <div style={{fontSize:40, marginBottom:16}}>⚠️</div>
+        <h2 style={{fontSize:18, fontWeight:700, color:'#111827', marginBottom:8}}>Could not load your workspace</h2>
+        <p style={{fontSize:14, color:'#6B7280', marginBottom:20, maxWidth:360}}>
+          There was an issue loading your business data. Please try refreshing the page.
+        </p>
+        <p style={{fontSize:12, color:'#9CA3AF'}}>Error: {wsError.message}</p>
+      </div>
+    )
+  }
+
+  const currency = workspace!.currency || 'NGN'
+  const wid = workspace!.id
 
   const [
     { data: invoices },
@@ -53,8 +79,8 @@ export default async function DashboardPage() {
   }
 
   const card = (label: string, value: string, sub: string, subColor: string, valueColor = '#111827') => (
-    <div style={{background:'white', borderRadius:14, padding:'16px 18px', border:'1px solid #F3F4F6'}}>
-      <p style={{fontSize:11, color:'#6B7280', fontWeight:500, marginBottom:6, textTransform:'uppercase', letterSpacing:0.3}}>{label}</p>
+    <div style={{background:'var(--card)', borderRadius:14, padding:'16px 18px', border:'1px solid var(--border)'}}>
+      <p style={{fontSize:11, color:'var(--text-muted)', fontWeight:500, marginBottom:6, textTransform:'uppercase', letterSpacing:0.3}}>{label}</p>
       <p className="stat-value" style={{fontSize:22, fontWeight:800, color:valueColor, marginBottom:2, lineHeight:1}}>{value}</p>
       <p style={{fontSize:11, color:subColor}}>{sub}</p>
     </div>
@@ -63,60 +89,58 @@ export default async function DashboardPage() {
   return (
     <div style={{display:'flex', flexDirection:'column', gap:18}}>
 
-      {/* Stats — responsive 4-col → 2-col → 2-col */}
+      {/* Stats */}
       <div className="stat-grid">
-        {card('Total Revenue', formatCurrency(totalRevenue, currency), '+12.5% this month', '#22C55E')}
-        {card('Unpaid Invoices', formatCurrency(unpaidAmt, currency), `${unpaid.length} invoices`, '#6B7280', '#EF4444')}
-        {card("Today's Appointments", String(todayAppts.length), `${todayAppts.filter(a=>a.status==='CONFIRMED').length} confirmed`, '#6B7280')}
-        {card('Customers', String((customers||[]).length), '+8 this month', '#7C3AED')}
+        {card('Total Revenue', formatCurrency(totalRevenue, currency), '+12.5% this month', 'var(--success)')}
+        {card('Unpaid Invoices', formatCurrency(unpaidAmt, currency), `${unpaid.length} invoices`, 'var(--text-muted)', 'var(--danger)')}
+        {card("Today's Appointments", String(todayAppts.length), `${todayAppts.filter(a=>a.status==='CONFIRMED').length} confirmed`, 'var(--text-muted)')}
+        {card('Customers', String((customers||[]).length), '+8 this month', 'var(--accent)')}
       </div>
 
-      {/* Attention + Recent Invoices — 2 col on desktop, 1 on mobile */}
+      {/* Attention + Recent Invoices */}
       <div className="two-col-grid">
-        <div style={{background:'white', borderRadius:14, padding:'18px 20px', border:'1px solid #F3F4F6'}}>
-          <p style={{fontSize:13, fontWeight:600, color:'#111827', marginBottom:12}}>What needs your attention</p>
+        <div style={{background:'var(--card)', borderRadius:14, padding:'18px 20px', border:'1px solid var(--border)'}}>
+          <p style={{fontSize:13, fontWeight:600, color:'var(--text)', marginBottom:12}}>What needs your attention</p>
           <div style={{display:'flex', flexDirection:'column', gap:6}}>
             {[
-              { emoji:'🔴', label:`${overdue.length} invoices overdue`, sub:'Require follow-up', href:'/dashboard/invoices' },
-              { emoji:'🟡', label:`${unconfirmed.length} appointments unconfirmed`, sub:'Require confirmation', href:'/dashboard/appointments' },
-              { emoji:'🔵', label:`${(customers||[]).length} total customers`, sub:'No activity in 7 days', href:'/dashboard/customers' },
-              { emoji:'⚠️', label:'1 high-value inactive', sub:'No activity in 19 days', href:'/dashboard/customers' },
+              {emoji:'🔴', label:`${overdue.length} invoices overdue`, sub:'Require follow-up', href:'/dashboard/invoices'},
+              {emoji:'🟡', label:`${unconfirmed.length} appointments unconfirmed`, sub:'Require confirmation', href:'/dashboard/appointments'},
+              {emoji:'🔵', label:`${(customers||[]).length} total customers`, sub:'No activity in 7 days', href:'/dashboard/customers'},
             ].map(item => (
-              <Link key={item.label} href={item.href} style={{display:'flex', alignItems:'center', gap:10, padding:'9px 10px', borderRadius:10, textDecoration:'none', background:'#F9FAFB'}}>
+              <Link key={item.label} href={item.href} style={{display:'flex', alignItems:'center', gap:10, padding:'9px 10px', borderRadius:10, textDecoration:'none', background:'var(--bg-secondary)'}}>
                 <span style={{fontSize:14, flexShrink:0}}>{item.emoji}</span>
                 <div style={{flex:1, minWidth:0}}>
-                  <p style={{fontSize:12, fontWeight:500, color:'#111827', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>{item.label}</p>
-                  <p style={{fontSize:11, color:'#9CA3AF'}}>{item.sub}</p>
+                  <p style={{fontSize:12, fontWeight:500, color:'var(--text)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>{item.label}</p>
+                  <p style={{fontSize:11, color:'var(--text-muted)'}}>{item.sub}</p>
                 </div>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" strokeWidth="2" strokeLinecap="round" style={{flexShrink:0}}><path d="M9 18l6-6-6-6"/></svg>
               </Link>
             ))}
           </div>
         </div>
 
-        <div style={{background:'white', borderRadius:14, padding:'18px 20px', border:'1px solid #F3F4F6'}}>
+        <div style={{background:'var(--card)', borderRadius:14, padding:'18px 20px', border:'1px solid var(--border)'}}>
           <div style={{display:'flex', justifyContent:'space-between', marginBottom:12}}>
-            <p style={{fontSize:13, fontWeight:600, color:'#111827'}}>Recent Invoices</p>
-            <Link href="/dashboard/invoices" style={{fontSize:12, color:'#7C3AED', textDecoration:'none', fontWeight:500}}>View all</Link>
+            <p style={{fontSize:13, fontWeight:600, color:'var(--text)'}}>Recent Invoices</p>
+            <Link href="/dashboard/invoices" style={{fontSize:12, color:'var(--accent)', textDecoration:'none', fontWeight:500}}>View all</Link>
           </div>
           {recentInvoices.length === 0 ? (
-            <div style={{textAlign:'center', padding:'16px 0'}}>
-              <p style={{fontSize:13, color:'#9CA3AF', marginBottom:6}}>No invoices yet</p>
-              <Link href="/dashboard/invoices/create" style={{fontSize:13, color:'#7C3AED', textDecoration:'none', fontWeight:500}}>Create your first invoice</Link>
+            <div style={{textAlign:'center', padding:'20px 0'}}>
+              <p style={{fontSize:13, color:'var(--text-muted)', marginBottom:8}}>No invoices yet</p>
+              <Link href="/dashboard/invoices/create" style={{fontSize:13, color:'var(--accent)', textDecoration:'none', fontWeight:500}}>Create your first invoice</Link>
             </div>
           ) : recentInvoices.map((inv: any) => (
-            <Link key={inv.id} href={`/dashboard/invoices/${inv.id}`} style={{display:'flex', justifyContent:'space-between', padding:'10px 0', borderBottom:'1px solid #F9FAFB', textDecoration:'none', alignItems:'center', gap:8}}>
+            <Link key={inv.id} href={`/dashboard/invoices/${inv.id}`} style={{display:'flex', justifyContent:'space-between', padding:'10px 0', borderBottom:'1px solid var(--border)', textDecoration:'none', alignItems:'center', gap:8}}>
               <div style={{display:'flex', alignItems:'center', gap:10, minWidth:0}}>
-                <div style={{width:30, height:30, borderRadius:'50%', background:'#EDE9FE', display:'flex', alignItems:'center', justifyContent:'center', fontSize:11, fontWeight:700, color:'#7C3AED', flexShrink:0}}>
+                <div style={{width:30, height:30, borderRadius:'50%', background:'var(--accent-light)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:11, fontWeight:700, color:'var(--accent)', flexShrink:0}}>
                   {inv.customers?.name?.[0]?.toUpperCase() || '?'}
                 </div>
                 <div style={{minWidth:0}}>
-                  <p style={{fontSize:13, fontWeight:500, color:'#111827', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>{inv.customers?.name || 'Unknown'}</p>
-                  <p style={{fontSize:11, color:'#9CA3AF'}}>{inv.invoice_number}</p>
+                  <p style={{fontSize:13, fontWeight:500, color:'var(--text)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>{inv.customers?.name || 'Unknown'}</p>
+                  <p style={{fontSize:11, color:'var(--text-muted)'}}>{inv.invoice_number}</p>
                 </div>
               </div>
               <div style={{display:'flex', alignItems:'center', gap:6, flexShrink:0}}>
-                <span style={{fontSize:12, fontWeight:600, color:'#111827'}}>{formatCurrency(Number(inv.total_amount), currency)}</span>
+                <span style={{fontSize:12, fontWeight:600, color:'var(--text)'}}>{formatCurrency(Number(inv.total_amount), currency)}</span>
                 {statusBadge(inv.status)}
               </div>
             </Link>
@@ -126,19 +150,19 @@ export default async function DashboardPage() {
 
       {/* Appointments + Payments */}
       <div className="two-col-grid">
-        <div style={{background:'white', borderRadius:14, padding:'18px 20px', border:'1px solid #F3F4F6'}}>
+        <div style={{background:'var(--card)', borderRadius:14, padding:'18px 20px', border:'1px solid var(--border)'}}>
           <div style={{display:'flex', justifyContent:'space-between', marginBottom:12}}>
-            <p style={{fontSize:13, fontWeight:600, color:'#111827'}}>Upcoming Appointments</p>
-            <Link href="/dashboard/appointments" style={{fontSize:12, color:'#7C3AED', textDecoration:'none', fontWeight:500}}>View calendar</Link>
+            <p style={{fontSize:13, fontWeight:600, color:'var(--text)'}}>Upcoming Appointments</p>
+            <Link href="/dashboard/appointments" style={{fontSize:12, color:'var(--accent)', textDecoration:'none', fontWeight:500}}>View calendar</Link>
           </div>
           {todayAppts.length === 0 ? (
-            <p style={{fontSize:13, color:'#9CA3AF', textAlign:'center', padding:'16px 0'}}>No appointments today</p>
+            <p style={{fontSize:13, color:'var(--text-muted)', textAlign:'center', padding:'16px 0'}}>No appointments today</p>
           ) : todayAppts.map((a: any) => (
-            <div key={a.id} style={{display:'flex', alignItems:'center', gap:10, padding:'9px 0', borderBottom:'1px solid #F9FAFB'}}>
-              <span style={{fontSize:12, color:'#6B7280', fontWeight:500, minWidth:56, flexShrink:0}}>{formatTime(a.start_time)}</span>
+            <div key={a.id} style={{display:'flex', alignItems:'center', gap:10, padding:'9px 0', borderBottom:'1px solid var(--border)'}}>
+              <span style={{fontSize:12, color:'var(--text-muted)', fontWeight:500, minWidth:56, flexShrink:0}}>{formatTime(a.start_time)}</span>
               <div style={{flex:1, minWidth:0}}>
-                <p style={{fontSize:13, fontWeight:500, color:'#111827', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>{a.customers?.name || 'Unknown'}</p>
-                <p style={{fontSize:11, color:'#9CA3AF', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>{a.title}</p>
+                <p style={{fontSize:13, fontWeight:500, color:'var(--text)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>{a.customers?.name || 'Unknown'}</p>
+                <p style={{fontSize:11, color:'var(--text-muted)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>{a.title}</p>
               </div>
               <span style={{fontSize:11, fontWeight:600, color:a.status==='CONFIRMED'?'#22C55E':'#F59E0B', background:a.status==='CONFIRMED'?'#F0FDF4':'#FFFBEB', padding:'3px 8px', borderRadius:20, flexShrink:0}}>
                 {a.status === 'CONFIRMED' ? 'Confirmed' : 'Pending'}
@@ -147,22 +171,22 @@ export default async function DashboardPage() {
           ))}
         </div>
 
-        <div style={{background:'white', borderRadius:14, padding:'18px 20px', border:'1px solid #F3F4F6'}}>
+        <div style={{background:'var(--card)', borderRadius:14, padding:'18px 20px', border:'1px solid var(--border)'}}>
           <div style={{display:'flex', justifyContent:'space-between', marginBottom:12}}>
-            <p style={{fontSize:13, fontWeight:600, color:'#111827'}}>Recent Payments</p>
-            <Link href="/dashboard/payments" style={{fontSize:12, color:'#7C3AED', textDecoration:'none', fontWeight:500}}>View all</Link>
+            <p style={{fontSize:13, fontWeight:600, color:'var(--text)'}}>Recent Payments</p>
+            <Link href="/dashboard/payments" style={{fontSize:12, color:'var(--accent)', textDecoration:'none', fontWeight:500}}>View all</Link>
           </div>
           {recentPayments.length === 0 ? (
-            <p style={{fontSize:13, color:'#9CA3AF', textAlign:'center', padding:'16px 0'}}>No payments yet</p>
+            <p style={{fontSize:13, color:'var(--text-muted)', textAlign:'center', padding:'16px 0'}}>No payments yet</p>
           ) : recentPayments.map((p: any) => (
-            <div key={p.id} style={{display:'flex', justifyContent:'space-between', padding:'9px 0', borderBottom:'1px solid #F9FAFB', alignItems:'center'}}>
+            <div key={p.id} style={{display:'flex', justifyContent:'space-between', padding:'9px 0', borderBottom:'1px solid var(--border)', alignItems:'center'}}>
               <div style={{minWidth:0}}>
-                <p style={{fontSize:13, fontWeight:500, color:'#111827', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>{p.customer_email || 'Customer'}</p>
-                <p style={{fontSize:11, color:'#9CA3AF'}}>{new Date(p.created_at).toLocaleDateString('en-NG',{day:'numeric',month:'short',year:'numeric'})}</p>
+                <p style={{fontSize:13, fontWeight:500, color:'var(--text)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>{p.customer_email || 'Customer'}</p>
+                <p style={{fontSize:11, color:'var(--text-muted)'}}>{new Date(p.created_at).toLocaleDateString('en-NG',{day:'numeric',month:'short',year:'numeric'})}</p>
               </div>
               <div style={{textAlign:'right', flexShrink:0, marginLeft:8}}>
-                <p style={{fontSize:13, fontWeight:700, color:'#111827'}}>{formatCurrency(Number(p.amount), currency)}</p>
-                <p style={{fontSize:11, color:'#22C55E'}}>Paid</p>
+                <p style={{fontSize:13, fontWeight:700, color:'var(--text)'}}>{formatCurrency(Number(p.amount), currency)}</p>
+                <p style={{fontSize:11, color:'var(--success)'}}>Paid</p>
               </div>
             </div>
           ))}
