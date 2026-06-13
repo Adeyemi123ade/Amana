@@ -102,7 +102,7 @@ export default function SignUpPage() {
 
       if (authData.session) {
         // Auto-confirmed (email confirmation disabled in Supabase)
-        router.push('/onboarding/identity-verification')
+        router.push('/onboarding/business-information')
         return
       }
 

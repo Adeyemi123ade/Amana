@@ -306,3 +306,60 @@ button, a, [role="button"] {
     overflow: visible;
   }
 }
+
+/* ── THEME CSS VARIABLES (default: Professional Light) ── */
+:root {
+  --bg: #F9FAFB;
+  --bg-secondary: #F3F4F6;
+  --card: #FFFFFF;
+  --card-hover: #FAFAFA;
+  --sidebar: #111827;
+  --sidebar-active: #7C3AED;
+  --sidebar-text: #9CA3AF;
+  --sidebar-subtext: #6B7280;
+  --accent: #7C3AED;
+  --accent-hover: #6D28D9;
+  --accent-light: #EDE9FE;
+  --text: #111827;
+  --text-secondary: #374151;
+  --text-muted: #6B7280;
+  --border: #F3F4F6;
+  --border-light: #E5E7EB;
+  --topbar: #FFFFFF;
+  --success: #22C55E;
+  --danger: #EF4444;
+  --warning: #F59E0B;
+}
+
+/* Apply theme vars to dashboard elements */
+body {
+  background-color: var(--bg);
+  color: var(--text);
+}
+
+.dashboard-root {
+  background: var(--bg);
+}
+
+.dashboard-sidebar {
+  background: var(--sidebar) !important;
+}
+
+.dashboard-topbar {
+  background: var(--topbar) !important;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.dashboard-content {
+  background: var(--bg);
+}
+
+/* Theme transition — smooth color changes */
+*, *::before, *::after {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+/* Disable transition for animations */
+.no-transition, .no-transition * {
+  transition: none !important;
+}

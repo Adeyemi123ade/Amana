@@ -49,7 +49,7 @@ export default function VerifyEmailPage() {
     try {
       const { error } = await supabase.auth.verifyOtp({ email, token: code, type: 'signup' })
       if (error) { setError(error.message.includes('expired') ? 'Code expired. Request a new one.' : 'Incorrect code. Please try again.'); setOtp(['','','','','','']); document.getElementById('o0')?.focus(); return }
-      router.push('/onboarding/identity-verification')
+      router.push('/onboarding/business-information')
     } catch { setError('Something went wrong.') }
     finally { setIsVerifying(false) }
   }

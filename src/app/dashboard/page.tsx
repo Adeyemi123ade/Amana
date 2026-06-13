@@ -10,7 +10,7 @@ export default async function DashboardPage() {
   const { data: workspace } = await supabase
     .from('workspaces').select('*').eq('created_by', user?.id).single()
 
-  if (!workspace) redirect('/onboarding/identity-verification')
+  if (!workspace) redirect('/onboarding/business-information')
 
   const currency = workspace.currency || 'NGN'
   const wid = workspace.id

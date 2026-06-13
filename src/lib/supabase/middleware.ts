@@ -26,29 +26,29 @@ export const updateSession = async (request: NextRequest) => {
 
   const protectedRoutes = ['/dashboard']
   const authRoutes = ['/sign-in', '/sign-up', '/forgot-password', '/reset-password', '/verify-email', '/verification', '/registration-success']
-  const onboardingRoutes = ['/onboarding']
+  // Theme page and business-info are onboarding — only check workspace for non-theme pages
+  const onboardingExceptTheme = ['/onboarding/business-information', '/onboarding/identity-verification']
 
   const isProtected = protectedRoutes.some(r => pathname.startsWith(r))
   const isAuthRoute = authRoutes.some(r => pathname.startsWith(r))
-  const isOnboarding = onboardingRoutes.some(r => pathname.startsWith(r))
+  const isOnboardingExceptTheme = onboardingExceptTheme.some(r => pathname.startsWith(r))
 
-  // Not logged in trying to access dashboard → go to sign-in
+  // Not logged in → sign-in
   if (!user && isProtected) {
     const url = request.nextUrl.clone()
     url.pathname = '/sign-in'
     return NextResponse.redirect(url)
   }
 
-  // Logged in trying to access auth pages → go to dashboard
+  // Logged in on auth pages → dashboard
   if (user && isAuthRoute) {
     const url = request.nextUrl.clone()
     url.pathname = '/dashboard'
     return NextResponse.redirect(url)
   }
 
-  // Logged in on onboarding → check if they already have a workspace
-  // If they do, redirect to dashboard — do NOT show setup again
-  if (user && isOnboarding) {
+  // Logged in on onboarding (not theme picker) → check workspace
+  if (user && isOnboardingExceptTheme) {
     const { data: workspace } = await supabase
       .from('workspaces')
       .select('id')
@@ -56,8 +56,10 @@ export const updateSession = async (request: NextRequest) => {
       .single()
 
     if (workspace) {
+      // Has workspace already — skip to theme if they haven't chosen, else dashboard
+      const hasTheme = user.user_metadata?.theme
       const url = request.nextUrl.clone()
-      url.pathname = '/dashboard'
+      url.pathname = hasTheme ? '/dashboard' : '/onboarding/theme'
       return NextResponse.redirect(url)
     }
   }

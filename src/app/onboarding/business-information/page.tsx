@@ -51,7 +51,7 @@ export default function BusinessInformationPage() {
       })
       if (error) throw new Error(error.message)
       await supabase.auth.updateUser({ data: { onboarding_complete: true } })
-      router.push('/registration-success')
+      router.push('/onboarding/theme')
     } catch (e: any) {
       setServerError(e.message || 'We could not save your business details. Please try again.')
     } finally {
