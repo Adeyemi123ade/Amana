@@ -8,10 +8,26 @@ export default async function DashboardPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/sign-in')
 
-  const { data: workspace } = await supabase
+  const { data: workspace, error: wsError } = await supabase
     .from('workspaces').select('*').eq('created_by', user.id).maybeSingle()
 
-  if (!workspace) redirect('/onboarding/business-information')
+  // Only redirect to business setup if we are 100% certain no workspace exists
+  // If there is a DB error, do NOT redirect — show dashboard with empty state instead
+  // This prevents the business info page appearing repeatedly due to RLS or network issues
+  if (!wsError && !workspace) redirect('/onboarding/business-information')
+
+  // If DB error occurred but we have no workspace data, show empty dashboard
+  // rather than sending user to business setup again
+  if (!workspace) {
+    return (
+      <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',minHeight:400,textAlign:'center',padding:24}}>
+        <div style={{fontSize:40,marginBottom:12}}>🔄</div>
+        <p style={{fontSize:16,fontWeight:600,color:'var(--text)',marginBottom:8}}>Loading your workspace</p>
+        <p style={{fontSize:13,color:'var(--text-muted)',marginBottom:16}}>Please refresh the page if this takes too long.</p>
+        <a href="/dashboard" style={{background:'var(--accent)',color:'white',padding:'10px 20px',borderRadius:10,fontSize:14,fontWeight:600,textDecoration:'none'}}>Refresh</a>
+      </div>
+    )
+  }
 
   const currency = workspace.currency || 'NGN'
   const wid = workspace.id

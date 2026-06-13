@@ -24,28 +24,45 @@ export const updateSession = async (request: NextRequest) => {
   const { data: { user } } = await supabase.auth.getUser()
   const { pathname } = request.nextUrl
 
-  // Rule 1: Not logged in + trying to access dashboard → go to sign-in
+  // Not logged in → sign-in
   if (!user && pathname.startsWith('/dashboard')) {
     const url = request.nextUrl.clone()
     url.pathname = '/sign-in'
     return NextResponse.redirect(url)
   }
 
-  // Rule 2: Not logged in + trying to access onboarding → go to sign-up
+  // Not logged in → sign-up
   if (!user && pathname.startsWith('/onboarding')) {
     const url = request.nextUrl.clone()
     url.pathname = '/sign-up'
     return NextResponse.redirect(url)
   }
 
-  // Rule 3: Logged in + on sign-in or sign-up page → go to dashboard
-  // Simple and direct. Dashboard page itself handles the workspace check.
+  // Logged in on sign-in or sign-up → dashboard
   if (user && (pathname === '/sign-in' || pathname === '/sign-up')) {
     const url = request.nextUrl.clone()
     url.pathname = '/dashboard'
     return NextResponse.redirect(url)
   }
 
-  // Everything else — let it through
+  // CRITICAL: Logged in user visiting onboarding/business-information
+  // Check if they already have a workspace — if yes, send to dashboard
+  // This prevents the business info page from appearing again after setup
+  if (user && pathname === '/onboarding/business-information') {
+    const { data: workspace, error } = await supabase
+      .from('workspaces')
+      .select('id')
+      .eq('created_by', user.id)
+      .maybeSingle()
+
+    // Only redirect if we CONFIRMED a workspace exists (no error, has data)
+    if (!error && workspace) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/dashboard'
+      return NextResponse.redirect(url)
+    }
+    // If error or no workspace — let them through to fill business info
+  }
+
   return supabaseResponse
 }
