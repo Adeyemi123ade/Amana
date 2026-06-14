@@ -36,8 +36,9 @@ export default function CreateInvoicePage() {
   }, [])
 
   const ws = wsRef.current || workspace
-  const currency = ws?.currency || 'NGN'
-  const currencySymbol = { NGN:'₦', USD:'$', GBP:'£', EUR:'€', GHS:'GH₵', KES:'KSh', ZAR:'R', AED:'AED', SAR:'SAR', CAD:'CA$', AUD:'A$', INR:'₹' }[currency] || currency
+  const currency = (ws?.currency || 'NGN') as string
+  const symbolMap: Record<string, string> = { NGN:'₦', USD:'$', GBP:'£', EUR:'€', GHS:'GH₵', KES:'KSh', ZAR:'R', AED:'AED', SAR:'SAR', CAD:'CA$', AUD:'A$', INR:'₹' }
+  const currencySymbol = symbolMap[currency] || currency
   const total = items.reduce((s, i) => s + (parseFloat(i.amount) || 0), 0)
 
   const handleSubmit = async (status: 'DRAFT' | 'UNPAID') => {
