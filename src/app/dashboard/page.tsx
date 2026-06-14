@@ -11,20 +11,23 @@ export default async function DashboardPage() {
   const { data: workspace, error: wsError } = await supabase
     .from('workspaces').select('*').eq('created_by', user.id).maybeSingle()
 
-  // Only redirect to business setup if we are 100% certain no workspace exists
-  // If there is a DB error, do NOT redirect — show dashboard with empty state instead
-  // This prevents the business info page appearing repeatedly due to RLS or network issues
-  if (!wsError && !workspace) redirect('/onboarding/business-information')
+  // No workspace at all — new user needs to complete onboarding
+  if (!wsError && !workspace) {
+    redirect('/onboarding/business-information')
+  }
 
-  // If DB error occurred but we have no workspace data, show empty dashboard
-  // rather than sending user to business setup again
-  if (!workspace) {
+  // DB error fetching workspace — show friendly message, do NOT redirect to onboarding
+  if (wsError || !workspace) {
     return (
-      <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',minHeight:400,textAlign:'center',padding:24}}>
-        <div style={{fontSize:40,marginBottom:12}}>🔄</div>
-        <p style={{fontSize:16,fontWeight:600,color:'var(--text)',marginBottom:8}}>Loading your workspace</p>
-        <p style={{fontSize:13,color:'var(--text-muted)',marginBottom:16}}>Please refresh the page if this takes too long.</p>
-        <a href="/dashboard" style={{background:'var(--accent)',color:'white',padding:'10px 20px',borderRadius:10,fontSize:14,fontWeight:600,textDecoration:'none'}}>Refresh</a>
+      <div style={{display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', minHeight:400, textAlign:'center', padding:32}}>
+        <div style={{fontSize:48, marginBottom:16}}>⚠️</div>
+        <p style={{fontSize:18, fontWeight:700, color:'var(--text)', marginBottom:8}}>We could not load your workspace</p>
+        <p style={{fontSize:14, color:'var(--text-muted)', marginBottom:20, maxWidth:360}}>
+          Please refresh the page. If this keeps happening, contact support.
+        </p>
+        <a href="/dashboard" style={{background:'var(--accent)', color:'white', padding:'12px 24px', borderRadius:10, fontSize:14, fontWeight:600, textDecoration:'none'}}>
+          Refresh Page
+        </a>
       </div>
     )
   }
@@ -59,152 +62,106 @@ export default async function DashboardPage() {
       OVERDUE:['#EF4444','#FEF2F2'], DRAFT:['#6B7280','#F9FAFB'],
     }
     const [color, bg] = map[status] || ['#6B7280','#F9FAFB']
-    return <span style={{fontSize:11,fontWeight:600,color,background:bg,padding:'3px 9px',borderRadius:20,flexShrink:0}}>{status.charAt(0)+status.slice(1).toLowerCase()}</span>
+    return <span style={{fontSize:11, fontWeight:600, color, background:bg, padding:'3px 9px', borderRadius:20, flexShrink:0}}>{status.charAt(0)+status.slice(1).toLowerCase()}</span>
   }
 
-  const emptyCard = (icon: string, title: string, sub: string, href: string, btnLabel: string) => (
-    <div style={{textAlign:'center',padding:'28px 20px'}}>
-      <div style={{fontSize:32,marginBottom:10}}>{icon}</div>
-      <p style={{fontSize:14,fontWeight:600,color:'var(--text)',marginBottom:4}}>{title}</p>
-      <p style={{fontSize:12,color:'var(--text-muted)',marginBottom:14}}>{sub}</p>
-      <Link href={href} style={{background:'var(--accent)',color:'white',padding:'8px 16px',borderRadius:8,fontSize:13,fontWeight:600,textDecoration:'none',display:'inline-block'}}>{btnLabel}</Link>
+  const card = (label: string, value: string, sub: string, subColor: string, valueColor = 'var(--text)') => (
+    <div style={{background:'var(--card)', borderRadius:14, padding:'16px 18px', border:'1px solid var(--border)'}}>
+      <p style={{fontSize:11, color:'var(--text-muted)', fontWeight:500, marginBottom:6, textTransform:'uppercase', letterSpacing:0.3}}>{label}</p>
+      <p className="stat-value" style={{fontSize:22, fontWeight:800, color:valueColor, marginBottom:2}}>{value}</p>
+      <p style={{fontSize:11, color:subColor}}>{sub}</p>
+    </div>
+  )
+
+  const empty = (icon: string, title: string, sub: string) => (
+    <div style={{textAlign:'center', padding:'24px 0'}}>
+      <div style={{fontSize:32, marginBottom:8}}>{icon}</div>
+      <p style={{fontSize:13, fontWeight:500, color:'var(--text)', marginBottom:4}}>{title}</p>
+      <p style={{fontSize:12, color:'var(--text-muted)'}}>{sub}</p>
     </div>
   )
 
   return (
-    <div style={{display:'flex',flexDirection:'column',gap:18}}>
-
-      {/* Stats */}
+    <div style={{display:'flex', flexDirection:'column', gap:18}}>
       <div className="stat-grid">
-        {[
-          {label:'Total Revenue', value: totalRevenue > 0 ? formatCurrency(totalRevenue,currency) : '—', sub: totalRevenue > 0 ? '+12.5% this month' : 'No payments yet', subColor:'var(--success)', valueColor:'var(--text)'},
-          {label:'Unpaid Invoices', value: unpaidAmt > 0 ? formatCurrency(unpaidAmt,currency) : '—', sub: unpaid.length > 0 ? `${unpaid.length} invoices pending` : 'All invoices paid', subColor:'var(--text-muted)', valueColor: unpaidAmt > 0 ? 'var(--danger)' : 'var(--text)'},
-          {label:"Today's Appointments", value: String(todayAppts.length || 0), sub: todayAppts.length > 0 ? `${todayAppts.filter(a=>a.status==='CONFIRMED').length} confirmed` : 'No appointments today', subColor:'var(--text-muted)', valueColor:'var(--text)'},
-          {label:'Customers', value: String((customers||[]).length || 0), sub: (customers||[]).length > 0 ? `${(customers||[]).length} total` : 'No customers yet', subColor:'var(--accent)', valueColor:'var(--text)'},
-        ].map(card => (
-          <div key={card.label} style={{background:'var(--card)',borderRadius:14,padding:'16px 18px',border:'1px solid var(--border)'}}>
-            <p style={{fontSize:11,color:'var(--text-muted)',fontWeight:500,marginBottom:6,textTransform:'uppercase',letterSpacing:0.3}}>{card.label}</p>
-            <p className="stat-value" style={{fontSize:22,fontWeight:800,color:card.valueColor,marginBottom:2,lineHeight:1}}>{card.value}</p>
-            <p style={{fontSize:11,color:card.subColor}}>{card.sub}</p>
-          </div>
-        ))}
+        {card('Total Revenue', totalRevenue > 0 ? formatCurrency(totalRevenue,currency) : '—', totalRevenue > 0 ? '+12.5% this month' : 'No payments yet', 'var(--success)')}
+        {card('Unpaid Invoices', unpaidAmt > 0 ? formatCurrency(unpaidAmt,currency) : '—', unpaid.length > 0 ? `${unpaid.length} invoices pending` : 'All invoices paid', 'var(--text-muted)', unpaidAmt > 0 ? 'var(--danger)' : 'var(--text)')}
+        {card("Today's Appointments", String(todayAppts.length), todayAppts.length > 0 ? `${todayAppts.filter(a=>a.status==='CONFIRMED').length} confirmed` : 'No appointments today', 'var(--text-muted)')}
+        {card('Customers', String((customers||[]).length), (customers||[]).length > 0 ? `${(customers||[]).length} total` : 'No customers yet', 'var(--accent)')}
       </div>
 
-      {/* Attention + Recent Invoices */}
       <div className="two-col-grid">
-        <div style={{background:'var(--card)',borderRadius:14,padding:'18px 20px',border:'1px solid var(--border)'}}>
-          <p style={{fontSize:13,fontWeight:600,color:'var(--text)',marginBottom:12}}>What needs your attention</p>
-          {overdue.length === 0 && todayAppts.length === 0 && (invoices||[]).length === 0 ? (
-            <div style={{textAlign:'center',padding:'24px 0'}}>
-              <div style={{fontSize:32,marginBottom:8}}>✅</div>
-              <p style={{fontSize:13,fontWeight:500,color:'var(--text)',marginBottom:4}}>You are all caught up</p>
-              <p style={{fontSize:12,color:'var(--text-muted)'}}>Nothing needs your attention right now</p>
+        <div style={{background:'var(--card)', borderRadius:14, padding:'18px 20px', border:'1px solid var(--border)'}}>
+          <p style={{fontSize:13, fontWeight:600, color:'var(--text)', marginBottom:12}}>What needs your attention</p>
+          {overdue.length === 0 && unpaid.length === 0 && todayAppts.length === 0 ? (
+            <div style={{textAlign:'center', padding:'20px 0'}}>
+              <div style={{fontSize:28, marginBottom:6}}>✅</div>
+              <p style={{fontSize:13, fontWeight:500, color:'var(--text)'}}>You are all caught up</p>
+              <p style={{fontSize:12, color:'var(--text-muted)', marginTop:4}}>Nothing needs your attention right now</p>
             </div>
           ) : (
-            <div style={{display:'flex',flexDirection:'column',gap:6}}>
-              {overdue.length > 0 && (
-                <Link href="/dashboard/invoices" style={{display:'flex',alignItems:'center',gap:10,padding:'9px 10px',borderRadius:10,textDecoration:'none',background:'var(--bg-secondary)'}}>
-                  <span style={{fontSize:14,flexShrink:0}}>🔴</span>
-                  <div style={{flex:1,minWidth:0}}>
-                    <p style={{fontSize:12,fontWeight:500,color:'var(--text)'}}>{overdue.length} invoice{overdue.length>1?'s':''} overdue</p>
-                    <p style={{fontSize:11,color:'var(--text-muted)'}}>Customers have not paid yet</p>
-                  </div>
-                </Link>
-              )}
-              {todayAppts.length > 0 && (
-                <Link href="/dashboard/appointments" style={{display:'flex',alignItems:'center',gap:10,padding:'9px 10px',borderRadius:10,textDecoration:'none',background:'var(--bg-secondary)'}}>
-                  <span style={{fontSize:14,flexShrink:0}}>📅</span>
-                  <div style={{flex:1,minWidth:0}}>
-                    <p style={{fontSize:12,fontWeight:500,color:'var(--text)'}}>{todayAppts.length} appointment{todayAppts.length>1?'s':''} today</p>
-                    <p style={{fontSize:11,color:'var(--text-muted)'}}>View your schedule</p>
-                  </div>
-                </Link>
-              )}
-              {unpaid.length > 0 && (
-                <Link href="/dashboard/invoices" style={{display:'flex',alignItems:'center',gap:10,padding:'9px 10px',borderRadius:10,textDecoration:'none',background:'var(--bg-secondary)'}}>
-                  <span style={{fontSize:14,flexShrink:0}}>🟡</span>
-                  <div style={{flex:1,minWidth:0}}>
-                    <p style={{fontSize:12,fontWeight:500,color:'var(--text)'}}>{unpaid.length} invoice{unpaid.length>1?'s':''} waiting for payment</p>
-                    <p style={{fontSize:11,color:'var(--text-muted)'}}>Send reminders to customers</p>
-                  </div>
-                </Link>
-              )}
+            <div style={{display:'flex', flexDirection:'column', gap:6}}>
+              {overdue.length > 0 && <Link href="/dashboard/invoices" style={{display:'flex', alignItems:'center', gap:10, padding:'9px 10px', borderRadius:10, textDecoration:'none', background:'var(--bg-secondary)'}}>
+                <span>🔴</span>
+                <div><p style={{fontSize:12, fontWeight:500, color:'var(--text)'}}>{overdue.length} invoice{overdue.length>1?'s':''} overdue</p><p style={{fontSize:11, color:'var(--text-muted)'}}>Customers have not paid yet</p></div>
+              </Link>}
+              {unpaid.length > 0 && <Link href="/dashboard/invoices" style={{display:'flex', alignItems:'center', gap:10, padding:'9px 10px', borderRadius:10, textDecoration:'none', background:'var(--bg-secondary)'}}>
+                <span>🟡</span>
+                <div><p style={{fontSize:12, fontWeight:500, color:'var(--text)'}}>{unpaid.length} invoice{unpaid.length>1?'s':''} waiting for payment</p><p style={{fontSize:11, color:'var(--text-muted)'}}>Send reminders to customers</p></div>
+              </Link>}
+              {todayAppts.length > 0 && <Link href="/dashboard/appointments" style={{display:'flex', alignItems:'center', gap:10, padding:'9px 10px', borderRadius:10, textDecoration:'none', background:'var(--bg-secondary)'}}>
+                <span>📅</span>
+                <div><p style={{fontSize:12, fontWeight:500, color:'var(--text)'}}>{todayAppts.length} appointment{todayAppts.length>1?'s':''} today</p><p style={{fontSize:11, color:'var(--text-muted)'}}>View your schedule</p></div>
+              </Link>}
             </div>
           )}
         </div>
 
-        <div style={{background:'var(--card)',borderRadius:14,padding:'18px 20px',border:'1px solid var(--border)'}}>
-          <div style={{display:'flex',justifyContent:'space-between',marginBottom:12}}>
-            <p style={{fontSize:13,fontWeight:600,color:'var(--text)'}}>Recent Invoices</p>
-            <Link href="/dashboard/invoices" style={{fontSize:12,color:'var(--accent)',textDecoration:'none',fontWeight:500}}>View all</Link>
+        <div style={{background:'var(--card)', borderRadius:14, padding:'18px 20px', border:'1px solid var(--border)'}}>
+          <div style={{display:'flex', justifyContent:'space-between', marginBottom:12}}>
+            <p style={{fontSize:13, fontWeight:600, color:'var(--text)'}}>Recent Invoices</p>
+            <Link href="/dashboard/invoices" style={{fontSize:12, color:'var(--accent)', textDecoration:'none', fontWeight:500}}>View all</Link>
           </div>
-          {recentInvoices.length === 0
-            ? emptyCard('📄','No invoices yet','Your invoices will appear here once you create them','/dashboard/invoices/create','Create Invoice')
-            : recentInvoices.map((inv: any) => (
-              <Link key={inv.id} href={`/dashboard/invoices/${inv.id}`} style={{display:'flex',justifyContent:'space-between',padding:'10px 0',borderBottom:'1px solid var(--border)',textDecoration:'none',alignItems:'center',gap:8}}>
-                <div style={{display:'flex',alignItems:'center',gap:10,minWidth:0}}>
-                  <div style={{width:30,height:30,borderRadius:'50%',background:'var(--accent-light)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,color:'var(--accent)',flexShrink:0}}>
-                    {inv.customers?.name?.[0]?.toUpperCase()||'?'}
-                  </div>
-                  <div style={{minWidth:0}}>
-                    <p style={{fontSize:13,fontWeight:500,color:'var(--text)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{inv.customers?.name||'Unknown'}</p>
-                    <p style={{fontSize:11,color:'var(--text-muted)'}}>{inv.invoice_number}</p>
-                  </div>
-                </div>
-                <div style={{display:'flex',alignItems:'center',gap:6,flexShrink:0}}>
-                  <span style={{fontSize:12,fontWeight:600,color:'var(--text)'}}>{formatCurrency(Number(inv.total_amount),currency)}</span>
-                  {statusBadge(inv.status)}
-                </div>
-              </Link>
-            ))}
+          {recentInvoices.length === 0 ? empty('📄','No invoices yet','Create your first invoice to get started') : recentInvoices.map((inv:any) => (
+            <Link key={inv.id} href={`/dashboard/invoices/${inv.id}`} style={{display:'flex', justifyContent:'space-between', padding:'9px 0', borderBottom:'1px solid var(--border)', textDecoration:'none', alignItems:'center', gap:8}}>
+              <div style={{display:'flex', alignItems:'center', gap:10, minWidth:0}}>
+                <div style={{width:28, height:28, borderRadius:'50%', background:'var(--accent-light)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:11, fontWeight:700, color:'var(--accent)', flexShrink:0}}>{inv.customers?.name?.[0]?.toUpperCase()||'?'}</div>
+                <div style={{minWidth:0}}><p style={{fontSize:13, fontWeight:500, color:'var(--text)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>{inv.customers?.name||'Unknown'}</p><p style={{fontSize:11, color:'var(--text-muted)'}}>{inv.invoice_number}</p></div>
+              </div>
+              <div style={{display:'flex', alignItems:'center', gap:6, flexShrink:0}}><span style={{fontSize:12, fontWeight:600, color:'var(--text)'}}>{formatCurrency(Number(inv.total_amount),currency)}</span>{statusBadge(inv.status)}</div>
+            </Link>
+          ))}
         </div>
       </div>
 
-      {/* Appointments + Payments */}
       <div className="two-col-grid">
-        <div style={{background:'var(--card)',borderRadius:14,padding:'18px 20px',border:'1px solid var(--border)'}}>
-          <div style={{display:'flex',justifyContent:'space-between',marginBottom:12}}>
-            <p style={{fontSize:13,fontWeight:600,color:'var(--text)'}}>Upcoming Appointments</p>
-            <Link href="/dashboard/appointments" style={{fontSize:12,color:'var(--accent)',textDecoration:'none',fontWeight:500}}>View calendar</Link>
+        <div style={{background:'var(--card)', borderRadius:14, padding:'18px 20px', border:'1px solid var(--border)'}}>
+          <div style={{display:'flex', justifyContent:'space-between', marginBottom:12}}>
+            <p style={{fontSize:13, fontWeight:600, color:'var(--text)'}}>Upcoming Appointments</p>
+            <Link href="/dashboard/appointments" style={{fontSize:12, color:'var(--accent)', textDecoration:'none', fontWeight:500}}>View calendar</Link>
           </div>
-          {todayAppts.length === 0
-            ? emptyCard('📅','No appointments today','Your appointments will appear here','/dashboard/appointments','Schedule Appointment')
-            : todayAppts.map((a: any) => (
-              <div key={a.id} style={{display:'flex',alignItems:'center',gap:10,padding:'9px 0',borderBottom:'1px solid var(--border)'}}>
-                <span style={{fontSize:12,color:'var(--text-muted)',fontWeight:500,minWidth:56,flexShrink:0}}>{formatTime(a.start_time)}</span>
-                <div style={{flex:1,minWidth:0}}>
-                  <p style={{fontSize:13,fontWeight:500,color:'var(--text)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{a.customers?.name||'Unknown'}</p>
-                  <p style={{fontSize:11,color:'var(--text-muted)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{a.title}</p>
-                </div>
-                <span style={{fontSize:11,fontWeight:600,color:a.status==='CONFIRMED'?'#22C55E':'#F59E0B',background:a.status==='CONFIRMED'?'#F0FDF4':'#FFFBEB',padding:'3px 8px',borderRadius:20,flexShrink:0}}>
-                  {a.status==='CONFIRMED'?'Confirmed':'Pending'}
-                </span>
-              </div>
-            ))}
+          {todayAppts.length === 0 ? empty('📅','No appointments today','Click Appointments to schedule one') : todayAppts.map((a:any) => (
+            <div key={a.id} style={{display:'flex', alignItems:'center', gap:10, padding:'9px 0', borderBottom:'1px solid var(--border)'}}>
+              <span style={{fontSize:12, color:'var(--text-muted)', fontWeight:500, minWidth:56, flexShrink:0}}>{formatTime(a.start_time)}</span>
+              <div style={{flex:1, minWidth:0}}><p style={{fontSize:13, fontWeight:500, color:'var(--text)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>{a.customers?.name||'Unknown'}</p><p style={{fontSize:11, color:'var(--text-muted)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>{a.title}</p></div>
+              <span style={{fontSize:11, fontWeight:600, padding:'3px 8px', borderRadius:20, flexShrink:0, color:a.status==='CONFIRMED'?'#22C55E':'#F59E0B', background:a.status==='CONFIRMED'?'#F0FDF4':'#FFFBEB'}}>{a.status==='CONFIRMED'?'Confirmed':'Pending'}</span>
+            </div>
+          ))}
         </div>
 
-        <div style={{background:'var(--card)',borderRadius:14,padding:'18px 20px',border:'1px solid var(--border)'}}>
-          <div style={{display:'flex',justifyContent:'space-between',marginBottom:12}}>
-            <p style={{fontSize:13,fontWeight:600,color:'var(--text)'}}>Recent Payments</p>
-            <Link href="/dashboard/payments" style={{fontSize:12,color:'var(--accent)',textDecoration:'none',fontWeight:500}}>View all</Link>
+        <div style={{background:'var(--card)', borderRadius:14, padding:'18px 20px', border:'1px solid var(--border)'}}>
+          <div style={{display:'flex', justifyContent:'space-between', marginBottom:12}}>
+            <p style={{fontSize:13, fontWeight:600, color:'var(--text)'}}>Recent Payments</p>
+            <Link href="/dashboard/payments" style={{fontSize:12, color:'var(--accent)', textDecoration:'none', fontWeight:500}}>View all</Link>
           </div>
-          {recentPayments.length === 0
-            ? emptyCard('💳','No payments yet','Payments will appear here once customers pay','/dashboard/invoices/create','Create Invoice')
-            : recentPayments.map((p: any) => (
-              <div key={p.id} style={{display:'flex',justifyContent:'space-between',padding:'9px 0',borderBottom:'1px solid var(--border)',alignItems:'center'}}>
-                <div style={{minWidth:0}}>
-                  <p style={{fontSize:13,fontWeight:500,color:'var(--text)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{p.customer_email||'Customer'}</p>
-                  <p style={{fontSize:11,color:'var(--text-muted)'}}>{new Date(p.created_at).toLocaleDateString('en-NG',{day:'numeric',month:'short',year:'numeric'})}</p>
-                </div>
-                <div style={{textAlign:'right',flexShrink:0,marginLeft:8}}>
-                  <p style={{fontSize:13,fontWeight:700,color:'var(--text)'}}>{formatCurrency(Number(p.amount),currency)}</p>
-                  <p style={{fontSize:11,color:'var(--success)'}}>Paid</p>
-                </div>
-              </div>
-            ))}
+          {recentPayments.length === 0 ? empty('💳','No payments yet','Payments appear here once received') : recentPayments.map((p:any) => (
+            <div key={p.id} style={{display:'flex', justifyContent:'space-between', padding:'9px 0', borderBottom:'1px solid var(--border)', alignItems:'center'}}>
+              <div style={{minWidth:0}}><p style={{fontSize:13, fontWeight:500, color:'var(--text)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>{p.customer_email||'Customer'}</p><p style={{fontSize:11, color:'var(--text-muted)'}}>{new Date(p.created_at).toLocaleDateString('en-NG',{day:'numeric',month:'short',year:'numeric'})}</p></div>
+              <div style={{textAlign:'right', flexShrink:0, marginLeft:8}}><p style={{fontSize:13, fontWeight:700, color:'var(--text)'}}>{formatCurrency(Number(p.amount),currency)}</p><p style={{fontSize:11, color:'#22C55E'}}>Paid</p></div>
+            </div>
+          ))}
         </div>
       </div>
-
     </div>
   )
 }

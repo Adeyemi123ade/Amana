@@ -24,44 +24,39 @@ export const updateSession = async (request: NextRequest) => {
   const { data: { user } } = await supabase.auth.getUser()
   const { pathname } = request.nextUrl
 
-  // Not logged in → sign-in
+  // 1. Not logged in → sign-in (for dashboard)
   if (!user && pathname.startsWith('/dashboard')) {
     const url = request.nextUrl.clone()
     url.pathname = '/sign-in'
     return NextResponse.redirect(url)
   }
 
-  // Not logged in → sign-up
+  // 2. Not logged in → sign-up (for onboarding)
   if (!user && pathname.startsWith('/onboarding')) {
     const url = request.nextUrl.clone()
     url.pathname = '/sign-up'
     return NextResponse.redirect(url)
   }
 
-  // Logged in on sign-in or sign-up → dashboard
+  // 3. Logged in on sign-in or sign-up → dashboard
+  //    Dashboard will check if onboarding is needed and redirect there if so
   if (user && (pathname === '/sign-in' || pathname === '/sign-up')) {
     const url = request.nextUrl.clone()
     url.pathname = '/dashboard'
     return NextResponse.redirect(url)
   }
 
-  // CRITICAL: Logged in user visiting onboarding/business-information
-  // Check if they already have a workspace — if yes, send to dashboard
-  // This prevents the business info page from appearing again after setup
+  // 4. Logged in, visiting onboarding/business-information
+  //    Only redirect away if workspace CONFIRMED exists
   if (user && pathname === '/onboarding/business-information') {
-    const { data: workspace, error } = await supabase
-      .from('workspaces')
-      .select('id')
-      .eq('created_by', user.id)
-      .maybeSingle()
-
-    // Only redirect if we CONFIRMED a workspace exists (no error, has data)
-    if (!error && workspace) {
+    const { data: ws, error } = await supabase
+      .from('workspaces').select('id').eq('created_by', user.id).maybeSingle()
+    if (!error && ws) {
       const url = request.nextUrl.clone()
       url.pathname = '/dashboard'
       return NextResponse.redirect(url)
     }
-    // If error or no workspace — let them through to fill business info
+    // No workspace or error → let them through to complete setup
   }
 
   return supabaseResponse

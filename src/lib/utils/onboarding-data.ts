@@ -1,0 +1,91 @@
+export const BUSINESS_TYPES = [
+  'Freelancer','Consultant','Artisan','Agency','Startup','Small Business',
+  'Investor','NGO','Educational Institution','Healthcare Provider',
+  'Retail Business','Manufacturing','Real Estate','Food & Catering',
+  'Events & Planning','Transportation','Construction','Agriculture',
+  'Media & PR','Technology','Fashion & Clothing','Photography',
+  'Videography','Hair & Beauty','Coaching & Training','Legal Services','Other',
+]
+
+export const BUSINESS_TITLES = [
+  'Product Manager','Software Developer','Graphic Designer','Fashion Designer',
+  'Accountant','Lawyer','Tutor','Photographer','Videographer','Digital Marketer',
+  'Restaurant Owner','Contractor','Mechanic','Electrician','Architect',
+  'Consultant','Doctor','Nurse','Pharmacist','Dentist','Therapist',
+  'Interior Designer','Makeup Artist','Hair Stylist','Barber','Tailor',
+  'Caterer','Event Planner','Musician','DJ','Actor','Content Creator',
+  'Real Estate Agent','Insurance Agent','Financial Advisor','Coach',
+  'Teacher','Lecturer','Engineer','Data Analyst','UI/UX Designer',
+  'Copywriter','Translator','Driver','Logistics Manager','Farmer','Other',
+]
+
+export const CURRENCIES = [
+  {code:'NGN',label:'Nigerian Naira (₦)'},
+  {code:'USD',label:'US Dollar ($)'},
+  {code:'GBP',label:'British Pound (£)'},
+  {code:'EUR',label:'Euro (€)'},
+  {code:'GHS',label:'Ghanaian Cedi (GH₵)'},
+  {code:'KES',label:'Kenyan Shilling (KSh)'},
+  {code:'ZAR',label:'South African Rand (R)'},
+  {code:'AED',label:'UAE Dirham (AED)'},
+  {code:'SAR',label:'Saudi Riyal (SAR)'},
+  {code:'CAD',label:'Canadian Dollar (CA$)'},
+  {code:'AUD',label:'Australian Dollar (A$)'},
+  {code:'INR',label:'Indian Rupee (₹)'},
+  {code:'EGP',label:'Egyptian Pound (EGP)'},
+  {code:'MAD',label:'Moroccan Dirham (MAD)'},
+  {code:'XOF',label:'West African CFA Franc (XOF)'},
+]
+
+export const COUNTRY_CURRENCY_MAP: Record<string,string> = {
+  NG:'NGN',US:'USD',GB:'GBP',GH:'GHS',KE:'KES',ZA:'ZAR',
+  AE:'AED',SA:'SAR',CA:'CAD',AU:'AUD',IN:'INR',EG:'EGP',MA:'MAD',
+}
+
+export const COUNTRY_BANKS: Record<string, string[]> = {
+  NG: ['Access Bank','GTBank (Guaranty Trust Bank)','Zenith Bank','First Bank of Nigeria',
+       'UBA (United Bank for Africa)','OPay','Fidelity Bank','Stanbic IBTC Bank',
+       'Wema Bank','Moniepoint','Kuda Bank','Palmpay','Polaris Bank',
+       'Sterling Bank','Union Bank','Ecobank Nigeria','FCMB','Keystone Bank'],
+  AE: ['Emirates NBD','ADCB (Abu Dhabi Commercial Bank)','FAB (First Abu Dhabi Bank)',
+       'Mashreq Bank','RAK Bank','Dubai Islamic Bank','ENBD','Citibank UAE',
+       'HSBC UAE','Standard Chartered UAE'],
+  GB: ['Barclays','HSBC UK','Lloyds Bank','NatWest','Santander UK','Halifax',
+       'Nationwide','Monzo','Revolut','Starling Bank'],
+  US: ['Chase','Bank of America','Wells Fargo','Citibank','US Bank',
+       'Goldman Sachs','Capital One','TD Bank','PNC Bank','Ally Bank'],
+  GH: ['GCB Bank','Ecobank Ghana','Absa Bank Ghana','Zenith Bank Ghana',
+       'MTN Mobile Money','Vodafone Cash','AirtelTigo Money','Fidelity Bank Ghana'],
+  KE: ['KCB Bank','Equity Bank','Co-operative Bank','Standard Chartered Kenya',
+       'Absa Bank Kenya','NCBA Bank','M-Pesa','Safaricom','I&M Bank'],
+  ZA: ['Standard Bank','FNB (First National Bank)','Absa','Nedbank',
+       'Capitec Bank','Investec','African Bank','TymeBank'],
+  DEFAULT: ['Local Bank','Commercial Bank','Savings Bank','Cooperative Bank','Other'],
+}
+
+export const COUNTRY_STATES: Record<string, string[]> = {
+  NG: ['Abia','Adamawa','Akwa Ibom','Anambra','Bauchi','Bayelsa','Benue','Borno',
+       'Cross River','Delta','Ebonyi','Edo','Ekiti','Enugu','FCT (Abuja)',
+       'Gombe','Imo','Jigawa','Kaduna','Kano','Katsina','Kebbi','Kogi',
+       'Kwara','Lagos','Nasarawa','Niger','Ogun','Ondo','Osun','Oyo',
+       'Plateau','Rivers','Sokoto','Taraba','Yobe','Zamfara'],
+  GH: ['Ashanti','Brong-Ahafo','Central','Eastern','Greater Accra',
+       'Northern','Upper East','Upper West','Volta','Western'],
+  KE: ['Nairobi','Mombasa','Kisumu','Nakuru','Eldoret','Thika','Malindi',
+       'Kitale','Garissa','Kakamega'],
+  ZA: ['Eastern Cape','Free State','Gauteng','KwaZulu-Natal','Limpopo',
+       'Mpumalanga','North West','Northern Cape','Western Cape'],
+  AE: ['Abu Dhabi','Dubai','Sharjah','Ajman','Ras Al Khaimah','Fujairah','Umm Al Quwain'],
+  US: ['Alabama','Alaska','Arizona','Arkansas','California','Colorado',
+       'Connecticut','Delaware','Florida','Georgia','Hawaii','Idaho',
+       'Illinois','Indiana','Iowa','Kansas','Kentucky','Louisiana',
+       'Maine','Maryland','Massachusetts','Michigan','Minnesota',
+       'Mississippi','Missouri','Montana','Nebraska','Nevada',
+       'New Hampshire','New Jersey','New Mexico','New York',
+       'North Carolina','North Dakota','Ohio','Oklahoma','Oregon',
+       'Pennsylvania','Rhode Island','South Carolina','South Dakota',
+       'Tennessee','Texas','Utah','Vermont','Virginia','Washington',
+       'West Virginia','Wisconsin','Wyoming'],
+  GB: ['England','Scotland','Wales','Northern Ireland'],
+  DEFAULT: [],
+}
