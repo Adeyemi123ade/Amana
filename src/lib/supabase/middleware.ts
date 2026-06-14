@@ -24,39 +24,38 @@ export const updateSession = async (request: NextRequest) => {
   const { data: { user } } = await supabase.auth.getUser()
   const { pathname } = request.nextUrl
 
-  // 1. Not logged in → sign-in (for dashboard)
+  // Not logged in → sign-in (for dashboard/onboarding)
   if (!user && pathname.startsWith('/dashboard')) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/sign-in'
-    return NextResponse.redirect(url)
+    return NextResponse.redirect(new URL('/sign-in', request.url))
   }
-
-  // 2. Not logged in → sign-up (for onboarding)
   if (!user && pathname.startsWith('/onboarding')) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/sign-up'
-    return NextResponse.redirect(url)
+    return NextResponse.redirect(new URL('/sign-up', request.url))
   }
 
-  // 3. Logged in on sign-in or sign-up → dashboard
-  //    Dashboard will check if onboarding is needed and redirect there if so
+  // Logged in but email NOT verified → send to verify page
+  // (except if already on verify-email or API routes)
+  if (user && user.user_metadata?.email_verified === false) {
+    if (pathname.startsWith('/dashboard') || pathname.startsWith('/onboarding')) {
+      return NextResponse.redirect(new URL('/verify-email', request.url))
+    }
+  }
+
+  // Logged in on sign-in/sign-up → dashboard
   if (user && (pathname === '/sign-in' || pathname === '/sign-up')) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/dashboard'
-    return NextResponse.redirect(url)
+    // If email not verified, go to verify page
+    if (user.user_metadata?.email_verified === false) {
+      return NextResponse.redirect(new URL('/verify-email', request.url))
+    }
+    return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
-  // 4. Logged in, visiting onboarding/business-information
-  //    Only redirect away if workspace CONFIRMED exists
+  // Logged in, on onboarding, but workspace exists → dashboard
   if (user && pathname === '/onboarding/business-information') {
     const { data: ws, error } = await supabase
       .from('workspaces').select('id').eq('created_by', user.id).maybeSingle()
     if (!error && ws) {
-      const url = request.nextUrl.clone()
-      url.pathname = '/dashboard'
-      return NextResponse.redirect(url)
+      return NextResponse.redirect(new URL('/dashboard', request.url))
     }
-    // No workspace or error → let them through to complete setup
   }
 
   return supabaseResponse
