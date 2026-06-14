@@ -19,25 +19,33 @@ export default function AppointmentsPage() {
   const [appointments, setAppointments] = useState<any[]>([])
   const [customers, setCustomers] = useState<any[]>([])
   const [workspace, setWorkspace] = useState<any>(null)
+  const [user, setUser] = useState<any>(null)
   const wsRef = useRef<any>(null)
   const [showModal, setShowModal] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const [savedAppt, setSavedAppt] = useState<any>(null)
+  const [copied, setCopied] = useState(false)
+  const [sendingEmail, setSendingEmail] = useState(false)
+  const [emailSent, setEmailSent] = useState(false)
   const [form, setForm] = useState({
-    customerId:'', title:'', date:'', time:'', duration:'60', location:'', notes:'', status:'CONFIRMED'
+    customerId:'', title:'', date:'', time:'', duration:'60',
+    location:'', notes:'', status:'CONFIRMED'
   })
 
+  const selectedCustomer = customers.find(c => c.id === form.customerId)
+
   const load = async () => {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
-    const { data: ws, error: wsErr } = await supabase
-      .from('workspaces').select('id').eq('created_by', user.id).maybeSingle()
-    if (wsErr || !ws) return
+    const { data: { user: u } } = await supabase.auth.getUser()
+    if (!u) return
+    setUser(u)
+    const { data: ws } = await supabase.from('workspaces').select('*').eq('created_by', u.id).maybeSingle()
+    if (!ws) return
     setWorkspace(ws)
     wsRef.current = ws
     const [{ data: appts }, { data: custs }] = await Promise.all([
-      supabase.from('appointments').select('*, customers(name)').eq('workspace_id', ws.id).order('start_time', { ascending: true }),
-      supabase.from('customers').select('id,name').eq('workspace_id', ws.id),
+      supabase.from('appointments').select('*, customers(name,email)').eq('workspace_id', ws.id).order('start_time', { ascending: true }),
+      supabase.from('customers').select('id,name,email,phone').eq('workspace_id', ws.id),
     ])
     setAppointments(appts || [])
     setCustomers(custs || [])
@@ -74,7 +82,6 @@ export default function AppointmentsPage() {
     const startTime = new Date(`${form.date}T${form.time}:00`)
     const endTime = new Date(startTime.getTime() + parseInt(form.duration) * 60000)
 
-    // customer_id is optional — only include if selected
     const insertData: any = {
       workspace_id: ws.id,
       title: form.title.trim(),
@@ -84,18 +91,16 @@ export default function AppointmentsPage() {
       notes: form.notes.trim() || null,
       status: form.status,
     }
-    if (form.customerId) {
-      insertData.customer_id = form.customerId
-    }
+    if (form.customerId) insertData.customer_id = form.customerId
 
-    const { error: err } = await supabase.from('appointments').insert(insertData)
+    const { data: appt, error: err } = await supabase
+      .from('appointments').insert(insertData).select('*, customers(name,email)').single()
+
     setSaving(false)
 
     if (err) {
       const msg = err.message || ''
-      if (msg.includes('customer_id') || msg.includes('not-null')) {
-        setError('Please select a customer for this appointment.')
-      } else if (msg.includes('violates row-level') || msg.includes('policy')) {
+      if (msg.includes('violates row-level') || msg.includes('policy')) {
         setError('Permission issue. Please sign out and sign back in.')
       } else {
         setError(`Could not save appointment: ${msg}`)
@@ -103,16 +108,68 @@ export default function AppointmentsPage() {
       return
     }
 
-    setForm({ customerId:'', title:'', date:'', time:'', duration:'60', location:'', notes:'', status:'CONFIRMED' })
-    setShowModal(false)
+    setSavedAppt(appt)
+    setEmailSent(false)
+    setCopied(false)
     await load()
+  }
+
+  const apptLink = savedAppt
+    ? `${typeof window !== 'undefined' ? window.location.origin : ''}/appointment/${savedAppt.id}`
+    : ''
+
+  const copyLink = async () => {
+    await navigator.clipboard.writeText(apptLink)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  const sendEmail = async () => {
+    if (!savedAppt) return
+    const customerEmail = savedAppt.customers?.email || selectedCustomer?.email
+    if (!customerEmail) {
+      setError('This customer has no email address. Please add one to their profile first.')
+      return
+    }
+    setSendingEmail(true)
+
+    // Use Supabase Edge Function or mailto as fallback
+    // For now, open mailto — replace with Resend API call on deployment
+    const ws = wsRef.current || workspace
+    const senderName = ws?.name || 'Amana Business'
+    const subject = encodeURIComponent(`Appointment Confirmation — ${savedAppt.title}`)
+    const date = new Date(savedAppt.start_time).toLocaleDateString('en-NG', { weekday:'long', day:'numeric', month:'long', year:'numeric' })
+    const time = new Date(savedAppt.start_time).toLocaleTimeString('en-NG', { hour:'2-digit', minute:'2-digit' })
+    const body = encodeURIComponent(
+      `Dear ${savedAppt.customers?.name || 'Valued Customer'},\n\n` +
+      `Your appointment has been confirmed.\n\n` +
+      `Appointment: ${savedAppt.title}\n` +
+      `Date: ${date}\n` +
+      `Time: ${time}\n` +
+      `${savedAppt.location ? `Location: ${savedAppt.location}\n` : ''}` +
+      `${savedAppt.notes ? `Notes: ${savedAppt.notes}\n` : ''}` +
+      `\nView your appointment details:\n${apptLink}\n\n` +
+      `Best regards,\n${senderName}`
+    )
+    window.open(`mailto:${customerEmail}?subject=${subject}&body=${body}`)
+    setSendingEmail(false)
+    setEmailSent(true)
+  }
+
+  const resetModal = () => {
+    setShowModal(false)
+    setSavedAppt(null)
+    setEmailSent(false)
+    setCopied(false)
+    setError('')
+    setForm({ customerId:'', title:'', date:'', time:'', duration:'60', location:'', notes:'', status:'CONFIRMED' })
   }
 
   return (
     <div>
       <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:20}}>
         <h1 style={{fontSize:22, fontWeight:700, color:'var(--text)'}}>Appointments</h1>
-        <button onClick={() => { setShowModal(true); setError(''); setForm(f => ({...f, date: selectedDateStr})) }}
+        <button onClick={() => { setShowModal(true); setError(''); setSavedAppt(null); setForm(f => ({...f, date: selectedDateStr})) }}
           style={{display:'flex', alignItems:'center', gap:6, background:'#7C3AED', color:'white', padding:'10px 18px', borderRadius:10, fontSize:14, fontWeight:600, border:'none', cursor:'pointer'}}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
           New Appointment
@@ -184,77 +241,146 @@ export default function AppointmentsPage() {
       {/* Modal */}
       {showModal && (
         <div style={{position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:16}}>
-          <div style={{background:'white', borderRadius:16, padding:'24px', width:'100%', maxWidth:480, maxHeight:'90vh', overflowY:'auto'}}>
-            <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20}}>
-              <h2 style={{fontSize:18, fontWeight:700, color:'#111827'}}>New Appointment</h2>
-              <button onClick={() => setShowModal(false)} style={{background:'none', border:'none', cursor:'pointer', color:'#9CA3AF', fontSize:24, lineHeight:1}}>×</button>
-            </div>
-            {error && (
-              <div style={{background:'#FEF2F2', border:'1px solid #FEE2E2', borderRadius:8, padding:'10px 12px', fontSize:13, color:'#DC2626', marginBottom:14, lineHeight:1.5}}>
-                {error}
+          <div style={{background:'white', borderRadius:16, padding:'24px', width:'100%', maxWidth:500, maxHeight:'90vh', overflowY:'auto'}}>
+
+            {/* After save — show link and email options */}
+            {savedAppt ? (
+              <div>
+                <div style={{textAlign:'center', marginBottom:20}}>
+                  <div style={{width:52, height:52, borderRadius:'50%', background:'#F0FDF4', border:'2px solid #22C55E', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 12px'}}>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="2.5" strokeLinecap="round"><path d="M20 6L9 17l-5-5"/></svg>
+                  </div>
+                  <h2 style={{fontSize:18, fontWeight:700, color:'#111827', marginBottom:4}}>Appointment Saved!</h2>
+                  <p style={{fontSize:13, color:'#6B7280'}}>
+                    {savedAppt.customers?.name
+                      ? `Send the appointment details to ${savedAppt.customers.name}`
+                      : 'Share the appointment link below'}
+                  </p>
+                </div>
+
+                {/* Appointment summary */}
+                <div style={{background:'#F9FAFB', borderRadius:10, padding:'14px', marginBottom:16}}>
+                  <p style={{fontSize:13, fontWeight:600, color:'#111827', marginBottom:6}}>{savedAppt.title}</p>
+                  <p style={{fontSize:12, color:'#6B7280'}}>
+                    {new Date(savedAppt.start_time).toLocaleDateString('en-NG', {weekday:'long', day:'numeric', month:'long', year:'numeric'})}
+                    {' at '}
+                    {new Date(savedAppt.start_time).toLocaleTimeString('en-NG', {hour:'2-digit', minute:'2-digit'})}
+                  </p>
+                  {savedAppt.location && <p style={{fontSize:12, color:'#6B7280', marginTop:2}}>📍 {savedAppt.location}</p>}
+                </div>
+
+                {error && <div style={{background:'#FEF2F2', border:'1px solid #FEE2E2', borderRadius:8, padding:'10px 12px', fontSize:13, color:'#DC2626', marginBottom:12}}>{error}</div>}
+
+                {/* Copy link */}
+                <div style={{marginBottom:12}}>
+                  <p style={{fontSize:12, fontWeight:600, color:'#374151', marginBottom:6}}>Appointment Link</p>
+                  <div style={{display:'flex', gap:8}}>
+                    <div style={{flex:1, background:'#F9FAFB', borderRadius:8, padding:'10px 12px', border:'1px solid #E5E7EB', overflow:'hidden'}}>
+                      <p style={{fontSize:12, color:'#6B7280', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>{apptLink}</p>
+                    </div>
+                    <button onClick={copyLink}
+                      style={{height:40, padding:'0 14px', background:copied?'#22C55E':'#7C3AED', color:'white', border:'none', borderRadius:8, fontSize:13, fontWeight:600, cursor:'pointer', flexShrink:0, transition:'background 0.2s'}}>
+                      {copied ? '✓ Copied!' : 'Copy'}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Send email */}
+                {savedAppt.customers?.email || selectedCustomer?.email ? (
+                  <button onClick={sendEmail} disabled={sendingEmail || emailSent}
+                    style={{width:'100%', height:48, background: emailSent ? '#22C55E' : '#111827', color:'white', border:'none', borderRadius:12, fontSize:14, fontWeight:600, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:8, marginBottom:10, opacity:sendingEmail?0.7:1}}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/></svg>
+                    {emailSent ? '✓ Email Sent!' : `Send Email to ${savedAppt.customers?.email || selectedCustomer?.email}`}
+                  </button>
+                ) : (
+                  <div style={{background:'#FFFBEB', border:'1px solid #FDE68A', borderRadius:8, padding:'10px 12px', fontSize:12, color:'#92400E', marginBottom:10}}>
+                    No email address for this customer. Add one in their profile to send email.
+                  </div>
+                )}
+
+                <button onClick={resetModal}
+                  style={{width:'100%', height:42, background:'white', border:'1px solid #E5E7EB', borderRadius:10, fontSize:14, color:'#374151', cursor:'pointer'}}>
+                  Done
+                </button>
+              </div>
+            ) : (
+              /* New appointment form */
+              <div>
+                <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20}}>
+                  <h2 style={{fontSize:18, fontWeight:700, color:'#111827'}}>New Appointment</h2>
+                  <button onClick={resetModal} style={{background:'none', border:'none', cursor:'pointer', color:'#9CA3AF', fontSize:24, lineHeight:1}}>×</button>
+                </div>
+                {error && <div style={{background:'#FEF2F2', border:'1px solid #FEE2E2', borderRadius:8, padding:'10px 12px', fontSize:13, color:'#DC2626', marginBottom:14, lineHeight:1.5}}>{error}</div>}
+                <div style={{display:'flex', flexDirection:'column', gap:14}}>
+                  {/* Customer — email auto-shown */}
+                  <div>
+                    <label style={lbl}>Customer <span style={{color:'#9CA3AF', fontWeight:400}}>(optional)</span></label>
+                    <select value={form.customerId} onChange={e => setForm({...form, customerId:e.target.value})} style={inp}>
+                      <option value="">No customer</option>
+                      {customers.map(c => <option key={c.id} value={c.id}>{c.name}{c.email ? ` — ${c.email}` : ''}</option>)}
+                    </select>
+                    {form.customerId && selectedCustomer?.email && (
+                      <p style={{fontSize:11, color:'#22C55E', marginTop:4}}>✓ Confirmation email will be sent to: <strong>{selectedCustomer.email}</strong></p>
+                    )}
+                    {form.customerId && !selectedCustomer?.email && (
+                      <p style={{fontSize:11, color:'#F59E0B', marginTop:4}}>⚠ This customer has no email — add one to send confirmations</p>
+                    )}
+                  </div>
+                  <div>
+                    <label style={lbl}>Title <span style={{color:'#EF4444'}}>*</span></label>
+                    <input style={inp} placeholder="e.g. Consultation, Hair Session, Strategy Call" value={form.title} onChange={e => setForm({...form, title:e.target.value})} />
+                  </div>
+                  <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:12}}>
+                    <div>
+                      <label style={lbl}>Date <span style={{color:'#EF4444'}}>*</span></label>
+                      <input type="date" style={inp} value={form.date} onChange={e => setForm({...form, date:e.target.value})} />
+                    </div>
+                    <div>
+                      <label style={lbl}>Time <span style={{color:'#EF4444'}}>*</span></label>
+                      <input type="time" style={inp} value={form.time} onChange={e => setForm({...form, time:e.target.value})} />
+                    </div>
+                  </div>
+                  <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:12}}>
+                    <div>
+                      <label style={lbl}>Duration</label>
+                      <select value={form.duration} onChange={e => setForm({...form, duration:e.target.value})} style={inp}>
+                        <option value="30">30 minutes</option>
+                        <option value="60">1 hour</option>
+                        <option value="90">1.5 hours</option>
+                        <option value="120">2 hours</option>
+                        <option value="180">3 hours</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label style={lbl}>Status</label>
+                      <select value={form.status} onChange={e => setForm({...form, status:e.target.value})} style={inp}>
+                        <option value="CONFIRMED">Confirmed</option>
+                        <option value="PENDING">Pending</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label style={lbl}>Location</label>
+                    <input style={inp} placeholder="Online, Office, Client site..." value={form.location} onChange={e => setForm({...form, location:e.target.value})} />
+                  </div>
+                  <div>
+                    <label style={lbl}>Notes</label>
+                    <textarea style={{...inp, height:70, paddingTop:10, resize:'none'}} placeholder="Any notes..." value={form.notes} onChange={e => setForm({...form, notes:e.target.value})} />
+                  </div>
+                  <div style={{display:'flex', gap:10}}>
+                    <button onClick={resetModal}
+                      style={{flex:1, height:44, background:'white', border:'1px solid #E5E7EB', borderRadius:10, fontSize:14, color:'#374151', cursor:'pointer'}}>
+                      Cancel
+                    </button>
+                    <button onClick={handleSave} disabled={saving}
+                      style={{flex:2, height:44, background:'#7C3AED', border:'none', borderRadius:10, fontSize:14, fontWeight:600, color:'white', cursor:saving?'not-allowed':'pointer', opacity:saving?0.7:1, display:'flex', alignItems:'center', justifyContent:'center', gap:6}}>
+                      {saving && <span style={{width:14, height:14, border:'2px solid white', borderTopColor:'transparent', borderRadius:'50%', display:'inline-block', animation:'spin 0.8s linear infinite'}}/>}
+                      {saving ? 'Saving...' : 'Save Appointment'}
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
-            <div style={{display:'flex', flexDirection:'column', gap:14}}>
-              <div>
-                <label style={lbl}>Customer <span style={{color:'#9CA3AF', fontWeight:400}}>(optional)</span></label>
-                <select value={form.customerId} onChange={e => setForm({...form, customerId:e.target.value})} style={inp}>
-                  <option value="">No customer</option>
-                  {customers.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                </select>
-              </div>
-              <div>
-                <label style={lbl}>Title <span style={{color:'#EF4444'}}>*</span></label>
-                <input style={inp} placeholder="e.g. Consultation, Hair Session" value={form.title} onChange={e => setForm({...form, title:e.target.value})} />
-              </div>
-              <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:12}}>
-                <div>
-                  <label style={lbl}>Date <span style={{color:'#EF4444'}}>*</span></label>
-                  <input type="date" style={inp} value={form.date} onChange={e => setForm({...form, date:e.target.value})} />
-                </div>
-                <div>
-                  <label style={lbl}>Time <span style={{color:'#EF4444'}}>*</span></label>
-                  <input type="time" style={inp} value={form.time} onChange={e => setForm({...form, time:e.target.value})} />
-                </div>
-              </div>
-              <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:12}}>
-                <div>
-                  <label style={lbl}>Duration</label>
-                  <select value={form.duration} onChange={e => setForm({...form, duration:e.target.value})} style={inp}>
-                    <option value="30">30 minutes</option>
-                    <option value="60">1 hour</option>
-                    <option value="90">1.5 hours</option>
-                    <option value="120">2 hours</option>
-                    <option value="180">3 hours</option>
-                  </select>
-                </div>
-                <div>
-                  <label style={lbl}>Status</label>
-                  <select value={form.status} onChange={e => setForm({...form, status:e.target.value})} style={inp}>
-                    <option value="CONFIRMED">Confirmed</option>
-                    <option value="PENDING">Pending</option>
-                  </select>
-                </div>
-              </div>
-              <div>
-                <label style={lbl}>Location</label>
-                <input style={inp} placeholder="Online, Office, Client site..." value={form.location} onChange={e => setForm({...form, location:e.target.value})} />
-              </div>
-              <div>
-                <label style={lbl}>Notes</label>
-                <textarea style={{...inp, height:70, paddingTop:10, resize:'none'}} placeholder="Any notes..." value={form.notes} onChange={e => setForm({...form, notes:e.target.value})} />
-              </div>
-              <div style={{display:'flex', gap:10}}>
-                <button onClick={() => setShowModal(false)}
-                  style={{flex:1, height:44, background:'white', border:'1px solid #E5E7EB', borderRadius:10, fontSize:14, color:'#374151', cursor:'pointer'}}>
-                  Cancel
-                </button>
-                <button onClick={handleSave} disabled={saving}
-                  style={{flex:2, height:44, background:'#7C3AED', border:'none', borderRadius:10, fontSize:14, fontWeight:600, color:'white', cursor:saving?'not-allowed':'pointer', opacity:saving?0.7:1, display:'flex', alignItems:'center', justifyContent:'center', gap:6}}>
-                  {saving && <span style={{width:14, height:14, border:'2px solid white', borderTopColor:'transparent', borderRadius:'50%', display:'inline-block', animation:'spin 0.8s linear infinite'}}/>}
-                  {saving ? 'Saving...' : 'Save Appointment'}
-                </button>
-              </div>
-            </div>
           </div>
         </div>
       )}

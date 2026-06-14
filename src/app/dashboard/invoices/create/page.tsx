@@ -35,9 +35,10 @@ export default function CreateInvoicePage() {
     load()
   }, [])
 
-  const total = items.reduce((s, i) => s + (parseFloat(i.amount) || 0), 0)
   const ws = wsRef.current || workspace
-  const currencySymbol = ws?.currency === 'USD' ? '$' : ws?.currency === 'GBP' ? '£' : '₦'
+  const currency = ws?.currency || 'NGN'
+  const currencySymbol = { NGN:'₦', USD:'$', GBP:'£', EUR:'€', GHS:'GH₵', KES:'KSh', ZAR:'R', AED:'AED', SAR:'SAR', CAD:'CA$', AUD:'A$', INR:'₹' }[currency] || currency
+  const total = items.reduce((s, i) => s + (parseFloat(i.amount) || 0), 0)
 
   const handleSubmit = async (status: 'DRAFT' | 'UNPAID') => {
     if (!form.customerId) { setError('Please select a customer first'); return }

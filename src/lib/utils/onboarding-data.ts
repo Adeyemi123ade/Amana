@@ -37,6 +37,14 @@ export const CURRENCIES = [
   {code:'XOF',label:'West African CFA Franc (XOF)'},
 ]
 
+export const CURRENCY_NAMES: Record<string,string> = {
+  NGN:'Nigerian Naira (₦)', USD:'US Dollar ($)', GBP:'British Pound (£)',
+  EUR:'Euro (€)', GHS:'Ghanaian Cedi (GH₵)', KES:'Kenyan Shilling (KSh)',
+  ZAR:'South African Rand (R)', AED:'UAE Dirham (AED)', SAR:'Saudi Riyal (SAR)',
+  CAD:'Canadian Dollar (CA$)', AUD:'Australian Dollar (A$)', INR:'Indian Rupee (₹)',
+  EGP:'Egyptian Pound (EGP)', MAD:'Moroccan Dirham (MAD)', XOF:'West African CFA Franc',
+}
+
 export const COUNTRY_CURRENCY_MAP: Record<string,string> = {
   NG:'NGN',US:'USD',GB:'GBP',GH:'GHS',KE:'KES',ZA:'ZAR',
   AE:'AED',SA:'SAR',CA:'CAD',AU:'AUD',IN:'INR',EG:'EGP',MA:'MAD',
@@ -88,4 +96,66 @@ export const COUNTRY_STATES: Record<string, string[]> = {
        'West Virginia','Wisconsin','Wyoming'],
   GB: ['England','Scotland','Wales','Northern Ireland'],
   DEFAULT: [],
+}
+
+// Cities per state (Nigeria focus + key global cities)
+export const STATE_CITIES: Record<string, string[]> = {
+  // Nigeria
+  'Lagos': ['Lagos Island','Lagos Mainland','Ikeja','Lekki','Victoria Island','Ajah','Ikorodu','Badagry','Apapa','Surulere','Yaba','Mushin','Alimosho','Epe','Eti-Osa','Kosofe','Oshodi','Agege','Ifako-Ijaiye','Shomolu','Amuwo-Odofin','Ojo','Ajeromi-Ifelodun','Other'],
+  'Abuja': ['Garki','Wuse','Maitama','Asokoro','Gwarinpa','Kubwa','Lugbe','Kuje','Nyanya','Gwagwalada','Bwari','Karu','Other'],
+  'FCT (Abuja)': ['Garki','Wuse','Maitama','Asokoro','Gwarinpa','Kubwa','Lugbe','Kuje','Nyanya','Gwagwalada','Other'],
+  'Rivers': ['Port Harcourt','Obio-Akpor','Eleme','Ikwerre','Emohua','Oyigbo','Bonny','Degema','Other'],
+  'Kano': ['Kano Municipal','Fagge','Dala','Gwale','Tarauni','Nassarawa','Ungogo','Kumbotso','Other'],
+  'Oyo': ['Ibadan North','Ibadan South','Ogbomosho','Oyo','Iseyin','Saki','Ogbomosho North','Other'],
+  'Anambra': ['Awka','Onitsha','Nnewi','Ekwusigo','Ogbaru','Onitsha North','Onitsha South','Other'],
+  'Delta': ['Warri','Asaba','Ughelli','Sapele','Abraka','Agbor','Kwale','Other'],
+  'Enugu': ['Enugu','Nsukka','Agbani','Oji River','Awgu','Udi','Other'],
+  'Edo': ['Benin City','Auchi','Uromi','Ekpoma','Afuze','Other'],
+  'Kaduna': ['Kaduna','Zaria','Kafanchan','Zonkwa','Other'],
+  'Imo': ['Owerri','Orlu','Okigwe','Mbaise','Other'],
+  'Ogun': ['Abeokuta','Sagamu','Ijebu-Ode','Ota','Other'],
+  'Akwa Ibom': ['Uyo','Eket','Ikot Ekpene','Other'],
+  'Cross River': ['Calabar','Ogoja','Ikom','Other'],
+  'Kwara': ['Ilorin','Offa','Omu-Aran','Other'],
+  'Borno': ['Maiduguri','Biu','Gwoza','Other'],
+  'Adamawa': ['Yola','Mubi','Ganye','Other'],
+  'Abia': ['Umuahia','Aba','Other'],
+  'Bauchi': ['Bauchi','Azare','Misau','Other'],
+  'Bayelsa': ['Yenagoa','Brass','Sagbama','Other'],
+  'Benue': ['Makurdi','Gboko','Otukpo','Other'],
+  'Ebonyi': ['Abakaliki','Afikpo','Other'],
+  'Ekiti': ['Ado-Ekiti','Ikere','Other'],
+  'Gombe': ['Gombe','Kumo','Other'],
+  'Jigawa': ['Dutse','Hadejia','Other'],
+  'Kebbi': ['Birnin Kebbi','Argungu','Other'],
+  'Kogi': ['Lokoja','Okene','Idah','Other'],
+  'Nasarawa': ['Lafia','Keffi','Other'],
+  'Niger': ['Minna','Bida','Suleja','Other'],
+  'Ondo': ['Akure','Ondo','Owo','Other'],
+  'Osun': ['Osogbo','Ile-Ife','Ilesa','Other'],
+  'Plateau': ['Jos','Bukuru','Other'],
+  'Sokoto': ['Sokoto','Tambuwal','Other'],
+  'Taraba': ['Jalingo','Wukari','Other'],
+  'Yobe': ['Damaturu','Potiskum','Other'],
+  'Zamfara': ['Gusau','Kaura Namoda','Other'],
+
+  // UAE
+  'Dubai': ['Downtown Dubai','Deira','Bur Dubai','Jumeirah','Marina','JLT','Business Bay','DIFC','Palm Jumeirah','Mirdif','Other'],
+  'Abu Dhabi': ['Abu Dhabi City','Al Ain','Khalifa City','Mohammed Bin Zayed City','Other'],
+  'Sharjah': ['Sharjah City','Khor Fakkan','Other'],
+  'Ajman': ['Ajman City','Other'],
+  'Ras Al Khaimah': ['RAK City','Other'],
+
+  // UK
+  'England': ['London','Manchester','Birmingham','Leeds','Liverpool','Sheffield','Bristol','Newcastle','Nottingham','Leicester','Other'],
+  'Scotland': ['Edinburgh','Glasgow','Aberdeen','Dundee','Other'],
+  'Wales': ['Cardiff','Swansea','Newport','Other'],
+  'Northern Ireland': ['Belfast','Derry','Other'],
+
+  // US
+  'California': ['Los Angeles','San Francisco','San Diego','Sacramento','San Jose','Other'],
+  'New York': ['New York City','Buffalo','Albany','Rochester','Other'],
+  'Texas': ['Houston','Dallas','Austin','San Antonio','Other'],
+  'Florida': ['Miami','Orlando','Tampa','Jacksonville','Other'],
+  'Georgia': ['Atlanta','Savannah','Augusta','Other'],
 }

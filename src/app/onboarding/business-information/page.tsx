@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { COUNTRIES } from '@/lib/utils/countries'
-import { BUSINESS_TYPES, BUSINESS_TITLES, CURRENCIES, COUNTRY_CURRENCY_MAP, COUNTRY_BANKS, COUNTRY_STATES } from '@/lib/utils/onboarding-data'
+import { BUSINESS_TYPES, BUSINESS_TITLES, CURRENCIES, CURRENCY_NAMES, COUNTRY_CURRENCY_MAP, COUNTRY_BANKS, COUNTRY_STATES, STATE_CITIES } from '@/lib/utils/onboarding-data'
 import { generateSlug } from '@/lib/utils'
 
 // Client created ONCE outside component
@@ -285,24 +285,20 @@ export default function BusinessInformationPage() {
           {/* ── STEP 2: LOCATION ── */}
           {step === 'location' && (
             <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
-                <div>
-                  <label style={lbl}>Country</label>
-                  <select value={loc.countryCode} onChange={e => handleCountryChange(e.target.value)} style={f}>
-                    {COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.name}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label style={lbl}>Currency</label>
-                  <select value={loc.currency} onChange={e => setLoc({...loc, currency:e.target.value})} style={f}>
-                    {CURRENCIES.map(c => <option key={c.code} value={c.code}>{c.label}</option>)}
-                  </select>
-                </div>
+              {/* Country only — currency is auto-locked */}
+              <div>
+                <label style={lbl}>Country</label>
+                <select value={loc.countryCode} onChange={e => handleCountryChange(e.target.value)} style={f}>
+                  {COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.name}</option>)}
+                </select>
+                <p style={{fontSize:11, color:'#22C55E', marginTop:4}}>
+                  ✓ Currency automatically set to <strong>{CURRENCY_NAMES[loc.currency] || loc.currency}</strong>
+                </p>
               </div>
               <div>
                 <label style={lbl}>State / Province</label>
                 {states.length > 0 ? (
-                  <select value={loc.state} onChange={e => setLoc({...loc, state:e.target.value})} style={f}>
+                  <select value={loc.state} onChange={e => setLoc({...loc, state:e.target.value, city:''})} style={f}>
                     <option value="">Select state or province...</option>
                     {states.map(s => <option key={s} value={s}>{s}</option>)}
                   </select>
@@ -312,7 +308,19 @@ export default function BusinessInformationPage() {
               </div>
               <div>
                 <label style={lbl}>City</label>
-                <input style={f} placeholder="Enter your city" value={loc.city} onChange={e => setLoc({...loc, city:e.target.value})} />
+                {STATE_CITIES[loc.state] && STATE_CITIES[loc.state].length > 0 ? (
+                  <>
+                    <select value={loc.city} onChange={e => setLoc({...loc, city:e.target.value})} style={f}>
+                      <option value="">Select city...</option>
+                      {STATE_CITIES[loc.state].map(c => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                    {loc.city === 'Other' && (
+                      <input style={{...f, marginTop:8}} placeholder="Enter your city name" onChange={e => setLoc({...loc, city:e.target.value})} />
+                    )}
+                  </>
+                ) : (
+                  <input style={f} placeholder="Enter your city" value={loc.city} onChange={e => setLoc({...loc, city:e.target.value})} />
+                )}
               </div>
               <div>
                 <label style={lbl}>Full Business Address <span style={{color:'#EF4444'}}>*</span></label>
