@@ -3,11 +3,12 @@
 import { useState, useEffect, use } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+const supabase = createClient()
 import { formatCurrency } from '@/lib/utils'
 
 export default function InvoiceDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
-  const supabase = createClient()
+
   const [invoice, setInvoice] = useState<any>(null)
   const [workspace, setWorkspace] = useState<any>(null)
   const [loading, setLoading] = useState(true)

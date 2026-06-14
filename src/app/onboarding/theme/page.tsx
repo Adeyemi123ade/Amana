@@ -3,11 +3,12 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+const supabase = createClient()
 import { THEMES, type ThemeId } from '@/lib/theme/themes'
 
 export default function ThemeSelectionPage() {
   const router = useRouter()
-  const supabase = createClient()
+
   const [selected, setSelected] = useState<ThemeId>('light')
   const [saving, setSaving] = useState(false)
 

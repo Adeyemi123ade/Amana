@@ -2,11 +2,12 @@
 
 import { useState, useEffect, use } from 'react'
 import { createClient } from '@/lib/supabase/client'
+const supabase = createClient()
 import { formatCurrency } from '@/lib/utils'
 
 export default function PublicInvoicePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
-  const supabase = createClient()
+
   const [invoice, setInvoice] = useState<any>(null)
   const [workspace, setWorkspace] = useState<any>(null)
   const [customer, setCustomer] = useState<any>(null)
@@ -56,7 +57,7 @@ export default function PublicInvoicePage({ params }: { params: Promise<{ id: st
       }).eq('id', id)
       setSubmitted(true)
     } catch (e) {
-      console.error(e)
+
     } finally {
       setUploading(false)
     }

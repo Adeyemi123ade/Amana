@@ -3,12 +3,13 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+const supabase = createClient()
 
 export default function VerifyEmailPage() {
   const router = useRouter()
-  const supabase = createClient()
+
   const [email, setEmail] = useState('')
-  const [step, setStep] = useState<'waiting'|'otp'>('waiting')
+  const [step, setStep] = useState<'waiting'|'otp'>('otp')
   const [otp, setOtp] = useState(['','','','','',''])
   const [isVerifying, setIsVerifying] = useState(false)
   const [isResending, setIsResending] = useState(false)

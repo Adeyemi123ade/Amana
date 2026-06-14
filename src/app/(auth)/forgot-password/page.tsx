@@ -8,9 +8,10 @@ import { createClient } from '@/lib/supabase/client'
 import { forgotPasswordSchema, type ForgotPasswordFormData } from '@/lib/validations/auth'
 
 const field: React.CSSProperties = {width:'100%', height:44, padding:'0 12px', borderRadius:8, border:'1px solid #E5E7EB', fontSize:14, color:'#111827', outline:'none', boxSizing:'border-box', background:'white'}
+const supabase = createClient()
 
 export default function ForgotPasswordPage() {
-  const supabase = createClient()
+
   const [sent, setSent] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [serverError, setServerError] = useState('')

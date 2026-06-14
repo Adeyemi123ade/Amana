@@ -11,10 +11,11 @@ import { signInSchema, type SignInFormData } from '@/lib/validations/auth'
 const field: React.CSSProperties = {width:'100%', height:44, padding:'0 12px', borderRadius:8, border:'1px solid #E5E7EB', fontSize:14, color:'#111827', outline:'none', boxSizing:'border-box', background:'white'}
 const label: React.CSSProperties = {display:'block', fontSize:13, fontWeight:500, color:'#374151', marginBottom:6}
 const err: React.CSSProperties = {fontSize:11, color:'#EF4444', marginTop:4}
+const supabase = createClient()
 
 export default function SignInPage() {
   const router = useRouter()
-  const supabase = createClient()
+
   const [showPwd, setShowPwd] = useState(false)
   const [serverError, setServerError] = useState('')
   const [isLoading, setIsLoading] = useState(false)

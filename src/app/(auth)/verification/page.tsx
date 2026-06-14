@@ -4,12 +4,13 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+const supabase = createClient()
 import { Button } from '@/components/ui/button'
 import { OTPInput } from '@/components/forms/OTPInput'
 
 export default function VerificationPage() {
   const router = useRouter()
-  const supabase = createClient()
+
   const [otp, setOtp] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')

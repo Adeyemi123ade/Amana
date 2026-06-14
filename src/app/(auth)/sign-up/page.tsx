@@ -13,6 +13,7 @@ import { COUNTRIES } from '@/lib/utils/countries'
 const field: React.CSSProperties = { width:'100%',height:44,padding:'0 12px',borderRadius:8,border:'1px solid #E5E7EB',fontSize:14,color:'#111827',outline:'none',boxSizing:'border-box',background:'white' }
 const lbl: React.CSSProperties = { display:'block',fontSize:13,fontWeight:500,color:'#374151',marginBottom:6 }
 const errStyle: React.CSSProperties = { fontSize:11,color:'#EF4444',marginTop:4 }
+const supabase = createClient()
 
 function getSupabaseErrorMessage(error: any): string {
   const msg = error?.message || ''
@@ -39,7 +40,7 @@ function getSupabaseErrorMessage(error: any): string {
 
 export default function SignUpPage() {
   const router = useRouter()
-  const supabase = createClient()
+
   const [showPwd, setShowPwd] = useState(false)
   const [showCfm, setShowCfm] = useState(false)
   const [serverError, setServerError] = useState('')
@@ -184,8 +185,7 @@ export default function SignUpPage() {
                 type={showPwd ? 'text' : 'password'}
                 style={{...field, paddingRight:40}}
                 placeholder="Create a strong password"
-                {...register('password')}
-                onChange={e => { setPwdValue(e.target.value) }}
+                {...register('password', { onChange: (e) => setPwdValue(e.target.value) })}
               />
               <button type="button" onClick={() => setShowPwd(!showPwd)} style={{position:'absolute',right:10,top:11,background:'none',border:'none',cursor:'pointer',color:'#9CA3AF',fontSize:16}}>
                 {showPwd ? '🙈' : '👁'}
