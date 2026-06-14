@@ -5,12 +5,14 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 
+const supabase = createClient()
+
 const field: React.CSSProperties = {width:'100%',height:44,padding:'0 12px',borderRadius:8,border:'1px solid #E5E7EB',fontSize:14,color:'#111827',outline:'none',boxSizing:'border-box',background:'white'}
 const lbl: React.CSSProperties = {display:'block',fontSize:13,fontWeight:500,color:'#374151',marginBottom:6}
 
 export default function CreateInvoicePage() {
   const router = useRouter()
-  const supabase = createClient()
+
   const [customers, setCustomers] = useState<any[]>([])
   const [workspace, setWorkspace] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(false)

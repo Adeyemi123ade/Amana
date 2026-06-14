@@ -4,8 +4,10 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { formatCurrency } from '@/lib/utils'
 
+const supabase = createClient()
+
 export default function ReportsPage() {
-  const supabase = createClient()
+
   const [workspace, setWorkspace] = useState<any>(null)
   const [invoices, setInvoices] = useState<any[]>([])
   const [payments, setPayments] = useState<any[]>([])

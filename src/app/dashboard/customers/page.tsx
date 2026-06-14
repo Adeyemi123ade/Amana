@@ -1,15 +1,17 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { formatCurrency } from '@/lib/utils'
+
+// Create client ONCE outside component - permanent fix
+const supabase = createClient()
 
 const inp: React.CSSProperties = { width:'100%', height:44, padding:'0 12px', borderRadius:8, border:'1px solid #E5E7EB', fontSize:14, color:'#111827', outline:'none', boxSizing:'border-box', background:'white' }
 const lbl: React.CSSProperties = { display:'block', fontSize:13, fontWeight:500, color:'#374151', marginBottom:6 }
 
 export default function CustomersPage() {
-  const supabase = createClient()
   const [customers, setCustomers] = useState<any[]>([])
   const [workspace, setWorkspace] = useState<any>(null)
   const [search, setSearch] = useState('')
@@ -17,12 +19,15 @@ export default function CustomersPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [form, setForm] = useState({ name:'', email:'', phone:'', address:'', notes:'' })
+  const workspaceRef = useRef<any>(null)
 
   const load = async () => {
     const { data: { user } } = await supabase.auth.getUser()
-    const { data: ws } = await supabase.from('workspaces').select('id,currency').eq('created_by', user?.id).single()
-    setWorkspace(ws)
+    if (!user) return
+    const { data: ws } = await supabase.from('workspaces').select('id,currency').eq('created_by', user.id).maybeSingle()
     if (ws) {
+      setWorkspace(ws)
+      workspaceRef.current = ws
       const { data } = await supabase.from('customers').select('*').eq('workspace_id', ws.id).order('created_at', { ascending: false })
       setCustomers(data || [])
     }
@@ -38,35 +43,31 @@ export default function CustomersPage() {
 
   const handleAdd = async () => {
     if (!form.name.trim()) { setError('Please enter the customer name'); return }
-    if (!workspace) { setError('Your workspace is still loading. Please wait a moment and try again.'); return }
-    setSaving(true); setError('')
-    try {
-      const { error: err } = await supabase.from('customers').insert({
-        workspace_id: workspace.id,
-        name: form.name.trim(),
-        email: form.email.trim() || null,
-        phone: form.phone.trim() || null,
-        address: form.address.trim() || null,
-        notes: form.notes.trim() || null,
-        total_spent: 0,
-      })
-      if (err) {
-        if (err.message?.includes('duplicate')) {
-          setError('A customer with this name already exists.')
-        } else {
-          setError('We could not save this customer. Please check your connection and try again.')
-        }
-        setSaving(false)
-        return
+    const ws = workspaceRef.current || workspace
+    if (!ws) { setError('Still loading your workspace. Please wait a moment and try again.'); return }
+    setSaving(true)
+    setError('')
+    const { error: err } = await supabase.from('customers').insert({
+      workspace_id: ws.id,
+      name: form.name.trim(),
+      email: form.email.trim() || null,
+      phone: form.phone.trim() || null,
+      address: form.address.trim() || null,
+      notes: form.notes.trim() || null,
+      total_spent: 0,
+    })
+    setSaving(false)
+    if (err) {
+      if (err.message?.includes('duplicate')) {
+        setError('A customer with this name already exists.')
+      } else {
+        setError('We could not save this customer. Please try again.')
       }
-      setForm({ name:'', email:'', phone:'', address:'', notes:'' })
-      setShowModal(false)
-      await load()
-    } catch (e: any) {
-      setError('Something went wrong while saving. Please check your connection and try again.')
-    } finally {
-      setSaving(false)
+      return
     }
+    setForm({ name:'', email:'', phone:'', address:'', notes:'' })
+    setShowModal(false)
+    await load()
   }
 
   const currency = workspace?.currency || 'NGN'
@@ -75,8 +76,9 @@ export default function CustomersPage() {
     <div>
       <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:20}}>
         <h1 style={{fontSize:22, fontWeight:700, color:'var(--text)'}}>Customers</h1>
-        <button onClick={() => { setShowModal(true); setError('') }}
-          style={{display:'flex', alignItems:'center', gap:6, background:'var(--accent)', color:'white', padding:'10px 18px', borderRadius:10, fontSize:14, fontWeight:600, border:'none', cursor:'pointer'}}>
+        <button
+          onClick={() => { setShowModal(true); setError('') }}
+          style={{display:'flex', alignItems:'center', gap:6, background:'#7C3AED', color:'white', padding:'10px 18px', borderRadius:10, fontSize:14, fontWeight:600, border:'none', cursor:'pointer'}}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
           Add Customer
         </button>
@@ -86,7 +88,10 @@ export default function CustomersPage() {
         <div style={{padding:'16px 20px', borderBottom:'1px solid var(--border)'}}>
           <div style={{position:'relative'}}>
             <svg style={{position:'absolute', left:10, top:10}} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-            <input placeholder="Search customers..." value={search} onChange={e => setSearch(e.target.value)}
+            <input
+              placeholder="Search customers..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
               style={{width:'100%', height:36, paddingLeft:34, paddingRight:12, borderRadius:8, border:'1px solid #E5E7EB', fontSize:13, outline:'none', boxSizing:'border-box', background:'white'}} />
           </div>
         </div>
@@ -94,8 +99,12 @@ export default function CustomersPage() {
         {filtered.length === 0 ? (
           <div style={{padding:'48px 20px', textAlign:'center'}}>
             <div style={{fontSize:40, marginBottom:12}}>👥</div>
-            <p style={{fontSize:15, fontWeight:600, color:'var(--text)', marginBottom:4}}>{search ? 'No customers found' : 'No customers yet'}</p>
-            <p style={{fontSize:13, color:'var(--text-muted)'}}>{search ? 'Try a different search term' : 'Click the Add Customer button above to get started'}</p>
+            <p style={{fontSize:15, fontWeight:600, color:'var(--text)', marginBottom:4}}>
+              {search ? 'No customers found' : 'No customers yet'}
+            </p>
+            <p style={{fontSize:13, color:'var(--text-muted)'}}>
+              {search ? 'Try a different search term' : 'Click Add Customer above to get started'}
+            </p>
           </div>
         ) : filtered.map((c: any) => (
           <Link key={c.id} href={`/dashboard/customers/${c.id}`}
@@ -120,16 +129,19 @@ export default function CustomersPage() {
         ))}
       </div>
 
-      {/* Add Customer Modal */}
       {showModal && (
         <div style={{position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:16}}>
           <div style={{background:'white', borderRadius:16, padding:'24px', width:'100%', maxWidth:480, maxHeight:'90vh', overflowY:'auto'}}>
             <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20}}>
               <h2 style={{fontSize:18, fontWeight:700, color:'#111827'}}>Add Customer</h2>
-              <button onClick={() => setShowModal(false)} style={{background:'none', border:'none', cursor:'pointer', color:'#9CA3AF', fontSize:20, lineHeight:1}}>×</button>
+              <button onClick={() => setShowModal(false)} style={{background:'none', border:'none', cursor:'pointer', color:'#9CA3AF', fontSize:24, lineHeight:1, padding:'0 4px'}}>×</button>
             </div>
 
-            {error && <div style={{background:'#FEF2F2', border:'1px solid #FEE2E2', borderRadius:8, padding:'10px 12px', fontSize:13, color:'#DC2626', marginBottom:14}}>{error}</div>}
+            {error && (
+              <div style={{background:'#FEF2F2', border:'1px solid #FEE2E2', borderRadius:8, padding:'10px 12px', fontSize:13, color:'#DC2626', marginBottom:14}}>
+                {error}
+              </div>
+            )}
 
             <div style={{display:'flex', flexDirection:'column', gap:14}}>
               <div>
@@ -150,23 +162,27 @@ export default function CustomersPage() {
               </div>
               <div>
                 <label style={lbl}>Notes</label>
-                <textarea style={{...inp, height:80, paddingTop:10, resize:'none'}} placeholder="Any notes about this customer..." value={form.notes} onChange={e => setForm({...form, notes:e.target.value})} />
+                <textarea style={{...inp, height:80, paddingTop:10, resize:'none'}} placeholder="Any notes..." value={form.notes} onChange={e => setForm({...form, notes:e.target.value})} />
               </div>
-              <div style={{display:'flex', gap:10, marginTop:4}}>
-                <button onClick={() => setShowModal(false)}
-                  style={{flex:1, height:44, background:'white', border:'1px solid #E5E7EB', borderRadius:10, fontSize:14, fontWeight:500, color:'#374151', cursor:'pointer'}}>
+              <div style={{display:'flex', gap:10}}>
+                <button
+                  onClick={() => setShowModal(false)}
+                  style={{flex:1, height:44, background:'white', border:'1px solid #E5E7EB', borderRadius:10, fontSize:14, color:'#374151', cursor:'pointer'}}>
                   Cancel
                 </button>
-                <button onClick={handleAdd} disabled={saving}
-                  style={{flex:2, height:44, background:'#7C3AED', border:'none', borderRadius:10, fontSize:14, fontWeight:600, color:'white', cursor:'pointer', opacity:saving?0.7:1, display:'flex', alignItems:'center', justifyContent:'center', gap:6}}>
+                <button
+                  onClick={handleAdd}
+                  disabled={saving}
+                  style={{flex:2, height:44, background:'#7C3AED', border:'none', borderRadius:10, fontSize:14, fontWeight:600, color:'white', cursor:saving?'not-allowed':'pointer', opacity:saving?0.7:1, display:'flex', alignItems:'center', justifyContent:'center', gap:6}}>
                   {saving && <span style={{width:14, height:14, border:'2px solid white', borderTopColor:'transparent', borderRadius:'50%', display:'inline-block', animation:'spin 0.8s linear infinite'}}/>}
-                  Save Customer
+                  {saving ? 'Saving...' : 'Save Customer'}
                 </button>
               </div>
             </div>
           </div>
         </div>
       )}
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   )
 }
