@@ -180,38 +180,46 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
         )}
       </div>
 
-      {/* Actions — changes based on status */}
+      {/* Actions */}
       <div style={{display:'flex',flexDirection:'column',gap:8}}>
-        {/* PAID — record view only */}
-        {isPaid ? (
-          <div style={{background:'var(--card)',borderRadius:14,border:'1px solid var(--border)',padding:'16px 18px',textAlign:'center'}}>
-            <p style={{fontSize:13,fontWeight:600,color:'#22C55E',marginBottom:4}}>✓ This invoice has been paid</p>
-            <p style={{fontSize:12,color:'var(--text-muted)'}}>This is a completed record. Download a copy for your records below.</p>
+        {/* PAID — show as record but keep payment link for reference */}
+        {isPaid && (
+          <div style={{background:'#F0FDF4',borderRadius:12,border:'1px solid #BBF7D0',padding:'12px 14px',marginBottom:4}}>
+            <p style={{fontSize:13,fontWeight:600,color:'#16A34A',marginBottom:2}}>✓ This invoice has been paid</p>
+            <p style={{fontSize:12,color:'#15803D'}}>Payment received and confirmed.</p>
           </div>
-        ) : (
-          /* Unpaid — show send email + copy link */
-          <>
-            {invoice.customers?.email ? (
-              <button onClick={sendEmail}
-                style={{width:'100%',height:48,background:emailSent?'#22C55E':'#111827',color:'white',border:'none',borderRadius:12,fontSize:14,fontWeight:600,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8}}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/></svg>
-                {emailSent ? '✓ Invoice Sent!' : `Send Invoice to ${invoice.customers.email}`}
-              </button>
-            ) : (
-              <div style={{background:'#FFFBEB',border:'1px solid #FDE68A',borderRadius:10,padding:'12px 14px',fontSize:13,color:'#92400E'}}>
-                No email for this customer. Add one to their profile to send the invoice.
-              </div>
-            )}
-            <button onClick={copyLink}
-              style={{width:'100%',height:42,background:'var(--card)',border:'1px solid var(--border-light)',borderRadius:10,fontSize:13,fontWeight:500,color:'var(--text-secondary)',cursor:'pointer'}}>
-              {copied ? '✓ Payment Link Copied!' : 'Copy Payment Link'}
-            </button>
-          </>
         )}
 
-        {/* Download PDF — always available */}
-        <button
-          style={{width:'100%',height:42,background:'var(--card)',border:'1px solid var(--border-light)',borderRadius:10,fontSize:13,fontWeight:500,color:'var(--text-secondary)',cursor:'pointer'}}>
+        {/* Send email — always available */}
+        {invoice.customers?.email ? (
+          <button onClick={sendEmail}
+            style={{width:'100%',height:48,background:emailSent?'#22C55E':'#111827',color:'white',border:'none',borderRadius:12,fontSize:14,fontWeight:600,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8}}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/></svg>
+            {emailSent ? '✓ Invoice Sent!' : `Send Invoice to ${invoice.customers.email}`}
+          </button>
+        ) : (
+          <div style={{background:'#FFFBEB',border:'1px solid #FDE68A',borderRadius:10,padding:'12px 14px',fontSize:13,color:'#92400E'}}>
+            No email for this customer. Add one to their profile to send the invoice.
+          </div>
+        )}
+
+        {/* Payment link — always visible so customer can pay */}
+        <div style={{background:'#F5F3FF',border:'1px solid #DDD6FE',borderRadius:10,padding:'12px 14px'}}>
+          <p style={{fontSize:11,fontWeight:600,color:'#7C3AED',marginBottom:6}}>📎 Customer Payment Link</p>
+          <div style={{display:'flex',gap:8}}>
+            <div style={{flex:1,background:'white',borderRadius:6,padding:'7px 10px',border:'1px solid #DDD6FE',overflow:'hidden'}}>
+              <p style={{fontSize:11,color:'#6B7280',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{paymentLink}</p>
+            </div>
+            <button onClick={copyLink}
+              style={{height:34,padding:'0 12px',background:copied?'#22C55E':'#7C3AED',color:'white',border:'none',borderRadius:8,fontSize:12,fontWeight:600,cursor:'pointer',flexShrink:0,transition:'background 0.2s'}}>
+              {copied?'✓ Copied!':'Copy'}
+            </button>
+          </div>
+          <p style={{fontSize:10,color:'#9CA3AF',marginTop:5}}>Customer uses this link to pay by card, bank transfer, or upload receipt</p>
+        </div>
+
+        {/* Download PDF */}
+        <button style={{width:'100%',height:42,background:'var(--card)',border:'1px solid var(--border-light)',borderRadius:10,fontSize:13,fontWeight:500,color:'var(--text-secondary)',cursor:'pointer'}}>
           Download PDF
         </button>
       </div>
