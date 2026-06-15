@@ -49,7 +49,6 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
       `Invoice Number: ${invoice.invoice_number}\n` +
       `Amount Due: ${formatCurrency(Number(invoice.total_amount), currency)}\n` +
       `Due Date: ${date}\n\n` +
-      `Pay securely online:\n${paymentLink}\n\n` +
       `Best regards,\n${workspace?.name || 'Amana Business'}`
     )
     window.open(`mailto:${invoice.customers.email}?subject=${subject}&body=${body}`)

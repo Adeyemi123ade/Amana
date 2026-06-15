@@ -157,8 +157,7 @@ export default function AppointmentsPage() {
       `Time: ${time}\n` +
       `${savedAppt.location ? `Location: ${savedAppt.location}\n` : ''}` +
       `${savedAppt.notes ? `Notes: ${savedAppt.notes}\n` : ''}` +
-      `\nView your appointment details:\n${apptLink}\n\n` +
-      `Best regards,\n${senderName}`
+      `\nBest regards,\n${senderName}`
     )
     window.open(`mailto:${customerEmail}?subject=${subject}&body=${body}`)
     setSendingEmail(false)
