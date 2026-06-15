@@ -130,6 +130,7 @@ input:focus, select:focus, textarea:focus {
 /* ── AUTH LAYOUT ── */
 .auth-page {
   min-height: 100vh;
+  min-height: 100dvh;
   background: #F5F5F5;
   display: flex;
   align-items: center;
@@ -144,6 +145,7 @@ input:focus, select:focus, textarea:focus {
   border-radius: 20px;
   padding: 36px 32px;
   box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+  margin: auto;
 }
 
 /* ── RESPONSIVE GRID ── */

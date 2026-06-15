@@ -19,7 +19,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
   useEffect(() => {
     const load = async () => {
       const { data: { user } } = await supabase.auth.getUser()
-      const { data: ws } = await supabase.from('workspaces').select('id,currency').eq('created_by', user?.id).single()
+      const { data: ws } = await supabase.from('workspaces').select('id,currency,name').eq('created_by', user?.id).single()
       setWorkspace(ws)
       const { data: inv } = await supabase.from('invoices').select('*, customers(name,phone,email)').eq('id', id).single()
       setInvoice(inv)
@@ -149,14 +149,41 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
 
         {/* Actions */}
         <div style={{display:'flex',flexDirection:'column',gap:8}}>
-          <a href={paymentLink} target="_blank" rel="noreferrer"
-            style={{display:'block',width:'100%',height:48,background:'var(--accent)',color:'white',border:'none',borderRadius:12,fontSize:14,fontWeight:600,cursor:'pointer',textDecoration:'none',lineHeight:'48px',textAlign:'center',boxSizing:'border-box'}}>
-            Open Payment Page
-          </a>
+          {/* Send email to customer — primary action */}
+          {invoice.customers?.email ? (
+            <button
+              onClick={() => {
+                const ws_name = workspace?.name || 'Your Business'
+                const subject = encodeURIComponent(`Invoice ${invoice.invoice_number} — Payment Request`)
+                const date = new Date(invoice.due_date).toLocaleDateString('en-NG',{day:'numeric',month:'long',year:'numeric'})
+                const body = encodeURIComponent(
+                  `Dear ${invoice.customers?.name || 'Valued Customer'},\n\n` +
+                  `Please find your invoice details below.\n\n` +
+                  `Invoice Number: ${invoice.invoice_number}\n` +
+                  `Amount Due: ${formatCurrency(Number(invoice.total_amount), currency)}\n` +
+                  `Due Date: ${date}\n\n` +
+                  `To pay securely online, click the link below:\n${paymentLink}\n\n` +
+                  `You can pay by card, bank transfer, or upload a payment receipt.\n\n` +
+                  `Thank you for your business.\n\n` +
+                  `Best regards,\n${ws_name}`
+                )
+                window.open(`mailto:${invoice.customers.email}?subject=${subject}&body=${body}`)
+              }}
+              style={{width:'100%',height:48,background:'#111827',color:'white',border:'none',borderRadius:12,fontSize:14,fontWeight:600,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8}}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/></svg>
+              Send Invoice to {invoice.customers.email}
+            </button>
+          ) : (
+            <div style={{background:'#FFFBEB',border:'1px solid #FDE68A',borderRadius:10,padding:'12px 14px',fontSize:13,color:'#92400E'}}>
+              No email address for this customer. Add one to their profile to send the invoice by email.
+            </div>
+          )}
+
+          {/* Secondary actions */}
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
             <button onClick={copyLink}
               style={{height:40,background:'var(--card)',border:'1px solid var(--border-light)',borderRadius:10,fontSize:13,fontWeight:500,color:'var(--text-secondary)',cursor:'pointer'}}>
-              {copied ? '✓ Copied' : 'Copy Link'}
+              {copied ? '✓ Copied' : 'Copy Payment Link'}
             </button>
             <button style={{height:40,background:'var(--card)',border:'1px solid var(--border-light)',borderRadius:10,fontSize:13,fontWeight:500,color:'var(--text-secondary)',cursor:'pointer'}}>
               Download PDF
