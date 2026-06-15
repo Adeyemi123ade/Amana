@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import { formatCurrency } from '@/lib/utils'
 
 const supabase = createClient()
 
@@ -91,6 +92,13 @@ export default function CreateInvoicePage() {
       return
     }
 
+    // Create notification
+    await supabase.from('notifications').insert({
+      workspace_id: ws.id, read: false, type: 'invoice',
+      title: 'Invoice created',
+      description: `${invoiceNumber} for ${formatCurrency(total, currency)} — ${status === 'DRAFT' ? 'saved as draft' : 'ready to send'}`,
+      link: `/dashboard/invoices/${inv.id}`,
+    })
     router.push(`/dashboard/invoices/${inv.id}`)
   }
 

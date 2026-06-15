@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { formatTime } from '@/lib/utils'
 
@@ -21,7 +22,7 @@ export default function AppointmentsPage() {
   const [workspace, setWorkspace] = useState<any>(null)
   const [user, setUser] = useState<any>(null)
   const wsRef = useRef<any>(null)
-  const [showModal, setShowModal] = useState(false)
+  const [view, setView] = useState<'calendar'|'list'>('calendar')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [savedAppt, setSavedAppt] = useState<any>(null)
@@ -109,6 +110,14 @@ export default function AppointmentsPage() {
     }
 
     setSavedAppt(appt)
+    // Create notification
+    const date = new Date(appt.start_time).toLocaleDateString('en-NG',{weekday:'short',day:'numeric',month:'short'})
+    await supabase.from('notifications').insert({
+      workspace_id: ws.id, read: false, type: 'appointment',
+      title: 'New appointment scheduled',
+      description: `${form.title} on ${date}${appt.customers?.name ? ` with ${appt.customers.name}` : ''}`,
+      link: `/dashboard/appointments/${appt.id}`,
+    })
     setEmailSent(false)
     setCopied(false)
     await load()
@@ -168,7 +177,21 @@ export default function AppointmentsPage() {
   return (
     <div>
       <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:20}}>
-        <h1 style={{fontSize:22, fontWeight:700, color:'var(--text)'}}>Appointments</h1>
+        <div style={{display:'flex', alignItems:'center', gap:12}}>
+          <h1 style={{fontSize:22, fontWeight:700, color:'var(--text)'}}>Appointments</h1>
+          {/* View toggle */}
+          <div style={{display:'flex', background:'var(--bg-secondary)', borderRadius:8, padding:3, gap:2}}>
+            {(['calendar','list'] as const).map(v => (
+              <button key={v} onClick={() => setView(v)}
+                style={{padding:'5px 14px', borderRadius:6, border:'none', cursor:'pointer', fontSize:12, fontWeight:600,
+                  background: view===v ? 'var(--card)' : 'transparent',
+                  color: view===v ? 'var(--accent)' : 'var(--text-muted)',
+                  boxShadow: view===v ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'}}>
+                {v === 'calendar' ? '📅 Calendar' : '☰ List'}
+              </button>
+            ))}
+          </div>
+        </div>
         <button onClick={() => { setShowModal(true); setError(''); setSavedAppt(null); setForm(f => ({...f, date: selectedDateStr})) }}
           style={{display:'flex', alignItems:'center', gap:6, background:'#7C3AED', color:'white', padding:'10px 18px', borderRadius:10, fontSize:14, fontWeight:600, border:'none', cursor:'pointer'}}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
@@ -176,7 +199,54 @@ export default function AppointmentsPage() {
         </button>
       </div>
 
-      <div className="three-col-grid">
+      {/* List view */}
+      {view === 'list' && (
+        <div style={{background:'var(--card)', borderRadius:14, border:'1px solid var(--border)', overflow:'hidden', marginBottom:16}}>
+          {appointments.length === 0 ? (
+            <div style={{textAlign:'center', padding:'48px 20px'}}>
+              <div style={{fontSize:40, marginBottom:12}}>📅</div>
+              <p style={{fontSize:15, fontWeight:600, color:'var(--text)', marginBottom:4}}>No appointments yet</p>
+              <p style={{fontSize:13, color:'var(--text-muted)'}}>Click New Appointment above to schedule one</p>
+            </div>
+          ) : (
+            <>
+              {/* Table header */}
+              <div style={{display:'grid', gridTemplateColumns:'1fr 130px 80px 90px', gap:12, padding:'10px 20px', background:'var(--bg-secondary)', borderBottom:'1px solid var(--border)'}}>
+                {['Customer / Service','Date & Time','Status',''].map(h => (
+                  <p key={h} style={{fontSize:11, fontWeight:700, color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:0.4}}>{h}</p>
+                ))}
+              </div>
+              {appointments.map((a: any) => {
+                const statusC: Record<string,string> = { CONFIRMED:'#22C55E', PENDING:'#F59E0B', CANCELLED:'#EF4444', COMPLETED:'#6B7280' }
+                const statusB: Record<string,string> = { CONFIRMED:'#F0FDF4', PENDING:'#FFFBEB', CANCELLED:'#FEF2F2', COMPLETED:'#F9FAFB' }
+                return (
+                  <div key={a.id} style={{display:'grid', gridTemplateColumns:'1fr 130px 80px 90px', gap:12, padding:'14px 20px', borderTop:'1px solid var(--border)', alignItems:'center'}}>
+                    <div style={{minWidth:0}}>
+                      <p style={{fontSize:14, fontWeight:600, color:'var(--text)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>{a.title}</p>
+                      <p style={{fontSize:12, color:'var(--text-muted)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>{a.customers?.name || 'No customer'}</p>
+                    </div>
+                    <div>
+                      <p style={{fontSize:12, fontWeight:500, color:'var(--text)'}}>{new Date(a.start_time).toLocaleDateString('en-NG',{day:'numeric',month:'short'})}</p>
+                      <p style={{fontSize:11, color:'var(--text-muted)'}}>{formatTime(a.start_time)}</p>
+                    </div>
+                    <span style={{fontSize:11, fontWeight:700, color:statusC[a.status]||'#6B7280', background:statusB[a.status]||'#F9FAFB', padding:'3px 8px', borderRadius:20, display:'inline-block'}}>
+                      {a.status}
+                    </span>
+                    <Link href={`/dashboard/appointments/${a.id}`}
+                      style={{fontSize:12, color:'var(--accent)', textDecoration:'none', fontWeight:600}}>
+                      View →
+                    </Link>
+                  </div>
+                )
+              })}
+            </>
+          )}
+        </div>
+      )}
+
+      {/* Calendar view */}
+      {view === 'calendar' && (
+        <div className="three-col-grid">
         {/* Calendar */}
         <div style={{background:'var(--card)', borderRadius:14, border:'1px solid var(--border)', padding:'20px'}}>
           <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:14}}>
@@ -237,6 +307,7 @@ export default function AppointmentsPage() {
           </div>
         </div>
       </div>
+      )} {/* end calendar view */}
 
       {/* Modal */}
       {showModal && (
