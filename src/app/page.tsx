@@ -245,40 +245,41 @@ export default function LandingPage() {
       </section>
 
       {/* ── FOOTER ── */}
-      <footer style={{ background: '#0c0720', color: 'white', padding: '56px 20px 28px', borderTop: '1px solid rgba(124,58,237,0.2)' }}>
+      <footer style={{ background: '#0c0720', color: 'white', padding: '72px 20px 40px', borderTop: '1px solid rgba(124,58,237,0.2)' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
 
-          {/* Brand row — always full width on top */}
-          <div style={{ marginBottom: 36, paddingBottom: 32, borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-              <div style={{ width: 32, height: 32, background: '#7C3AED', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z" fill="white"/></svg>
+          {/* Brand row */}
+          <div style={{ marginBottom: 48, paddingBottom: 40, borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+              <div style={{ width: 42, height: 42, background: '#7C3AED', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z" fill="white"/></svg>
               </div>
-              <span style={{ fontWeight: 800, fontSize: 18 }}>Amana</span>
+              <span style={{ fontWeight: 800, fontSize: 26 }}>Amana</span>
             </div>
-            <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.42)', lineHeight: 1.7, marginBottom: 16, maxWidth: 280 }}>
+            <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.5)', lineHeight: 1.7, marginBottom: 22, maxWidth: 360 }}>
               The all-in-one business platform for small businesses worldwide.
             </p>
-            <div style={{ display: 'flex', gap: 8 }}>
+            <div style={{ display: 'flex', gap: 12 }}>
               {['#1DA1F2','#0A66C2','#E4405F','#25D366'].map((c, i) => (
-                <a key={i} href="#" style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}>
-                  <div style={{ width: 14, height: 14, borderRadius: '50%', background: c, opacity: 0.85 }} />
+                <a key={i} href="#" style={{ width: 44, height: 44, borderRadius: '50%', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}>
+                  <div style={{ width: 18, height: 18, borderRadius: '50%', background: c }} />
                 </a>
               ))}
             </div>
           </div>
 
-          {/* 3 sub-columns — always side by side, even on mobile */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 20, marginBottom: 36 }}>
+          {/* 3 columns */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 40, marginBottom: 48 }}>
+
             {/* Contact */}
             <div>
-              <p style={{ fontSize: 10, fontWeight: 700, marginBottom: 14, textTransform: 'uppercase', letterSpacing: 0.8, color: 'rgba(255,255,255,0.6)' }}>Contact Us</p>
-              {[{ icon: '✉', l: 'Email', v: 'support@amana.app' }, { icon: '📞', l: 'Hours', v: '9am–6pm WAT' }, { icon: '📍', l: 'Location', v: 'Lagos, Nigeria' }].map(c => (
-                <div key={c.l} style={{ display: 'flex', gap: 8, marginBottom: 12, alignItems: 'flex-start' }}>
-                  <div style={{ width: 26, height: 26, borderRadius: 7, background: 'rgba(124,58,237,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, flexShrink: 0 }}>{c.icon}</div>
-                  <div style={{ minWidth: 0 }}>
-                    <p style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', marginBottom: 1 }}>{c.l}</p>
-                    <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', fontWeight: 500, wordBreak: 'break-word' }}>{c.v}</p>
+              <p style={{ fontSize: 13, fontWeight: 800, marginBottom: 20, textTransform: 'uppercase', letterSpacing: 1.2, color: 'rgba(255,255,255,0.5)' }}>Contact Us</p>
+              {[{ icon: '✉', l: 'Email', v: 'support@amana.app' }, { icon: '📞', l: 'Support Hours', v: '9am – 6pm WAT' }, { icon: '📍', l: 'Location', v: 'Lagos, Nigeria' }].map(c => (
+                <div key={c.l} style={{ display: 'flex', gap: 12, marginBottom: 18, alignItems: 'flex-start' }}>
+                  <div style={{ width: 38, height: 38, borderRadius: 9, background: 'rgba(124,58,237,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>{c.icon}</div>
+                  <div>
+                    <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginBottom: 3 }}>{c.l}</p>
+                    <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.8)', fontWeight: 600 }}>{c.v}</p>
                   </div>
                 </div>
               ))}
@@ -286,31 +287,31 @@ export default function LandingPage() {
 
             {/* Pages */}
             <div>
-              <p style={{ fontSize: 10, fontWeight: 700, marginBottom: 14, textTransform: 'uppercase', letterSpacing: 0.8, color: 'rgba(255,255,255,0.6)' }}>Pages</p>
+              <p style={{ fontSize: 13, fontWeight: 800, marginBottom: 20, textTransform: 'uppercase', letterSpacing: 1.2, color: 'rgba(255,255,255,0.5)' }}>Pages</p>
               {[['Home','/'],['Demo','#demo'],['Features','#features'],['FAQ','#faq'],['Terms','/terms'],['Privacy','/privacy']].map(([l,h]) => (
-                <p key={l} style={{ marginBottom: 9 }}>
-                  <Link href={h} style={{ fontSize: 12, color: 'rgba(255,255,255,0.48)', textDecoration: 'none' }}>{l}</Link>
+                <p key={l} style={{ marginBottom: 14 }}>
+                  <Link href={h} style={{ fontSize: 16, color: 'rgba(255,255,255,0.65)', textDecoration: 'none', fontWeight: 500 }}>{l}</Link>
                 </p>
               ))}
             </div>
 
             {/* Account */}
             <div>
-              <p style={{ fontSize: 10, fontWeight: 700, marginBottom: 14, textTransform: 'uppercase', letterSpacing: 0.8, color: 'rgba(255,255,255,0.6)' }}>Account</p>
+              <p style={{ fontSize: 13, fontWeight: 800, marginBottom: 20, textTransform: 'uppercase', letterSpacing: 1.2, color: 'rgba(255,255,255,0.5)' }}>Account</p>
               {[['Sign Up Free','/sign-up'],['Sign In','/sign-in']].map(([l,h]) => (
-                <p key={l} style={{ marginBottom: 9 }}>
-                  <Link href={h} style={{ fontSize: 12, color: 'rgba(255,255,255,0.48)', textDecoration: 'none' }}>{l}</Link>
+                <p key={l} style={{ marginBottom: 14 }}>
+                  <Link href={h} style={{ fontSize: 16, color: 'rgba(255,255,255,0.65)', textDecoration: 'none', fontWeight: 500 }}>{l}</Link>
                 </p>
               ))}
             </div>
           </div>
 
-          {/* Bottom */}
-          <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 18, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
-            <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.22)' }}>© {new Date().getFullYear()} Amana. All rights reserved.</p>
-            <div style={{ display: 'flex', gap: 16 }}>
+          {/* Bottom bar */}
+          <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)', paddingTop: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+            <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.3)' }}>© {new Date().getFullYear()} Amana. All rights reserved.</p>
+            <div style={{ display: 'flex', gap: 24 }}>
               {[['Terms','/terms'],['Privacy','/privacy'],['Contact','#contact']].map(([l,h]) => (
-                <Link key={l} href={h} style={{ fontSize: 11, color: 'rgba(255,255,255,0.22)', textDecoration: 'none' }}>{l}</Link>
+                <Link key={l} href={h} style={{ fontSize: 14, color: 'rgba(255,255,255,0.3)', textDecoration: 'none' }}>{l}</Link>
               ))}
             </div>
           </div>
