@@ -58,13 +58,13 @@ function ClickBtn({ label, doneLabel, onClick, active, clickAt }: {
 }
 
 // ── FIELD display ─────────────────────────────────────────
-const Fld = ({ val, placeholder, icon }: { val: string; placeholder: string; icon?: string }) => (
+const Fld = ({ val, placeholder, icon, typing = false }: { val: string; placeholder: string; icon?: string; typing?: boolean }) => (
   <div style={{ height: 42, background: 'rgba(255,255,255,0.06)', border: `1px solid ${val ? 'rgba(124,58,237,0.6)' : 'rgba(255,255,255,0.1)'}`, borderRadius: 9, display: 'flex', alignItems: 'center', padding: '0 12px', gap: 8, transition: 'border-color 0.3s' }}>
     {icon && <span style={{ fontSize: 13, opacity: 0.5 }}>{icon}</span>}
     <span style={{ fontSize: 13, color: val ? 'white' : 'rgba(255,255,255,0.25)', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
       {val || placeholder}
     </span>
-    {val && <span style={{ width: 2, height: 14, background: '#A78BFA', display: 'inline-block', animation: 'blink 1s steps(1) infinite', flexShrink: 0 }} />}
+    {typing && <span style={{ width: 2, height: 14, background: '#A78BFA', display: 'inline-block', animation: 'blink 1s steps(1) infinite', flexShrink: 0 }} />}
   </div>
 )
 const Lbl = ({ t }: { t: string }) => (
@@ -104,16 +104,19 @@ function SignInContent({ active }: { active: boolean }) {
   // Click button 600ms after password finishes
   const clickAt = 'john@johnsphotography.com'.length * 60 + 400 + 8 * 80 + 600
 
+  const emailDone = email.length === 'john@johnsphotography.com'.length
+  const passDone = pass.length >= 8
+
   return (
     <>
       <PanelHead num={1} title="Sign In" sub="Welcome back! Please sign in to your account." />
       <div style={{ marginBottom: 12 }}>
         <Lbl t="Email address" />
-        <Fld val={email} placeholder="john@johnsphotography.com" icon="✉" />
+        <Fld val={email} placeholder="john@johnsphotography.com" icon="✉" typing={!emailDone} />
       </div>
       <div style={{ marginBottom: 20 }}>
         <Lbl t="Password" />
-        <Fld val={pass} placeholder="••••••••" icon="🔒" />
+        <Fld val={pass} placeholder="••••••••" icon="🔒" typing={passPhase && !passDone} />
       </div>
       <ClickBtn label="Sign In" doneLabel="Signed In Successfully" active={active} clickAt={clickAt} />
       <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 12 }}>
@@ -132,25 +135,26 @@ function AddCustomerContent({ active }: { active: boolean }) {
   const email = useType('amaka.chisom@email.com', active && name.length === 12, 60)
   const addr  = useType('14 Allen Avenue, Lagos', active && email.length === 22, 55)
 
-  const allDone = addr.length === 22
-  const clickAt = 12*65 + 22*60 + 22*55 + 500
+  const nameDone  = name.length === 12
+  const emailDone2 = email.length === 22
+  const addrDone  = addr.length === 22
 
   return (
     <>
       <PanelHead num={2} title="Add Customer" sub="Add a new customer to your business." />
       <div style={{ marginBottom: 12 }}>
         <Lbl t="Full name" />
-        <Fld val={name} placeholder="Amaka Chisom" icon="👤" />
+        <Fld val={name} placeholder="Amaka Chisom" icon="👤" typing={!nameDone} />
       </div>
       <div style={{ marginBottom: 12 }}>
         <Lbl t="Email address" />
-        <Fld val={email} placeholder="amaka.chisom@email.com" icon="✉" />
+        <Fld val={email} placeholder="amaka.chisom@email.com" icon="✉" typing={nameDone && !emailDone2} />
       </div>
       <div style={{ marginBottom: 20 }}>
         <Lbl t="Address" />
-        <Fld val={addr} placeholder="14 Allen Avenue, Lagos" icon="📍" />
+        <Fld val={addr} placeholder="14 Allen Avenue, Lagos" icon="📍" typing={emailDone2 && !addrDone} />
       </div>
-      <ClickBtn label="Save Customer" doneLabel="Customer Saved!" active={active} clickAt={clickAt} />
+      <ClickBtn label="Save Customer" doneLabel="Customer Saved!" active={active} clickAt={12*65 + 22*60 + 22*55 + 500} />
     </>
   )
 }
@@ -163,29 +167,31 @@ function CreateInvoiceContent({ active }: { active: boolean }) {
   const service  = useType('Wedding Photography – Full Day', active && invNum.length === 8, 55)
   const amount   = useType('₦185,000', active && service.length === 30, 70)
 
-  const allDone = amount.length > 0
-  const clickAt = 12*65 + 8*70 + 30*55 + 8*70 + 500
+  const custDone    = customer.length === 12
+  const invDone     = invNum.length === 8
+  const svcDone     = service.length === 30
+  const amtDone     = amount.length > 0
 
   return (
     <>
       <PanelHead num={3} title="Create Invoice" sub="Create a new invoice for your customer." />
       <div style={{ marginBottom: 12 }}>
         <Lbl t="Customer" />
-        <Fld val={customer} placeholder="Amaka Chisom" icon="👤" />
+        <Fld val={customer} placeholder="Amaka Chisom" icon="👤" typing={!custDone} />
       </div>
       <div style={{ marginBottom: 12 }}>
         <Lbl t="Invoice Number" />
-        <Fld val={invNum} placeholder="INV-0025" icon="📄" />
+        <Fld val={invNum} placeholder="INV-0025" icon="📄" typing={custDone && !invDone} />
       </div>
       <div style={{ marginBottom: 12 }}>
         <Lbl t="Service / Item" />
-        <Fld val={service} placeholder="Wedding Photography – Full Day" icon="🎯" />
+        <Fld val={service} placeholder="Wedding Photography – Full Day" icon="🎯" typing={invDone && !svcDone} />
       </div>
       <div style={{ marginBottom: 20 }}>
         <Lbl t="Amount" />
-        <Fld val={amount} placeholder="₦185,000" icon="💰" />
+        <Fld val={amount} placeholder="₦185,000" icon="💰" typing={svcDone && !amtDone} />
       </div>
-      <ClickBtn label="Create Invoice" doneLabel="Invoice Created!" active={active} clickAt={clickAt} />
+      <ClickBtn label="Create Invoice" doneLabel="Invoice Created!" active={active} clickAt={12*65 + 8*70 + 30*55 + 8*70 + 500} />
     </>
   )
 }
@@ -198,34 +204,38 @@ function AppointmentContent({ active }: { active: boolean }) {
   const time     = useType('10:00 AM', active && date.length === 12, 70)
   const notes    = useType('Studio session, 3 outfit changes', active && time.length === 8, 50)
 
-  const clickAt = 12*65 + 21*60 + 12*65 + 8*70 + 32*50 + 500
+  const custD = customer.length === 12
+  const svcD  = service.length === 21
+  const dateD = date.length === 12
+  const timeD = time.length === 8
+  const noteD = notes.length > 0
 
   return (
     <>
       <PanelHead num={4} title="Book Appointment" sub="Book a new appointment." />
       <div style={{ marginBottom: 12 }}>
         <Lbl t="Customer" />
-        <Fld val={customer} placeholder="Amaka Chisom" icon="👤" />
+        <Fld val={customer} placeholder="Amaka Chisom" icon="👤" typing={!custD} />
       </div>
       <div style={{ marginBottom: 12 }}>
         <Lbl t="Service" />
-        <Fld val={service} placeholder="Product Shoot – 4 hrs" icon="🎯" />
+        <Fld val={service} placeholder="Product Shoot – 4 hrs" icon="🎯" typing={custD && !svcD} />
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
         <div>
           <Lbl t="Date" />
-          <Fld val={date} placeholder="20 June 2026" />
+          <Fld val={date} placeholder="20 June 2026" typing={svcD && !dateD} />
         </div>
         <div>
           <Lbl t="Time" />
-          <Fld val={time} placeholder="10:00 AM" />
+          <Fld val={time} placeholder="10:00 AM" typing={dateD && !timeD} />
         </div>
       </div>
       <div style={{ marginBottom: 20 }}>
         <Lbl t="Notes" />
-        <Fld val={notes} placeholder="Studio session, 3 outfit changes" icon="📝" />
+        <Fld val={notes} placeholder="Studio session, 3 outfit changes" icon="📝" typing={timeD && !noteD} />
       </div>
-      <ClickBtn label="Save Appointment" doneLabel="Appointment Booked!" active={active} clickAt={clickAt} />
+      <ClickBtn label="Save Appointment" doneLabel="Appointment Booked!" active={active} clickAt={12*65 + 21*60 + 12*65 + 8*70 + 32*50 + 500} />
     </>
   )
 }
@@ -388,11 +398,11 @@ export default function AmanaDemo() {
       width: 280,
       left: '50%',
       transform: exiting
-        ? 'translate(calc(-50% + 20px), -50%) scale(0.88)'  // next slides to center
+        ? 'translate(calc(-50% + 20px), -50%) scale(0.88)'
         : 'translate(calc(-50% + 260px), -50%) scale(0.88)',
       zIndex: 10,
-      opacity: exiting ? 0.9 : 0.45,
-      filter: exiting ? 'blur(0px) brightness(0.8)' : 'blur(2px) brightness(0.55)',
+      opacity: exiting ? 0.9 : 0.65,
+      filter: exiting ? 'blur(0px) brightness(0.85)' : 'blur(1.5px) brightness(0.65)',
       boxShadow: 'none',
     }
     // prev
@@ -404,8 +414,8 @@ export default function AmanaDemo() {
         ? 'translate(calc(-50% - 540px), -50%) scale(0.88)'
         : 'translate(calc(-50% - 260px), -50%) scale(0.88)',
       zIndex: 10,
-      opacity: exiting ? 0 : 0.35,
-      filter: 'blur(3px) brightness(0.4)',
+      opacity: exiting ? 0 : 0.55,
+      filter: 'blur(2px) brightness(0.55)',
       boxShadow: 'none',
     }
   }
@@ -413,11 +423,13 @@ export default function AmanaDemo() {
   return (
     <div style={{ position: 'relative', width: '100%', borderRadius: 22, overflow: 'hidden', border: '1px solid rgba(124,58,237,0.22)', background: DARK, boxShadow: '0 40px 100px rgba(0,0,0,0.7)', height: 500 }}>
 
-      {/* Dashboard BG */}
-      <DashBG />
+      {/* Dashboard BG — bigger, more visible */}
+      <div style={{ position: 'absolute', inset: 0, opacity: 0.6 }}>
+        <DashBG />
+      </div>
 
-      {/* Dark overlay for panel readability */}
-      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at center, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.55) 100%)', pointerEvents: 'none', zIndex: 1 }} />
+      {/* Subtle vignette only — no heavy dark overlay */}
+      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.35) 100%)', pointerEvents: 'none', zIndex: 1 }} />
 
       {/* 3 panels */}
       <div style={{ position: 'absolute', inset: 0, zIndex: 2 }}>
