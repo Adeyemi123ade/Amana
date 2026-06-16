@@ -190,9 +190,10 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
               <p style={{ fontSize: 14, fontWeight: 600, color: '#16A34A', marginBottom: 2 }}>This invoice has been paid</p>
               <p style={{ fontSize: 12, color: '#15803D' }}>Transaction completed. Download a copy for your records.</p>
             </div>
-            <button style={{ width: '100%', height: 48, background: 'var(--accent)', color: 'white', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
+            <a href={`/api/invoice-pdf?id=${id}`} target="_blank" rel="noreferrer"
+              style={{ display:'block', width: '100%', height: 48, background: 'var(--accent)', color: 'white', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: 'pointer', textDecoration:'none', lineHeight:'48px', textAlign:'center' }}>
               Download Invoice PDF
-            </button>
+            </a>
           </>
         ) : (
           /* UNPAID / OVERDUE — show send email + payment link */
@@ -226,9 +227,10 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
               <p style={{ fontSize: 10, color: '#9CA3AF', marginTop: 5 }}>Customer uses this link to pay by card, bank transfer, or upload receipt</p>
             </div>
 
-            <button style={{ width: '100%', height: 42, background: 'var(--card)', border: '1px solid var(--border-light)', borderRadius: 10, fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', cursor: 'pointer' }}>
+            <a href={`/api/invoice-pdf?id=${id}`} target="_blank" rel="noreferrer"
+              style={{ display:'block', width: '100%', height: 42, background: 'var(--card)', border: '1px solid var(--border-light)', borderRadius: 10, fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', cursor: 'pointer', textDecoration:'none', lineHeight:'42px', textAlign:'center' }}>
               Download PDF
-            </button>
+            </a>
           </>
         )}
       </div>

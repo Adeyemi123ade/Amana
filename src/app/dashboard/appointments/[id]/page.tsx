@@ -28,9 +28,26 @@ export default function AppointmentDetailPage({ params }: { params: Promise<{ id
   }, [id])
 
   const updateStatus = async (status: string) => {
+    // Confirmation for destructive actions
+    if (status === 'CANCELLED') {
+      const confirmed = window.confirm('Cancel this appointment? This will notify the customer and cannot be undone easily.')
+      if (!confirmed) return
+    }
     setUpdating(true)
-    await supabase.from('appointments').update({ status }).eq('id', id)
+    await supabase.from('appointments').update({ status, updated_at: new Date().toISOString() }).eq('id', id)
     setAppt((prev: any) => ({ ...prev, status }))
+    // Log activity
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user && workspace) {
+      await supabase.from('activity_logs').insert({
+        workspace_id: workspace.id,
+        user_id: user.id,
+        action: `Appointment ${status.toLowerCase()}`,
+        entity_type: 'appointment',
+        entity_id: id,
+        metadata: { title: appt?.title, status },
+      })
+    }
     setUpdating(false)
   }
 

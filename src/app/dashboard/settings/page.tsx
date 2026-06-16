@@ -284,17 +284,34 @@ export default function SettingsPage() {
         Back to Settings
       </button>
       <p style={{fontSize:18,fontWeight:700,color:'#111827',marginBottom:4}}>Team Members</p>
-      <p style={{fontSize:13,color:'#6B7280',marginBottom:16}}>Invite and manage your team</p>
+      <p style={{fontSize:13,color:'#6B7280',marginBottom:16}}>Invite colleagues to access this workspace</p>
       <MsgBox/>
       <div style={{background:'white',borderRadius:14,border:'1px solid #E5E7EB',padding:18,marginBottom:12}}>
         <p style={{fontSize:13,fontWeight:600,color:'#111827',marginBottom:10}}>Invite a team member</p>
         <div style={{display:'flex',gap:8}}>
           <input type="email" style={{...inp,flex:1}} placeholder="colleague@email.com" value={inviteEmail} onChange={e => setInviteEmail(e.target.value)}/>
-          <button onClick={() => { if(inviteEmail){ ok(`Invitation sent to ${inviteEmail}`); setInviteEmail('') }}}
+          <button onClick={async () => {
+            if (!inviteEmail.trim()) return
+            if (!workspace) { fail('Workspace not loaded'); return }
+            const res = await fetch('/api/team-invite', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                email: inviteEmail.trim(),
+                workspaceId: workspace.id,
+                invitedBy: user?.id,
+                workspaceName: workspace.name,
+              }),
+            })
+            const data = await res.json()
+            if (res.ok) { ok(`Invitation sent to ${inviteEmail}`); setInviteEmail('') }
+            else fail(data.error || 'Could not send invite')
+          }}
             style={{height:44,padding:'0 16px',background:'#7C3AED',color:'white',border:'none',borderRadius:8,fontSize:13,fontWeight:600,cursor:'pointer',flexShrink:0}}>
-            Invite
+            Send Invite
           </button>
         </div>
+        <p style={{fontSize:11,color:'#9CA3AF',marginTop:8}}>Colleague will receive an email with a link to join this workspace.</p>
       </div>
       <div style={{background:'white',borderRadius:14,border:'1px solid #E5E7EB',padding:18}}>
         <p style={{fontSize:13,fontWeight:600,color:'#111827',marginBottom:10}}>Current Team</p>
