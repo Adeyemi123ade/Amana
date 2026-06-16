@@ -532,7 +532,7 @@ export default function AmanaDemo() {
   }
 
   return (
-    <div style={{ position: 'relative', width: '100%', borderRadius: 22, overflow: 'hidden', border: '1px solid rgba(124,58,237,0.22)', background: DARK, boxShadow: '0 40px 100px rgba(0,0,0,0.7)', height: 'clamp(520px, 60vw, 580px)' }}>
+    <div style={{ position: 'relative', width: '100%', borderRadius: 22, overflow: 'hidden', border: '1px solid rgba(124,58,237,0.22)', background: DARK, boxShadow: '0 40px 100px rgba(0,0,0,0.7)', height: 'clamp(680px, 60vw, 580px)' }}>
 
       {/* Dashboard BG — bigger, more visible */}
       <div style={{ position: 'absolute', inset: 0, opacity: 0.6 }}>
