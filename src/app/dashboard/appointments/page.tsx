@@ -83,6 +83,24 @@ export default function AppointmentsPage() {
     const startTime = new Date(`${form.date}T${form.time}:00`)
     const endTime = new Date(startTime.getTime() + parseInt(form.duration) * 60000)
 
+    // ── CONFLICT DETECTION ────────────────────────────────
+    // Check for any existing non-cancelled appointment that overlaps this slot
+    const { data: conflicts } = await supabase
+      .from('appointments')
+      .select('id, title, start_time, end_time')
+      .eq('workspace_id', ws.id)
+      .not('status', 'in', '("CANCELLED","COMPLETED")')
+      .lt('start_time', endTime.toISOString())
+      .gt('end_time', startTime.toISOString())
+
+    if (conflicts && conflicts.length > 0) {
+      const clash = conflicts[0]
+      const clashTime = new Date(clash.start_time).toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit' })
+      setError(`Time conflict: "${clash.title}" is already booked at ${clashTime} on this day. Please choose a different time.`)
+      setSaving(false)
+      return
+    }
+
     const insertData: any = {
       workspace_id: ws.id,
       title: form.title.trim(),

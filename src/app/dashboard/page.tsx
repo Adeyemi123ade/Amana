@@ -162,6 +162,25 @@ export default async function DashboardPage() {
           ))}
         </div>
       </div>
+
+      {/* Public Booking Link */}
+      {workspace.slug && (
+        <div style={{background:'var(--card)', borderRadius:14, padding:'18px 20px', border:'1px solid var(--border)', marginTop:16}}>
+          <div style={{marginBottom:10}}>
+            <p style={{fontSize:13, fontWeight:600, color:'var(--text)', marginBottom:2}}>📅 Your Public Booking Page</p>
+            <p style={{fontSize:12, color:'var(--text-muted)'}}>Share this link with customers so they can book appointments directly</p>
+          </div>
+          <div style={{display:'flex', gap:8, alignItems:'center'}}>
+            <div style={{flex:1, background:'var(--bg-secondary)', borderRadius:8, padding:'10px 12px', border:'1px solid var(--border)', overflow:'hidden'}}>
+              <p style={{fontSize:12, color:'var(--accent)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', fontFamily:'monospace'}}>{'https://amana-two.vercel.app/book/' + workspace.slug}</p>
+            </div>
+            <Link href={'/book/' + workspace.slug} target="_blank"
+              style={{fontSize:12, fontWeight:600, color:'var(--accent)', textDecoration:'none', padding:'8px 14px', border:'1px solid var(--accent)', borderRadius:8, flexShrink:0, whiteSpace:'nowrap'}}>
+              Preview
+            </Link>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

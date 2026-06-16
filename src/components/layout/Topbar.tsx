@@ -29,7 +29,6 @@ export function Topbar({ user }: TopbarProps) {
       const name = u?.user_metadata?.business_name || u?.user_metadata?.full_name || u?.email || 'there'
       setDisplayName(name.split(' ')[0])
       setAvatarUrl(u?.user_metadata?.avatar_url || null)
-      // Load workspace + notifications
       if (u) {
         const { data: ws } = await supabase.from('workspaces').select('id').eq('created_by', u.id).maybeSingle()
         if (ws) {
@@ -38,6 +37,28 @@ export function Topbar({ user }: TopbarProps) {
             .from('notifications').select('*').eq('workspace_id', ws.id)
             .order('created_at', { ascending: false }).limit(20)
           setNotifications(notifs || [])
+
+          // ── REAL-TIME SUBSCRIPTION ────────────────────────
+          // New notifications push instantly without page refresh
+          const channel = supabase
+            .channel(`notifications:${ws.id}`)
+            .on(
+              'postgres_changes',
+              {
+                event: 'INSERT',
+                schema: 'public',
+                table: 'notifications',
+                filter: `workspace_id=eq.${ws.id}`,
+              },
+              (payload) => {
+                // Prepend new notification to top of list
+                setNotifications(prev => [payload.new as any, ...prev.slice(0, 19)])
+              }
+            )
+            .subscribe()
+
+          // Cleanup subscription on unmount
+          return () => { supabase.removeChannel(channel) }
         }
       }
     }
