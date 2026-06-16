@@ -383,7 +383,7 @@ export default function AmanaDemo() {
     }
     if (role === 'active') return {
       ...base,
-      width: 360,
+      width: 'min(360px, 80vw)',
       left: '50%',
       transform: exiting
         ? 'translate(calc(-50% - 540px), -50%)'
@@ -392,6 +392,8 @@ export default function AmanaDemo() {
       opacity: exiting ? 0 : 1,
       boxShadow: '0 24px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(124,58,237,0.4), 0 0 60px rgba(124,58,237,0.12)',
       filter: 'blur(0px) brightness(1)',
+      maxHeight: '88%',
+      overflowY: 'auto',
     }
     if (role === 'next') return {
       ...base,
@@ -421,7 +423,7 @@ export default function AmanaDemo() {
   }
 
   return (
-    <div style={{ position: 'relative', width: '100%', borderRadius: 22, overflow: 'hidden', border: '1px solid rgba(124,58,237,0.22)', background: DARK, boxShadow: '0 40px 100px rgba(0,0,0,0.7)', height: 500 }}>
+    <div style={{ position: 'relative', width: '100%', borderRadius: 22, overflow: 'hidden', border: '1px solid rgba(124,58,237,0.22)', background: DARK, boxShadow: '0 40px 100px rgba(0,0,0,0.7)', height: 'clamp(520px, 60vw, 580px)' }}>
 
       {/* Dashboard BG — bigger, more visible */}
       <div style={{ position: 'absolute', inset: 0, opacity: 0.6 }}>

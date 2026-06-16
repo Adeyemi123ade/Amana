@@ -74,7 +74,7 @@ export default function LandingPage() {
       </header>
 
       {/* ── HERO ── */}
-      <section style={{ background: 'linear-gradient(160deg,#0c0720 0%,#160d3a 50%,#0c0720 100%)', padding: '88px 20px 80px' }}>
+      <section style={{ background: 'linear-gradient(160deg,#160b35 0%,#1e1048 50%,#160b35 100%)', padding: '88px 20px 80px' }}>
         <div style={{ maxWidth: 720, margin: '0 auto', textAlign: 'center' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(124,58,237,0.15)', border: '1px solid rgba(124,58,237,0.35)', borderRadius: 24, padding: '6px 16px', marginBottom: 28 }}>
             <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#A78BFA', display: 'inline-block', animation: 'pulse 2s infinite' }} />
@@ -140,71 +140,62 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── CTA WITH PHONE MOCKUP ── */}
+      {/* ── CTA ── */}
       <section style={{ background: 'linear-gradient(135deg,#7C3AED,#4C1D95)', padding: '80px 20px', overflow: 'hidden' }}>
-        <div style={{ maxWidth: 900, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr auto', gap: 48, alignItems: 'center' }} className="cta-grid">
-          {/* Left text — centered on mobile */}
-          <div style={{ textAlign: 'left' }} className="cta-text">
-            <h2 style={{ fontSize: 'clamp(28px,4vw,42px)', fontWeight: 900, color: 'white', marginBottom: 16, lineHeight: 1.15 }}>
+        <div style={{ maxWidth: 860, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 52, alignItems: 'center' }} className="cta-grid">
+          {/* Left — headline and benefits */}
+          <div className="cta-text">
+            <h2 style={{ fontSize: 'clamp(26px,3.5vw,40px)', fontWeight: 900, color: 'white', marginBottom: 16, lineHeight: 1.15 }}>
               Create your free<br />account today
             </h2>
-            <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.75)', marginBottom: 32, lineHeight: 1.7, maxWidth: 400 }}>
+            <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.7)', marginBottom: 28, lineHeight: 1.75 }}>
               Join thousands of business owners who get paid faster with Amana. No credit card required.
             </p>
-            <Link href="/sign-up" style={{ background: 'white', color: '#7C3AED', fontSize: 15, fontWeight: 700, textDecoration: 'none', padding: '14px 36px', borderRadius: 12, display: 'inline-block', boxShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
-              Create Free Account
-            </Link>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {['Send professional invoices in seconds', 'Get paid online via card, USSD or transfer', 'Manage customers and appointments', 'Automated reminders — no manual follow-up', 'Free for all early users, forever'].map(b => (
+                <div key={b} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{ width: 20, height: 20, borderRadius: '50%', background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round"><path d="M20 6L9 17l-5-5"/></svg>
+                  </div>
+                  <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.82)' }}>{b}</span>
+                </div>
+              ))}
+            </div>
           </div>
 
-          {/* Phone mockup with Sign In screen inside */}
-          <div style={{ flexShrink: 0 }} className="cta-phone">
-            <div style={{ position: 'relative', width: 200, transform: 'rotate(5deg)', filter: 'drop-shadow(0 24px 48px rgba(0,0,0,0.4))' }}>
-              {/* Phone shell */}
-              <div style={{ background: '#1a0a3d', borderRadius: 36, padding: 10, border: '2px solid rgba(255,255,255,0.15)', boxShadow: 'inset 0 0 0 1px rgba(124,58,237,0.3)' }}>
-                {/* Notch */}
-                <div style={{ width: 80, height: 20, background: '#0c0720', borderRadius: 10, margin: '0 auto 8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <div style={{ width: 36, height: 6, background: '#111', borderRadius: 3 }} />
-                </div>
-                {/* Screen content — Sign In */}
-                <div style={{ background: 'linear-gradient(160deg,#0c0720,#1a0f3c)', borderRadius: 24, padding: '16px 14px', minHeight: 340 }}>
-                  {/* App logo */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16 }}>
-                    <div style={{ width: 22, height: 22, background: '#7C3AED', borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z" fill="white"/></svg>
-                    </div>
-                    <span style={{ color: 'white', fontWeight: 800, fontSize: 12 }}>Amana</span>
-                  </div>
-                  <p style={{ color: 'white', fontSize: 13, fontWeight: 700, marginBottom: 2 }}>Sign In</p>
-                  <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 9, marginBottom: 14 }}>Welcome back to your account</p>
-                  {/* Fields */}
-                  {[{ l: 'Email', v: 'john@amana.app' }, { l: 'Password', v: '••••••••' }].map(f => (
-                    <div key={f.l} style={{ marginBottom: 8 }}>
-                      <p style={{ fontSize: 8, color: 'rgba(255,255,255,0.35)', marginBottom: 3, textTransform: 'uppercase', letterSpacing: 0.4 }}>{f.l}</p>
-                      <div style={{ height: 28, background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(124,58,237,0.45)', borderRadius: 6, display: 'flex', alignItems: 'center', padding: '0 8px' }}>
-                        <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)', fontFamily: 'monospace' }}>{f.v}</span>
-                      </div>
-                    </div>
-                  ))}
-                  {/* Sign In button */}
-                  <div style={{ height: 30, background: '#7C3AED', borderRadius: 7, display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 14, boxShadow: '0 4px 12px rgba(124,58,237,0.5)' }}>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: 'white' }}>Sign In</span>
-                  </div>
-                  {/* Links */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 10 }}>
-                    <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.3)' }}>Remember me</span>
-                    <span style={{ fontSize: 8, color: '#A78BFA' }}>Forgot password?</span>
-                  </div>
-                  {/* Download badge */}
-                  <div style={{ marginTop: 18, background: 'rgba(124,58,237,0.25)', border: '1px solid rgba(124,58,237,0.4)', borderRadius: 8, padding: '6px 10px', display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <div style={{ width: 16, height: 16, background: '#7C3AED', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                      <svg width="7" height="7" viewBox="0 0 24 24" fill="white"><path d="M12 16l-6-6h4V4h4v6h4l-6 6zM4 20h16v2H4z"/></svg>
-                    </div>
-                    <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.7)', fontWeight: 600 }}>Download Now</span>
-                  </div>
-                </div>
-                {/* Home bar */}
-                <div style={{ width: 60, height: 4, background: 'rgba(255,255,255,0.25)', borderRadius: 2, margin: '8px auto 0' }} />
+          {/* Right — signup form card */}
+          <div style={{ background: 'white', borderRadius: 20, padding: '32px 28px', boxShadow: '0 24px 60px rgba(0,0,0,0.3)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
+              <div style={{ width: 30, height: 30, background: '#7C3AED', borderRadius: 7, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z" fill="white"/></svg>
               </div>
+              <span style={{ fontWeight: 800, fontSize: 15, color: '#111827' }}>Create your free account</span>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div>
+                <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#374151', marginBottom: 5, textTransform: 'uppercase', letterSpacing: 0.4 }}>Full Name</label>
+                <div style={{ height: 42, border: '1px solid #E5E7EB', borderRadius: 8, display: 'flex', alignItems: 'center', padding: '0 12px', background: '#F9FAFB' }}>
+                  <span style={{ fontSize: 13, color: '#9CA3AF' }}>Your full name</span>
+                </div>
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#374151', marginBottom: 5, textTransform: 'uppercase', letterSpacing: 0.4 }}>Email Address</label>
+                <div style={{ height: 42, border: '1px solid #E5E7EB', borderRadius: 8, display: 'flex', alignItems: 'center', padding: '0 12px', background: '#F9FAFB' }}>
+                  <span style={{ fontSize: 13, color: '#9CA3AF' }}>you@example.com</span>
+                </div>
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#374151', marginBottom: 5, textTransform: 'uppercase', letterSpacing: 0.4 }}>Password</label>
+                <div style={{ height: 42, border: '1px solid #E5E7EB', borderRadius: 8, display: 'flex', alignItems: 'center', padding: '0 12px', background: '#F9FAFB' }}>
+                  <span style={{ fontSize: 16, color: '#D1D5DB', letterSpacing: 3 }}>{'●'.repeat(8)}</span>
+                </div>
+              </div>
+              <Link href="/sign-up" style={{ display: 'block', background: 'linear-gradient(135deg,#7C3AED,#6D28D9)', color: 'white', textDecoration: 'none', textAlign: 'center', padding: '13px 20px', borderRadius: 10, fontSize: 14, fontWeight: 700, marginTop: 4, boxShadow: '0 4px 16px rgba(124,58,237,0.35)' }}>
+                Create Free Account →
+              </Link>
+              <p style={{ textAlign: 'center', fontSize: 11, color: '#9CA3AF', marginTop: 2 }}>
+                No credit card required · Free forever for early users
+              </p>
             </div>
           </div>
         </div>
@@ -255,57 +246,75 @@ export default function LandingPage() {
       </section>
 
       {/* ── FOOTER ── */}
-      <footer style={{ background: '#0c0720', color: 'white', padding: '60px 20px 32px', borderTop: '1px solid rgba(124,58,237,0.2)' }}>
+      <footer style={{ background: '#0c0720', color: 'white', padding: '56px 20px 28px', borderTop: '1px solid rgba(124,58,237,0.2)' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(180px,1fr))', gap: 36, marginBottom: 48 }} className="footer-grid">
-            {/* Brand col */}
-            <div className="footer-brand">
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-                <div style={{ width: 32, height: 32, background: '#7C3AED', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z" fill="white"/></svg>
-                </div>
-                <span style={{ fontWeight: 800, fontSize: 17 }}>Amana</span>
+
+          {/* Brand row — always full width on top */}
+          <div style={{ marginBottom: 36, paddingBottom: 32, borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+              <div style={{ width: 32, height: 32, background: '#7C3AED', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z" fill="white"/></svg>
               </div>
-              <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', lineHeight: 1.7, marginBottom: 20, maxWidth: 220 }}>The all-in-one business platform for small businesses worldwide.</p>
-              <div style={{ display: 'flex', gap: 8 }}>
-                {['#1DA1F2','#0A66C2','#E4405F','#25D366'].map((c, i) => (
-                  <a key={i} href="#" style={{ width: 34, height: 34, borderRadius: '50%', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}>
-                    <div style={{ width: 14, height: 14, borderRadius: '50%', background: c, opacity: 0.8 }} />
-                  </a>
-                ))}
-              </div>
+              <span style={{ fontWeight: 800, fontSize: 18 }}>Amana</span>
             </div>
+            <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.42)', lineHeight: 1.7, marginBottom: 16, maxWidth: 280 }}>
+              The all-in-one business platform for small businesses worldwide.
+            </p>
+            <div style={{ display: 'flex', gap: 8 }}>
+              {['#1DA1F2','#0A66C2','#E4405F','#25D366'].map((c, i) => (
+                <a key={i} href="#" style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}>
+                  <div style={{ width: 14, height: 14, borderRadius: '50%', background: c, opacity: 0.85 }} />
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* 3 sub-columns — always side by side, even on mobile */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 20, marginBottom: 36 }}>
+            {/* Contact */}
             <div>
-              <p style={{ fontSize: 11, fontWeight: 700, marginBottom: 16, textTransform: 'uppercase', letterSpacing: 0.8 }}>Contact Us</p>
-              {[{ icon: '✉', l: 'Email', v: 'support@amana.app' }, { icon: '📞', l: 'Support Hours', v: '9am – 6pm WAT' }, { icon: '📍', l: 'Location', v: 'Lagos, Nigeria' }].map(c => (
-                <div key={c.l} style={{ display: 'flex', gap: 10, marginBottom: 14 }}>
-                  <div style={{ width: 30, height: 30, borderRadius: 8, background: 'rgba(124,58,237,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, flexShrink: 0 }}>{c.icon}</div>
-                  <div>
-                    <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginBottom: 2 }}>{c.l}</p>
-                    <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', fontWeight: 500 }}>{c.v}</p>
+              <p style={{ fontSize: 10, fontWeight: 700, marginBottom: 14, textTransform: 'uppercase', letterSpacing: 0.8, color: 'rgba(255,255,255,0.6)' }}>Contact Us</p>
+              {[{ icon: '✉', l: 'Email', v: 'support@amana.app' }, { icon: '📞', l: 'Hours', v: '9am–6pm WAT' }, { icon: '📍', l: 'Location', v: 'Lagos, Nigeria' }].map(c => (
+                <div key={c.l} style={{ display: 'flex', gap: 8, marginBottom: 12, alignItems: 'flex-start' }}>
+                  <div style={{ width: 26, height: 26, borderRadius: 7, background: 'rgba(124,58,237,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, flexShrink: 0 }}>{c.icon}</div>
+                  <div style={{ minWidth: 0 }}>
+                    <p style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', marginBottom: 1 }}>{c.l}</p>
+                    <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', fontWeight: 500, wordBreak: 'break-word' }}>{c.v}</p>
                   </div>
                 </div>
               ))}
             </div>
+
+            {/* Pages */}
             <div>
-              <p style={{ fontSize: 11, fontWeight: 700, marginBottom: 16, textTransform: 'uppercase', letterSpacing: 0.8 }}>Pages</p>
+              <p style={{ fontSize: 10, fontWeight: 700, marginBottom: 14, textTransform: 'uppercase', letterSpacing: 0.8, color: 'rgba(255,255,255,0.6)' }}>Pages</p>
               {[['Home','/'],['Demo','#demo'],['Features','#features'],['FAQ','#faq'],['Terms','/terms'],['Privacy','/privacy']].map(([l,h]) => (
-                <p key={l} style={{ marginBottom: 10 }}><Link href={h} style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', textDecoration: 'none' }}>{l}</Link></p>
+                <p key={l} style={{ marginBottom: 9 }}>
+                  <Link href={h} style={{ fontSize: 12, color: 'rgba(255,255,255,0.48)', textDecoration: 'none' }}>{l}</Link>
+                </p>
               ))}
             </div>
+
+            {/* Account */}
             <div>
-              <p style={{ fontSize: 11, fontWeight: 700, marginBottom: 16, textTransform: 'uppercase', letterSpacing: 0.8 }}>Account</p>
-              {[['Sign Up — Free','/sign-up'],['Sign In','/sign-in']].map(([l,h]) => (
-                <p key={l} style={{ marginBottom: 10 }}><Link href={h} style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', textDecoration: 'none' }}>{l}</Link></p>
+              <p style={{ fontSize: 10, fontWeight: 700, marginBottom: 14, textTransform: 'uppercase', letterSpacing: 0.8, color: 'rgba(255,255,255,0.6)' }}>Account</p>
+              {[['Sign Up Free','/sign-up'],['Sign In','/sign-in']].map(([l,h]) => (
+                <p key={l} style={{ marginBottom: 9 }}>
+                  <Link href={h} style={{ fontSize: 12, color: 'rgba(255,255,255,0.48)', textDecoration: 'none' }}>{l}</Link>
+                </p>
               ))}
-              <Link href="/sign-up" style={{ display: 'block', background: 'linear-gradient(135deg,#7C3AED,#6D28D9)', color: 'white', textDecoration: 'none', padding: '11px 16px', borderRadius: 10, fontSize: 13, fontWeight: 600, textAlign: 'center', marginTop: 16 }}>Get Started Free →</Link>
+              <Link href="/sign-up" style={{ display: 'block', background: '#7C3AED', color: 'white', textDecoration: 'none', padding: '9px 12px', borderRadius: 8, fontSize: 11, fontWeight: 700, textAlign: 'center', marginTop: 14 }}>
+                Get Started →
+              </Link>
             </div>
           </div>
-          <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)', paddingTop: 22, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
-            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.25)' }}>© {new Date().getFullYear()} Amana. All rights reserved.</p>
-            <div style={{ display: 'flex', gap: 18 }}>
+
+          {/* Bottom */}
+          <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 18, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
+            <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.22)' }}>© {new Date().getFullYear()} Amana. All rights reserved.</p>
+            <div style={{ display: 'flex', gap: 16 }}>
               {[['Terms','/terms'],['Privacy','/privacy'],['Contact','#contact']].map(([l,h]) => (
-                <Link key={l} href={h} style={{ fontSize: 12, color: 'rgba(255,255,255,0.25)', textDecoration: 'none' }}>{l}</Link>
+                <Link key={l} href={h} style={{ fontSize: 11, color: 'rgba(255,255,255,0.22)', textDecoration: 'none' }}>{l}</Link>
               ))}
             </div>
           </div>
@@ -315,27 +324,15 @@ export default function LandingPage() {
       <style>{`
         .desktop-nav { display: flex !important; }
         .mobile-header-right { display: none !important; }
-        .cta-grid { grid-template-columns: 1fr auto !important; }
+        .cta-grid { grid-template-columns: 1fr 1fr !important; }
         .cta-text { text-align: left !important; }
-        .cta-phone { display: block !important; }
-        .footer-grid { grid-template-columns: repeat(4,1fr) !important; }
 
         @media (max-width: 768px) {
           .desktop-nav { display: none !important; }
           .mobile-header-right { display: flex !important; }
-          /* CTA — stack, center everything */
-          .cta-grid { grid-template-columns: 1fr !important; justify-items: center; }
+          .cta-grid { grid-template-columns: 1fr !important; }
           .cta-text { text-align: center !important; }
-          .cta-text a { display: block; text-align: center; }
-          .cta-phone { display: flex !important; justify-content: center; }
-          /* Footer — brand full width top, then 3 cols below */
-          .footer-grid { grid-template-columns: 1fr !important; }
-          .footer-brand { grid-column: 1 / -1; }
-          .footer-sub { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
-        }
-
-        @media (max-width: 480px) {
-          .footer-sub { grid-template-columns: 1fr 1fr !important; }
+          .cta-text a { display: inline-block !important; }
         }
 
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
