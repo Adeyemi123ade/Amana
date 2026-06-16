@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
+// Use service role if available, fall back to anon (service role bypasses RLS)
+function getSupabase() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { reference, invoiceId } = await request.json()
@@ -11,51 +19,142 @@ export async function POST(request: NextRequest) {
 
     const secretKey = process.env.PAYSTACK_SECRET_KEY
     if (!secretKey || secretKey.includes('PASTE_YOUR')) {
-      return NextResponse.json({ error: 'Paystack not configured' }, { status: 500 })
+      return NextResponse.json({ error: 'Paystack not configured on this server' }, { status: 500 })
     }
 
-    // Verify transaction with Paystack
-    const res = await fetch(`https://api.paystack.co/transaction/verify/${reference}`, {
-      headers: {
-        Authorization: `Bearer ${secretKey}`,
-        'Content-Type': 'application/json',
-      },
-    })
+    const supabase = getSupabase()
 
-    const data = await res.json()
+    // ── IDEMPOTENCY CHECK ─────────────────────────────────
+    // If this reference already exists in payments table, do not process again
+    const { data: existingPayment } = await supabase
+      .from('payments')
+      .select('id, status')
+      .eq('paystack_ref', reference)
+      .maybeSingle()
 
-    if (!res.ok || !data.status || data.data?.status !== 'success') {
+    if (existingPayment) {
+      // Already processed — return success so the UI updates correctly
+      return NextResponse.json({
+        success: true,
+        message: 'Payment already recorded',
+        alreadyProcessed: true,
+      })
+    }
+
+    // ── VERIFY WITH PAYSTACK ──────────────────────────────
+    const paystackRes = await fetch(
+      `https://api.paystack.co/transaction/verify/${encodeURIComponent(reference)}`,
+      {
+        headers: {
+          Authorization: `Bearer ${secretKey}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    )
+
+    const paystackData = await paystackRes.json()
+
+    if (!paystackRes.ok || !paystackData.status || paystackData.data?.status !== 'success') {
       return NextResponse.json({
         success: false,
-        message: data.message || 'Payment verification failed',
+        message: paystackData.message || 'Payment verification failed. Please contact support.',
       }, { status: 400 })
     }
 
-    // Payment verified — update invoice in Supabase using service role
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    )
+    const txData = paystackData.data
+    const amountPaid = txData.amount / 100  // convert kobo to naira
+    const currency = txData.currency || 'NGN'
+    const customerEmail = txData.customer?.email || null
+    const paidAt = txData.paid_at || new Date().toISOString()
 
-    const { error } = await supabase.from('invoices').update({
-      status: 'PAID',
-      paid_at: new Date().toISOString(),
-      payment_method: 'Paystack',
-      paystack_reference: reference,
-    }).eq('id', invoiceId)
+    // ── FETCH INVOICE to get workspace_id ────────────────
+    const { data: invoice, error: invFetchError } = await supabase
+      .from('invoices')
+      .select('id, workspace_id, status, total_amount, invoice_number')
+      .eq('id', invoiceId)
+      .single()
 
-    if (error) {
-      return NextResponse.json({ error: 'Could not update invoice: ' + error.message }, { status: 500 })
+    if (invFetchError || !invoice) {
+      return NextResponse.json({
+        error: 'Invoice not found. Payment was received but could not be matched.',
+      }, { status: 404 })
     }
+
+    // ── BLOCK DOUBLE PAYMENT ──────────────────────────────
+    if (invoice.status === 'PAID') {
+      return NextResponse.json({
+        success: true,
+        message: 'Invoice already marked as paid.',
+        alreadyPaid: true,
+      })
+    }
+
+    // ── UPDATE INVOICE ────────────────────────────────────
+    const { error: invoiceError } = await supabase
+      .from('invoices')
+      .update({
+        status: 'PAID',
+        paid_at: paidAt,
+        payment_method: 'Paystack',
+        paystack_ref: reference,        // correct column name
+      })
+      .eq('id', invoiceId)
+
+    if (invoiceError) {
+      console.error('Invoice update failed:', invoiceError)
+      return NextResponse.json({
+        error: 'Payment verified but invoice update failed: ' + invoiceError.message,
+      }, { status: 500 })
+    }
+
+    // ── WRITE PAYMENT RECORD ──────────────────────────────
+    // This is what makes the Payments page and Reports work
+    const { error: paymentError } = await supabase
+      .from('payments')
+      .insert({
+        workspace_id: invoice.workspace_id,
+        invoice_id: invoiceId,
+        amount: amountPaid,
+        currency,
+        method: 'Paystack',
+        paystack_ref: reference,
+        customer_email: customerEmail,
+        status: 'SUCCESS',
+      })
+
+    if (paymentError) {
+      // Payment record failed — log it but do not fail the whole request
+      // Invoice is already marked PAID which is the critical part
+      console.error('Payment record insert failed:', paymentError)
+    }
+
+    // ── CREATE NOTIFICATION for business owner ───────────
+    await supabase
+      .from('notifications')
+      .insert({
+        workspace_id: invoice.workspace_id,
+        title: 'Payment Received',
+        description: `Invoice ${invoice.invoice_number} — ${currency} ${amountPaid.toLocaleString()} received via Paystack`,
+        type: 'payment',
+        read: false,
+        link: `/dashboard/invoices/${invoiceId}`,
+      })
+      .then(({ error }) => {
+        if (error) console.error('Notification insert failed:', error)
+      })
 
     return NextResponse.json({
       success: true,
-      amount: data.data.amount / 100,
-      currency: data.data.currency,
-      paidAt: data.data.paid_at,
+      amount: amountPaid,
+      currency,
+      paidAt,
+      invoiceNumber: invoice.invoice_number,
     })
 
   } catch (err: any) {
-    return NextResponse.json({ error: err.message || 'Server error' }, { status: 500 })
+    console.error('Paystack verify error:', err)
+    return NextResponse.json({
+      error: err.message || 'An unexpected server error occurred',
+    }, { status: 500 })
   }
 }

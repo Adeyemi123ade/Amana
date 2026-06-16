@@ -106,9 +106,23 @@ export default function SignUpPage() {
       const emailData = await emailRes.json()
 
       if (!emailRes.ok) {
-        // Account was created but email failed — still go to verify page
-        // User can request a resend
-        console.warn('Email send failed:', emailData)
+        // Email failed — show the user exactly what happened
+        // The account was created so we still go to verify, but they need to know
+        const reason = emailData?.detail || emailData?.error || 'Unknown error'
+        const isConfig = reason.toLowerCase().includes('api key') || reason.toLowerCase().includes('configure')
+
+        // Store email so verify page still works (they can resend from there)
+        sessionStorage.setItem('ros_verify_email', data.email.trim().toLowerCase())
+        sessionStorage.setItem('ros_email_failed', '1')
+
+        if (isConfig) {
+          setServerError('Email service is not configured. Please contact support.')
+          setIsLoading(false)
+          return
+        }
+
+        // Non-config error — go to verify page and let them resend
+        sessionStorage.setItem('ros_email_error', `We could not send your verification code: ${reason}. Please use the Resend button on the next screen.`)
       }
 
       // Store email for the verify page

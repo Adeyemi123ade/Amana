@@ -21,8 +21,16 @@ export default function VerifyEmailPage() {
     const loadEmail = async () => {
       // First check sessionStorage (set during signup)
       const stored = sessionStorage.getItem('ros_verify_email')
-      if (stored) { setEmail(stored); return }
-
+      if (stored) {
+        setEmail(stored)
+        // Check if email failed to send — show error so user knows to resend
+        const emailError = sessionStorage.getItem('ros_email_error')
+        if (emailError) {
+          setError(emailError)
+          sessionStorage.removeItem('ros_email_error')
+        }
+        return
+      }
       // Otherwise get from logged-in user session
       const { data: { user } } = await supabase.auth.getUser()
       if (user?.email) {
