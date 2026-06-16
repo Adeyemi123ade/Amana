@@ -77,7 +77,7 @@ const PanelHead = ({ num, title, sub }: { num: number; title: string; sub: strin
         <div style={{ width: 26, height: 26, background: P, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z" fill="white"/></svg>
         </div>
-        <span style={{ color: 'rgba(255,255,255,0.6)', fontWeight: 700, fontSize: 12 }}>amana</span>
+        <span style={{ color: 'rgba(255,255,255,0.6)', fontWeight: 700, fontSize: 12 }}>Amana</span>
       </div>
       <p style={{ color: 'white', fontSize: 18, fontWeight: 700, marginBottom: 3 }}>{title}</p>
       <p style={{ color: 'rgba(255,255,255,0.38)', fontSize: 12 }}>{sub}</p>
