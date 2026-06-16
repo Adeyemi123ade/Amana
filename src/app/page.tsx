@@ -111,10 +111,9 @@ export default function LandingPage() {
       <section id="demo" style={{ background: '#ffffff', padding: '72px 20px' }}>
         <div style={{ maxWidth: 900, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 40 }}>
-            <p style={{ fontSize: 11, fontWeight: 700, color: '#7C3AED', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 10 }}>Live Demonstration</p>
             <h2 style={{ fontSize: 'clamp(24px,3vw,38px)', fontWeight: 800, color: '#111827', marginBottom: 12 }}>Watch Amana in action</h2>
             <p style={{ fontSize: 15, color: '#6B7280', maxWidth: 480, margin: '0 auto' }}>
-              See the complete workflow — sign in, add customers, create invoices, book appointments, and receive payments.
+              See the complete workflow — sign in, add customers, book appointments, create invoices, and receive payments.
             </p>
           </div>
           <AmanaDemo />
@@ -303,9 +302,6 @@ export default function LandingPage() {
                   <Link href={h} style={{ fontSize: 12, color: 'rgba(255,255,255,0.48)', textDecoration: 'none' }}>{l}</Link>
                 </p>
               ))}
-              <Link href="/sign-up" style={{ display: 'block', background: '#7C3AED', color: 'white', textDecoration: 'none', padding: '9px 12px', borderRadius: 8, fontSize: 11, fontWeight: 700, textAlign: 'center', marginTop: 14 }}>
-                Get Started →
-              </Link>
             </div>
           </div>
 

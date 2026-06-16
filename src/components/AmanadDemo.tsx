@@ -174,7 +174,7 @@ function CreateInvoiceContent({ active }: { active: boolean }) {
 
   return (
     <>
-      <PanelHead num={3} title="Create Invoice" sub="Create a new invoice for your customer." />
+      <PanelHead num={4} title="Create Invoice" sub="Create a new invoice for your customer." />
       <div style={{ marginBottom: 12 }}>
         <Lbl t="Customer" />
         <Fld val={customer} placeholder="Amaka Chisom" icon="👤" typing={!custDone} />
@@ -212,7 +212,7 @@ function AppointmentContent({ active }: { active: boolean }) {
 
   return (
     <>
-      <PanelHead num={4} title="Book Appointment" sub="Book a new appointment." />
+      <PanelHead num={3} title="Book Appointment" sub="Book a new appointment." />
       <div style={{ marginBottom: 12 }}>
         <Lbl t="Customer" />
         <Fld val={customer} placeholder="Amaka Chisom" icon="👤" typing={!custD} />
@@ -240,7 +240,7 @@ function AppointmentContent({ active }: { active: boolean }) {
   )
 }
 
-// ── SLIDE 5: Payment Received ─────────────────────────────
+// ── SLIDE 4 (was 5): Payment Received ─────────────────────
 function PaymentContent({ active }: { active: boolean }) {
   const [phase, setPhase] = useState(0)
   useEffect(() => {
@@ -263,7 +263,7 @@ function PaymentContent({ active }: { active: boolean }) {
 
   return (
     <>
-      <PanelHead num={5} title="Payment Received" sub="Payment has been confirmed." />
+      <PanelHead num={6} title="Payment Received" sub="Payment has been confirmed." />
       <div style={{ textAlign: 'center', marginBottom: 20 }}>
         <div style={{ width: 68, height: 68, borderRadius: '50%', border: `3px solid ${phase >= 2 ? '#22C55E' : 'rgba(255,255,255,0.15)'}`, background: phase >= 2 ? 'rgba(34,197,94,0.12)' : 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', transition: 'all 0.6s ease' }}>
           {phase >= 2
@@ -287,6 +287,114 @@ function PaymentContent({ active }: { active: boolean }) {
           Dashboard revenue updated · Invoice marked Paid
         </p>
       )}
+    </>
+  )
+}
+
+// ── SLIDE 5: Send Invoice Email ───────────────────────────
+function SendInvoiceEmailContent({ active }: { active: boolean }) {
+  const [phase, setPhase] = useState(0)
+
+  useEffect(() => {
+    if (!active) { setPhase(0); return }
+    // Phase 1: show options (500ms)
+    // Phase 2: highlight Email (1200ms)
+    // Phase 3: click Email (2000ms) — shows email preview
+    // Phase 4: populate email fields (2800ms)
+    // Phase 5: body with payment link appears (4000ms)
+    const ts = [
+      setTimeout(() => setPhase(1), 500),
+      setTimeout(() => setPhase(2), 1200),
+      setTimeout(() => setPhase(3), 2000),
+      setTimeout(() => setPhase(4), 2800),
+      setTimeout(() => setPhase(5), 4200),
+    ]
+    return () => ts.forEach(clearTimeout)
+  }, [active])
+
+  const invoiceLink = 'https://amana-two.vercel.app/invoice/inv-0025'
+
+  return (
+    <>
+      <PanelHead num={5} title="Send Invoice" sub="Choose how to send INV-0025 to Amaka Chisom" />
+
+      {phase < 3 ? (
+        /* Step 1 & 2 — show delivery options */
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 16 }}>
+          {[
+            { icon: '📧', label: 'Send via Email', sub: 'Deliver invoice to customer inbox', id: 'email' },
+            { icon: '🔗', label: 'Copy Payment Link', sub: 'Share link via WhatsApp or SMS', id: 'link' },
+            { icon: '⬇', label: 'Download PDF', sub: 'Save and attach manually', id: 'pdf' },
+          ].map(opt => (
+            <div key={opt.id} style={{
+              display: 'flex', alignItems: 'center', gap: 12, padding: '14px 14px',
+              background: phase >= 2 && opt.id === 'email' ? 'rgba(124,58,237,0.15)' : 'rgba(255,255,255,0.05)',
+              border: `1px solid ${phase >= 2 && opt.id === 'email' ? 'rgba(124,58,237,0.6)' : 'rgba(255,255,255,0.1)'}`,
+              borderRadius: 10, transition: 'all 0.35s', opacity: phase >= 1 ? 1 : 0,
+              cursor: 'pointer',
+            }}>
+              <div style={{ width: 36, height: 36, borderRadius: 9, background: phase >= 2 && opt.id === 'email' ? 'rgba(124,58,237,0.3)' : 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0, transition: 'background 0.35s' }}>
+                {opt.icon}
+              </div>
+              <div>
+                <p style={{ fontSize: 13, fontWeight: 600, color: phase >= 2 && opt.id === 'email' ? '#A78BFA' : 'white', marginBottom: 2, transition: 'color 0.35s' }}>{opt.label}</p>
+                <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.38)' }}>{opt.sub}</p>
+              </div>
+              {phase >= 2 && opt.id === 'email' && (
+                <div style={{ marginLeft: 'auto', width: 20, height: 20, borderRadius: '50%', background: '#7C3AED', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><path d="M9 18l6-6-6-6"/></svg>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      ) : (
+        /* Step 3–5 — email compose preview */
+        <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, overflow: 'hidden', marginBottom: 14 }}>
+          {/* Email header bar */}
+          <div style={{ background: 'rgba(124,58,237,0.15)', padding: '10px 14px', borderBottom: '1px solid rgba(255,255,255,0.07)', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: 14 }}>📧</span>
+            <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.7)' }}>New Email — Gmail</span>
+          </div>
+          {/* Email fields */}
+          <div style={{ padding: '12px 14px' }}>
+            {[
+              { l: 'To', v: 'amaka.chisom@email.com', show: phase >= 4 },
+              { l: 'Subject', v: 'Invoice INV-0025 — Payment Request', show: phase >= 4 },
+            ].map(f => (
+              <div key={f.l} style={{ display: 'flex', gap: 8, marginBottom: 8, alignItems: 'center', opacity: f.show ? 1 : 0, transition: 'opacity 0.5s' }}>
+                <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', minWidth: 44, textTransform: 'uppercase' }}>{f.l}</span>
+                <div style={{ flex: 1, height: 30, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(124,58,237,0.35)', borderRadius: 6, display: 'flex', alignItems: 'center', padding: '0 10px' }}>
+                  <span style={{ fontSize: 11, color: 'white', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{f.v}</span>
+                </div>
+              </div>
+            ))}
+            {/* Email body */}
+            <div style={{ marginTop: 8, padding: '10px 12px', background: 'rgba(255,255,255,0.04)', borderRadius: 8, border: '1px solid rgba(255,255,255,0.07)', opacity: phase >= 5 ? 1 : 0, transition: 'opacity 0.6s', minHeight: 100 }}>
+              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)', lineHeight: 1.7, marginBottom: 6 }}>Dear Amaka,</p>
+              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', lineHeight: 1.7, marginBottom: 8 }}>
+                Please find your invoice below.<br />
+                <span style={{ color: 'rgba(255,255,255,0.5)' }}>Amount Due: </span><span style={{ fontWeight: 600, color: '#A78BFA' }}>₦185,000</span><br />
+                <span style={{ color: 'rgba(255,255,255,0.5)' }}>Due Date: </span><span style={{ color: 'white' }}>30 Jun 2026</span>
+              </p>
+              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginBottom: 4 }}>Pay securely online:</p>
+              <div style={{ background: 'rgba(124,58,237,0.2)', border: '1px solid rgba(124,58,237,0.4)', borderRadius: 6, padding: '6px 10px', display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ fontSize: 10 }}>🔗</span>
+                <span style={{ fontSize: 10, color: '#A78BFA', wordBreak: 'break-all', fontFamily: 'monospace' }}>{invoiceLink}</span>
+              </div>
+              <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginTop: 8 }}>Best regards, John's Photography</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Send button */}
+      <ClickBtn
+        label={phase < 3 ? 'Select Email to Continue' : '📨 Send Invoice Email'}
+        doneLabel="Email Sent! Amaka Will Receive the Payment Link"
+        active={active}
+        clickAt={phase < 3 ? 99999 : 5500}
+      />
     </>
   )
 }
@@ -339,8 +447,9 @@ function DashBG() {
 const SLIDES = [
   { id: 'signin',      duration: 9000,  Content: SignInContent },
   { id: 'customer',    duration: 12000, Content: AddCustomerContent },
-  { id: 'invoice',     duration: 14000, Content: CreateInvoiceContent },
   { id: 'appointment', duration: 15000, Content: AppointmentContent },
+  { id: 'invoice',     duration: 14000, Content: CreateInvoiceContent },
+  { id: 'sendemail',   duration: 13000, Content: SendInvoiceEmailContent },
   { id: 'payment',     duration: 8000,  Content: PaymentContent },
 ]
 const N = SLIDES.length
