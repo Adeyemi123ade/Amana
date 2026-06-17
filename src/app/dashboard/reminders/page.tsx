@@ -26,16 +26,18 @@ export default function RemindersPage() {
   const [logs, setLogs] = useState<any[]>([])
   const [wsId, setWsId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState('')
   const [toggling, setToggling] = useState<string | null>(null)
   const [sending, setSending] = useState(false)
   const [sendResult, setSendResult] = useState<any>(null)
 
   useEffect(() => {
     const load = async () => {
+      try {
       const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-      const { data: ws } = await supabase.from('workspaces').select('id').eq('created_by', user.id).single()
-      if (!ws) return
+      if (!user) { setLoadError('Please sign in to access reminders.'); setLoading(false); return }
+      const { data: ws, error: wsErr } = await supabase.from('workspaces').select('id').eq('created_by', user.id).single()
+      if (wsErr || !ws) { setLoadError('Could not load your workspace. Please refresh the page.'); setLoading(false); return }
       setWsId(ws.id)
 
       // Load rules
@@ -73,6 +75,10 @@ export default function RemindersPage() {
         .limit(20)
       setLogs(recentLogs || [])
       setLoading(false)
+      } catch(e: any) {
+        setLoadError(e.message || 'Could not load reminders. Please refresh.')
+        setLoading(false)
+      }
     }
     load()
   }, [])
@@ -118,6 +124,15 @@ export default function RemindersPage() {
 
   const activeCount = rules.filter(r => r.active).length
   const sentToday = logs.filter(l => new Date(l.sent_at).toDateString() === new Date().toDateString() && l.status === 'SENT').length
+
+  if (loadError) return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 200, textAlign: 'center', padding: 24 }}>
+      <div style={{ fontSize: 36, marginBottom: 12 }}>⚠️</div>
+      <p style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)', marginBottom: 6 }}>Could not load reminders</p>
+      <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 16 }}>{loadError}</p>
+      <button onClick={() => window.location.reload()} style={{ padding: '9px 20px', background: 'var(--accent)', color: 'white', border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Refresh Page</button>
+    </div>
+  )
 
   if (loading) return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 200 }}>

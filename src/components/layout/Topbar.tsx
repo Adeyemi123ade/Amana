@@ -63,6 +63,7 @@ export function Topbar({ user }: TopbarProps) {
           setWsId(ws.id)
           const { data: notifs } = await supabase
             .from('notifications').select('*').eq('workspace_id', ws.id)
+            .eq('read', false)
             .order('created_at', { ascending: false }).limit(20)
           setNotifications(notifs || [])
 
@@ -107,7 +108,8 @@ export function Topbar({ user }: TopbarProps) {
 
   const markRead = async (id: string) => {
     await supabase.from('notifications').update({ read: true }).eq('id', id)
-    setNotifications(prev => prev.map(n => n.id === id ? {...n, read: true} : n))
+    // Remove from active list immediately — only unread shown
+    setNotifications(prev => prev.filter(n => n.id !== id))
   }
 
   const markAllRead = async () => {
@@ -115,7 +117,7 @@ export function Topbar({ user }: TopbarProps) {
     const unreadIds = notifications.filter(n => !n.read).map(n => n.id)
     if (unreadIds.length === 0) return
     await supabase.from('notifications').update({ read: true }).in('id', unreadIds)
-    setNotifications(prev => prev.map(n => ({...n, read: true})))
+    setNotifications([])
   }
 
   const fullName = user.user_metadata?.full_name || user.email || 'User'

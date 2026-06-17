@@ -44,7 +44,11 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (error || !invite) {
-      return NextResponse.json({ error: 'Could not create invite' }, { status: 500 })
+      const reason = error?.code === '42P01' ? 'Team invites table does not exist. Run phase4_schema.sql in Supabase.'
+        : error?.code === '23503' ? 'Invalid workspace or user reference.'
+        : error?.code === '42501' ? 'Permission denied. Check RLS policies.'
+        : error?.message || 'Could not create invite'
+      return NextResponse.json({ error: reason }, { status: 500 })
     }
 
     // Send invite email via Resend

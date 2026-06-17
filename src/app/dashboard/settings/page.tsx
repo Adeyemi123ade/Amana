@@ -9,7 +9,7 @@ import { THEMES, type ThemeId } from '@/lib/theme/themes'
 // Create client ONCE outside component - permanent fix
 const supabase = createClient()
 
-type Section = null | 'business' | 'profile' | 'password' | 'notifications' | 'team' | 'appearance'
+type Section = null | 'business' | 'profile' | 'password' | 'notifications' | 'team' | 'appearance' | 'kyc'
 
 const inp: React.CSSProperties = { width:'100%', height:44, padding:'0 12px', borderRadius:8, border:'1px solid #E5E7EB', fontSize:14, color:'#111827', outline:'none', boxSizing:'border-box', background:'white' }
 const lbl: React.CSSProperties = { display:'block', fontSize:13, fontWeight:500, color:'#374151', marginBottom:6 }
@@ -301,10 +301,14 @@ export default function SettingsPage() {
             </button>
           </div>
         ))}
-        <div style={{padding:'14px 18px',borderTop:'1px solid #F3F4F6'}}>
+        <div style={{padding:'14px 18px',borderTop:'1px solid #F3F4F6',display:'flex',gap:10}}>
           <button onClick={() => ok('Notification preferences saved')}
             style={{height:44,padding:'0 24px',background:'#7C3AED',color:'white',border:'none',borderRadius:10,fontSize:14,fontWeight:600,cursor:'pointer'}}>
             Save Preferences
+          </button>
+          <button onClick={back}
+            style={{height:44,padding:'0 20px',background:'none',border:'1px solid #E5E7EB',borderRadius:10,fontSize:14,fontWeight:500,color:'#6B7280',cursor:'pointer'}}>
+            Cancel
           </button>
         </div>
       </div>

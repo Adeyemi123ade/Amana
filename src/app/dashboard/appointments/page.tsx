@@ -26,6 +26,8 @@ export default function AppointmentsPage() {
   const wsRef = useRef<any>(null)
   const [wsId, setWsId] = useState<string|null>(null)
   const { role } = useRole(wsId)
+  const [pageError, setPageError] = useState('')
+  const [pageLoading, setPageLoading] = useState(true)
   const [view, setView] = useState<'calendar'|'list'>('calendar')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -41,20 +43,30 @@ export default function AppointmentsPage() {
   const selectedCustomer = customers.find(c => c.id === form.customerId)
 
   const load = async () => {
-    const { data: { user: u } } = await supabase.auth.getUser()
-    if (!u) return
-    setUser(u)
-    const { data: ws } = await supabase.from('workspaces').select('*').eq('created_by', u.id).maybeSingle()
-    if (!ws) return
-    setWorkspace(ws)
-    wsRef.current = ws
-    setWsId(ws.id)
-    const [{ data: appts }, { data: custs }] = await Promise.all([
-      supabase.from('appointments').select('*, customers(name,email)').eq('workspace_id', ws.id).order('start_time', { ascending: true }),
-      supabase.from('customers').select('id,name,email,phone').eq('workspace_id', ws.id),
-    ])
-    setAppointments(appts || [])
-    setCustomers(custs || [])
+    setPageLoading(true)
+    setPageError('')
+    try {
+      const { data: { user: u } } = await supabase.auth.getUser()
+      if (!u) { setPageError('Not authenticated'); setPageLoading(false); return }
+      setUser(u)
+      const { data: ws, error: wsErr } = await supabase.from('workspaces').select('*').eq('created_by', u.id).maybeSingle()
+      if (wsErr) throw new Error('Could not load workspace: ' + wsErr.message)
+      if (!ws) { setPageLoading(false); return }
+      setWorkspace(ws)
+      wsRef.current = ws
+      setWsId(ws.id)
+      const [apptRes, custRes] = await Promise.all([
+        supabase.from('appointments').select('*, customers(name,email)').eq('workspace_id', ws.id).order('start_time', { ascending: true }),
+        supabase.from('customers').select('id,name,email,phone').eq('workspace_id', ws.id),
+      ])
+      if (apptRes.error) throw new Error('Could not load appointments: ' + apptRes.error.message)
+      setAppointments(apptRes.data || [])
+      setCustomers(custRes.data || [])
+    } catch (e: any) {
+      setPageError(e.message || 'Unable to load appointments right now.')
+    } finally {
+      setPageLoading(false)
+    }
   }
 
   useEffect(() => { load() }, [])
@@ -195,6 +207,25 @@ export default function AppointmentsPage() {
     setError('')
     setForm({ customerId:'', title:'', date:'', time:'', duration:'60', location:'', notes:'', status:'CONFIRMED' })
   }
+
+  if (pageLoading) return (
+    <div style={{display:'flex',alignItems:'center',justifyContent:'center',minHeight:300}}>
+      <div style={{width:28,height:28,border:'3px solid var(--accent)',borderTopColor:'transparent',borderRadius:'50%',animation:'spin .8s linear infinite'}}/>
+      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+    </div>
+  )
+
+  if (pageError) return (
+    <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',minHeight:300,padding:24,textAlign:'center'}}>
+      <div style={{fontSize:40,marginBottom:12}}>⚠️</div>
+      <p style={{fontSize:16,fontWeight:700,color:'var(--text)',marginBottom:6}}>Unable to load appointments right now.</p>
+      <p style={{fontSize:13,color:'var(--text-muted)',marginBottom:20}}>{pageError}</p>
+      <div style={{display:'flex',gap:10}}>
+        <button onClick={load} style={{padding:'9px 20px',background:'var(--accent)',color:'white',border:'none',borderRadius:9,fontSize:13,fontWeight:600,cursor:'pointer'}}>Try Again</button>
+        <a href="/dashboard" style={{padding:'9px 20px',background:'var(--bg-secondary)',color:'var(--text-muted)',border:'1px solid var(--border-light)',borderRadius:9,fontSize:13,fontWeight:600,textDecoration:'none'}}>Back to Dashboard</a>
+      </div>
+    </div>
+  )
 
   return (
     <div>
