@@ -197,13 +197,27 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
           /* UNPAID / OVERDUE — show send email + payment link */
           <>
             {invoice.customers?.email ? (
-              <button onClick={sendEmail}
-                style={{ width: '100%', height: 48, background: emailSent ? '#22C55E' : '#111827', color: 'white', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><path d="M22 6l-10 7L2 6" />
-                </svg>
-                {emailSent ? 'Invoice Sent!' : 'Send Invoice to ' + invoice.customers.email}
+              <>
+              <button onClick={sendEmail} disabled={sendingEmail}
+                style={{ width: '100%', height: 48, background: emailSent ? '#22C55E' : '#111827', color: 'white', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: sendingEmail ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, opacity: sendingEmail ? 0.7 : 1 }}>
+                {sendingEmail ? (
+                  <><span style={{ width: 16, height: 16, border: '2px solid white', borderTopColor: 'transparent', borderRadius: '50%', display: 'inline-block', animation: 'spin .7s linear infinite' }} />Sending...</>
+                ) : (
+                  <>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><path d="M22 6l-10 7L2 6" />
+                    </svg>
+                    {emailSent ? '✓ Invoice Sent!' : 'Send Invoice to ' + invoice.customers.email}
+                  </>
+                )}
               </button>
+              {emailSent && (
+                <button onClick={() => { setEmailSent(false); setTimeout(sendEmail, 100) }} disabled={sendingEmail}
+                  style={{ width: '100%', height: 38, background: 'none', border: '1px solid var(--border-light)', borderRadius: 10, fontSize: 13, fontWeight: 600, color: 'var(--text-muted)', cursor: 'pointer', marginTop: 6 }}>
+                  Resend Invoice →
+                </button>
+              )}
+              </>
             ) : (
               <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 10, padding: '12px 14px', fontSize: 13, color: '#92400E' }}>
                 No email for this customer. Add one to their profile to send the invoice.

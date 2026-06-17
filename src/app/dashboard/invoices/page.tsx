@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { formatCurrency } from '@/lib/utils'
+import { useRole } from '@/lib/utils/use-role'
+import { can } from '@/lib/utils/permissions'
 
 const supabase = createClient()
 const PAGE_SIZE = 20
@@ -16,6 +18,7 @@ export default function InvoicesPage() {
   const [page, setPage] = useState(0)
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
+  const { role } = useRole(workspace?.id || null)
 
   useEffect(() => {
     const load = async () => {
@@ -84,10 +87,10 @@ export default function InvoicesPage() {
               ↓ Export CSV
             </a>
           )}
-          <Link href="/dashboard/invoices/create" style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#7C3AED', color: 'white', padding: '10px 18px', borderRadius: 10, fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>
+          {can(role, 'invoice.create') && <Link href="/dashboard/invoices/create" style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#7C3AED', color: 'white', padding: '10px 18px', borderRadius: 10, fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
             Create Invoice
-          </Link>
+          </Link>}
         </div>
       </div>
 

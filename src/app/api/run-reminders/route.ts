@@ -130,7 +130,9 @@ export async function POST(request: NextRequest) {
         style: 'currency', currency: reminder.currency || 'NGN'
       }).format(reminder.total_amount)
 
-      const subject = reminder.trigger_days <= 1
+      const subject = reminder.trigger_days === 0
+        ? `OVERDUE: Invoice ${reminder.invoice_number} — Payment Required`
+        : reminder.trigger_days <= 1
         ? `URGENT: Invoice ${reminder.invoice_number} is due today`
         : `Reminder: Invoice ${reminder.invoice_number} due in ${reminder.trigger_days} days`
 

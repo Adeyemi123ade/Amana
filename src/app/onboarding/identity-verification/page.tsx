@@ -75,7 +75,7 @@ export default function IdentityVerificationPage() {
         status: 'PENDING',
       })
 
-      router.push('/onboarding/business-information')
+      router.push('/dashboard/settings?verified=1')
     } catch {
       setError('We could not upload your documents. Please try again.')
     } finally {

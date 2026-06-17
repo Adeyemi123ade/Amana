@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import { useRole } from '@/lib/utils/use-role'
+import { can } from '@/lib/utils/permissions'
 import { formatCurrency } from '@/lib/utils'
 
 const supabase = createClient()
@@ -16,6 +18,7 @@ export default function CustomersPage() {
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(0)
   const PAGE_SIZE = 20
+  const { role } = useRole(workspace?.id || null)
   const [showModal, setShowModal] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -97,11 +100,11 @@ export default function CustomersPage() {
               ↓ Export CSV
             </a>
           )}
-          <button onClick={() => { setShowModal(true); setError('') }}
+          {can(role, 'customer.create') && <button onClick={() => { setShowModal(true); setError('') }}
             style={{display:'flex', alignItems:'center', gap:6, background:'#7C3AED', color:'white', padding:'10px 18px', borderRadius:10, fontSize:14, fontWeight:600, border:'none', cursor:'pointer'}}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
             Add Customer
-          </button>
+          </button>}
         </div>
       </div>
 

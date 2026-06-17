@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import { useRole } from '@/lib/utils/use-role'
+import { can } from '@/lib/utils/permissions'
 import { formatTime } from '@/lib/utils'
 
 const supabase = createClient()
@@ -22,6 +24,8 @@ export default function AppointmentsPage() {
   const [workspace, setWorkspace] = useState<any>(null)
   const [user, setUser] = useState<any>(null)
   const wsRef = useRef<any>(null)
+  const [wsId, setWsId] = useState<string|null>(null)
+  const { role } = useRole(wsId)
   const [view, setView] = useState<'calendar'|'list'>('calendar')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -44,6 +48,7 @@ export default function AppointmentsPage() {
     if (!ws) return
     setWorkspace(ws)
     wsRef.current = ws
+    setWsId(ws.id)
     const [{ data: appts }, { data: custs }] = await Promise.all([
       supabase.from('appointments').select('*, customers(name,email)').eq('workspace_id', ws.id).order('start_time', { ascending: true }),
       supabase.from('customers').select('id,name,email,phone').eq('workspace_id', ws.id),
@@ -209,11 +214,11 @@ export default function AppointmentsPage() {
             ))}
           </div>
         </div>
-        <button onClick={() => { setShowModal(true); setError(''); setSavedAppt(null); setForm(f => ({...f, date: selectedDateStr})) }}
+        {can(role, 'appointment.create') && <button onClick={() => { setShowModal(true); setError(''); setSavedAppt(null); setForm(f => ({...f, date: selectedDateStr})) }}
           style={{display:'flex', alignItems:'center', gap:6, background:'#7C3AED', color:'white', padding:'10px 18px', borderRadius:10, fontSize:14, fontWeight:600, border:'none', cursor:'pointer'}}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
           New Appointment
-        </button>
+        </button>}
       </div>
 
       {/* List view */}
