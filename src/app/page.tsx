@@ -104,7 +104,7 @@ export default function LandingPage() {
         <div style={{ maxWidth: 720, margin: '0 auto', textAlign: 'center' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(124,58,237,0.15)', border: '1px solid rgba(124,58,237,0.35)', borderRadius: 24, padding: '6px 16px', marginBottom: 28 }}>
             <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#A78BFA', display: 'inline-block', animation: 'pulse 2s infinite' }} />
-            <span style={{ color: '#A78BFA', fontSize: 13, fontWeight: 500 }}>Free for all early users · No credit card needed</span>
+            <span style={{ color: '#A78BFA', fontSize: 13, fontWeight: 500 }}>Free access for all early users · No card required · Setup in minutes</span>
           </div>
           <h1 style={{ fontSize: 'clamp(36px,5vw,60px)', fontWeight: 900, color: 'white', lineHeight: 1.1, marginBottom: 20, letterSpacing: -1 }}>
             Run your business.<br />
@@ -112,7 +112,7 @@ export default function LandingPage() {
             Stay organised.
           </h1>
           <p style={{ fontSize: 'clamp(15px,2vw,18px)', color: 'rgba(255,255,255,0.6)', maxWidth: 540, margin: '0 auto 36px', lineHeight: 1.75 }}>
-            The all-in-one platform for small businesses to invoice customers, track payments, manage appointments, and automate reminders.
+            Amana helps you manage customers, schedule appointments, send professional invoices, track payments, and automate follow-ups. All in one place.
           </p>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 48 }}>
             <Link href="/sign-up" style={{ background: 'linear-gradient(135deg,#7C3AED,#6D28D9)', color: 'white', fontSize: 15, fontWeight: 700, textDecoration: 'none', padding: '14px 30px', borderRadius: 12, boxShadow: '0 4px 20px rgba(124,58,237,0.4)' }}>
@@ -156,7 +156,7 @@ export default function LandingPage() {
               Run Your Business With Confidence
             </h2>
             <p style={{ fontSize: 16, color: '#6B7280', maxWidth: 560, margin: '0 auto', lineHeight: 1.7 }}>
-              Everything you need to manage customers, appointments, invoices, payments, and follow-ups from one place.
+              Amana helps you stay organized, get paid on time, and manage your daily operations with ease.
             </p>
           </div>
 
@@ -228,7 +228,7 @@ export default function LandingPage() {
               Join thousands of business owners who get paid faster with Amana. No credit card required.
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {['Send professional invoices in seconds', 'Get paid online via card, USSD or transfer', 'Manage customers and appointments', 'Automated reminders — no manual follow-up', 'Free for all early users, forever'].map(b => (
+              {['Send professional invoices in seconds', 'Get paid online via card, USSD or transfer', 'Manage customers and appointments', 'Automated reminders — no manual follow-up', 'Free access for all early users'].map(b => (
                 <div key={b} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <div style={{ width: 20, height: 20, borderRadius: '50%', background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round"><path d="M20 6L9 17l-5-5"/></svg>
@@ -245,7 +245,7 @@ export default function LandingPage() {
               <div style={{ width: 30, height: 30, background: '#7C3AED', borderRadius: 7, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z" fill="white"/></svg>
               </div>
-              <span style={{ fontWeight: 800, fontSize: 15, color: '#111827' }}>Create your free account</span>
+              <div style={{ display: 'flex', flexDirection: 'column' }}><span style={{ fontWeight: 800, fontSize: 15, color: '#111827' }}>Create your free account</span><span style={{ fontSize: 11, color: '#7C3AED', fontWeight: 700 }}>Amana</span></div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <div>
@@ -270,7 +270,7 @@ export default function LandingPage() {
                 Create Free Account →
               </Link>
               <p style={{ textAlign: 'center', fontSize: 11, color: '#9CA3AF', marginTop: 2 }}>
-                No credit card required · Free forever for early users
+                No credit card required · Free access for all early users
               </p>
             </div>
           </div>
@@ -337,7 +337,7 @@ export default function LandingPage() {
                 <span style={{ fontWeight: 800, fontSize: 24 }}>Amana</span>
               </div>
               <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.5)', lineHeight: 1.75, marginBottom: 22 }}>
-                The all-in-one business platform for small businesses worldwide.
+                The all-in-one business platform for small business growth.
               </p>
               <div style={{ display: 'flex', gap: 10 }}>
                 {['#1DA1F2','#0A66C2','#E4405F','#25D366'].map((c, i) => (
@@ -348,12 +348,12 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Col 2 — Contact Us */}
+            {/* Col 2 — Support */}
             <div>
-              <p style={{ fontSize: 13, fontWeight: 800, marginBottom: 20, textTransform: 'uppercase', letterSpacing: 1.2, color: 'rgba(255,255,255,0.5)' }}>Contact Us</p>
+              <p style={{ fontSize: 13, fontWeight: 800, marginBottom: 20, textTransform: 'uppercase', letterSpacing: 1.2, color: 'rgba(255,255,255,0.5)' }}>Support</p>
               {[
                 { icon: '✉', l: 'Email', v: 'support@amana.app' },
-                { icon: '📞', l: 'Support Hours', v: '9am – 6pm WAT' },
+                { icon: '🕐', l: 'Support Hours', v: '9am – 6pm WAT' },
                 { icon: '📍', l: 'Location', v: 'Lagos, Nigeria' },
               ].map(c => (
                 <div key={c.l} style={{ display: 'flex', gap: 12, marginBottom: 18, alignItems: 'flex-start' }}>
@@ -364,24 +364,31 @@ export default function LandingPage() {
                   </div>
                 </div>
               ))}
+              <div style={{ marginTop: 4 }}>
+                {[['Help Center','#'],['Business Support','#']].map(([l,h]) => (
+                  <p key={l} style={{ marginBottom: 12 }}>
+                    <Link href={h} style={{ fontSize: 15, color: 'rgba(255,255,255,0.65)', textDecoration: 'none', fontWeight: 500 }}>{l}</Link>
+                  </p>
+                ))}
+              </div>
             </div>
 
-            {/* Col 3 — Pages */}
+            {/* Col 3 — Company */}
             <div>
-              <p style={{ fontSize: 13, fontWeight: 800, marginBottom: 20, textTransform: 'uppercase', letterSpacing: 1.2, color: 'rgba(255,255,255,0.5)' }}>Pages</p>
-              {[['Home','/'],['Demo','#demo'],['Features','#features'],['FAQ','#faq']].map(([l,h]) => (
+              <p style={{ fontSize: 13, fontWeight: 800, marginBottom: 20, textTransform: 'uppercase', letterSpacing: 1.2, color: 'rgba(255,255,255,0.5)' }}>Company</p>
+              {[['Home','/'],['About','#'],['Terms & Conditions','/terms'],['Privacy Policy','/privacy'],['Contact','#contact']].map(([l,h]) => (
                 <p key={l} style={{ marginBottom: 14 }}>
-                  <Link href={h} style={{ fontSize: 16, color: 'rgba(255,255,255,0.65)', textDecoration: 'none', fontWeight: 500 }}>{l}</Link>
+                  <Link href={h} style={{ fontSize: 15, color: 'rgba(255,255,255,0.65)', textDecoration: 'none', fontWeight: 500 }}>{l}</Link>
                 </p>
               ))}
             </div>
 
-            {/* Col 4 — Account */}
+            {/* Col 4 — Product */}
             <div>
-              <p style={{ fontSize: 13, fontWeight: 800, marginBottom: 20, textTransform: 'uppercase', letterSpacing: 1.2, color: 'rgba(255,255,255,0.5)' }}>Account</p>
-              {[['Sign Up Free','/sign-up'],['Sign In','/sign-in']].map(([l,h]) => (
+              <p style={{ fontSize: 13, fontWeight: 800, marginBottom: 20, textTransform: 'uppercase', letterSpacing: 1.2, color: 'rgba(255,255,255,0.5)' }}>Product</p>
+              {[['Invoices','/dashboard/invoices'],['Payments','/dashboard/payments'],['Customers','/dashboard/customers'],['Appointments','/dashboard/appointments'],['Reports','/dashboard/reports']].map(([l,h]) => (
                 <p key={l} style={{ marginBottom: 14 }}>
-                  <Link href={h} style={{ fontSize: 16, color: 'rgba(255,255,255,0.65)', textDecoration: 'none', fontWeight: 500 }}>{l}</Link>
+                  <Link href={h} style={{ fontSize: 15, color: 'rgba(255,255,255,0.65)', textDecoration: 'none', fontWeight: 500 }}>{l}</Link>
                 </p>
               ))}
             </div>
