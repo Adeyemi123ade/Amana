@@ -6,15 +6,42 @@ import dynamic from 'next/dynamic'
 
 const AmanaDemo = dynamic(() => import('@/components/AmanadDemo'), { ssr: false })
 
-const FEATURES = [
-  { icon: '📄', title: 'Invoices in Seconds', desc: 'Generate professional invoices instantly. Send directly to customers by email with a payment link.' },
-  { icon: '💰', title: 'Real-Time Payment Tracking', desc: 'Know exactly who has paid, who owes, and what is overdue the moment it changes.' },
-  { icon: '👥', title: 'Customer Management', desc: 'Full customer records — contact details, payment history, appointments, and notes.' },
-  { icon: '📅', title: 'Appointments & Bookings', desc: 'Public booking page. Customers self-schedule. Automated reminders cut no-shows.' },
-  { icon: '🔔', title: 'Automated Follow-Ups', desc: 'Payment reminders, appointment confirmations, and overdue alerts — all automatic.' },
-  { icon: '📊', title: 'Business Reports', desc: 'Weekly revenue trends, top-earning services, and growth analytics at a glance.' },
-  { icon: '💳', title: 'Paystack Payments', desc: 'Customers pay by card, USSD, or bank transfer. Invoice marks paid automatically.' },
-  { icon: '🌍', title: 'Multi-Country Support', desc: 'Works in Nigeria, UAE, UK, US, Ghana, Kenya and across Africa. Multi-currency built in.' },
+const FEATURE_GROUPS = [
+  {
+    group: 'Get Paid Faster',
+    desc: 'Create professional invoices, share payment links instantly, track who has paid, and follow up automatically without chasing customers manually.',
+    icon: '💰',
+    cards: [
+      { icon: '📄', title: 'Professional Invoicing', points: ['Create branded invoices', 'Send invoices instantly', 'Track invoice status'] },
+      { icon: '💳', title: 'Secure Online Payments', points: ['Accept payments online', 'Receive payments faster', 'Automatic payment confirmation'] },
+      { icon: '📊', title: 'Payment Tracking', points: ['See who has paid', 'See outstanding balances', 'Monitor overdue payments'] },
+    ],
+  },
+  {
+    group: 'Stay Organised',
+    desc: 'Keep your customers, appointments, and business activities structured and easy to manage.',
+    icon: '📋',
+    cards: [
+      { icon: '👥', title: 'Customer Management', points: ['Store customer information', 'Track payment history', 'Maintain customer relationships'] },
+      { icon: '📅', title: 'Appointments & Bookings', points: ['Schedule appointments', 'Track upcoming bookings', 'Stay on top of customer meetings'] },
+    ],
+  },
+  {
+    group: 'Reduce Manual Work',
+    desc: 'Spend less time following up and more time serving customers.',
+    icon: '🔔',
+    cards: [
+      { icon: '⚡', title: 'Automated Reminders', points: ['Invoice reminders', 'Appointment reminders', 'Important business notifications'] },
+    ],
+  },
+  {
+    group: 'Understand Your Business',
+    desc: 'Know what is working and make better business decisions with confidence.',
+    icon: '📈',
+    cards: [
+      { icon: '📊', title: 'Business Reports', points: ['Revenue trends', 'Top earning services', 'Business performance insights'] },
+    ],
+  },
 ]
 
 const FAQS = [
@@ -23,7 +50,7 @@ const FAQS = [
   { q: 'Who can use Amana?', a: 'Any small business owner or freelancer — photographers, coaches, hair stylists, event planners, consultants, caterers, and many more.' },
   { q: 'Can I track who has paid?', a: 'Yes. Every invoice shows live payment status — Paid, Unpaid, or Overdue — updated the moment a customer pays.' },
   { q: 'Does it work on mobile?', a: 'Yes. Amana is fully responsive and works on all smartphones and tablets.' },
-  { q: 'Can I use it outside Nigeria?', a: 'Yes. Multi-currency support for Nigeria, UAE, UK, US, Ghana, Kenya, South Africa and more.' },
+  { q: 'Can I use it outside Nigeria?', a: 'Yes. Amana works across Africa and beyond. Set your currency during onboarding and manage your business from anywhere.' },
 ]
 
 export default function LandingPage() {
@@ -122,16 +149,67 @@ export default function LandingPage() {
       {/* ── FEATURES ── */}
       <section id="features" style={{ background: 'white', padding: '80px 20px' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: 52 }}>
-            <h2 style={{ fontSize: 'clamp(24px,3vw,38px)', fontWeight: 800, color: '#111827', marginBottom: 12 }}>Everything your business needs</h2>
-            <p style={{ fontSize: 16, color: '#6B7280', maxWidth: 480, margin: '0 auto' }}>One platform to run your operations, get paid on time, and grow.</p>
+
+          {/* Section header */}
+          <div style={{ textAlign: 'center', marginBottom: 64 }}>
+            <h2 style={{ fontSize: 'clamp(24px,3vw,38px)', fontWeight: 800, color: '#111827', marginBottom: 12 }}>
+              Run Your Business With Confidence
+            </h2>
+            <p style={{ fontSize: 16, color: '#6B7280', maxWidth: 560, margin: '0 auto', lineHeight: 1.7 }}>
+              Everything you need to manage customers, appointments, invoices, payments, and follow-ups from one place.
+            </p>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(240px,1fr))', gap: 20 }}>
-            {FEATURES.map(f => (
-              <div key={f.title} style={{ background: 'white', borderRadius: 14, padding: '24px 20px', border: '1px solid #F0EFFE', boxShadow: '0 2px 16px rgba(124,58,237,0.08), 0 1px 4px rgba(0,0,0,0.04)' }}>
-                <div style={{ fontSize: 28, marginBottom: 12 }}>{f.icon}</div>
-                <h3 style={{ fontSize: 15, fontWeight: 700, color: '#111827', marginBottom: 7 }}>{f.title}</h3>
-                <p style={{ fontSize: 13, color: '#6B7280', lineHeight: 1.65 }}>{f.desc}</p>
+
+          {/* Outcome groups */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 56 }}>
+            {FEATURE_GROUPS.map(group => (
+              <div key={group.group}>
+                {/* Group label */}
+                <div style={{ marginBottom: 24 }}>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                    <span style={{ fontSize: 18 }}>{group.icon}</span>
+                    <h3 style={{ fontSize: 20, fontWeight: 800, color: '#111827' }}>{group.group}</h3>
+                  </div>
+                  <p style={{ fontSize: 14, color: '#6B7280', maxWidth: 540, lineHeight: 1.7 }}>{group.desc}</p>
+                </div>
+
+                {/* Cards — same style as before */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(240px,1fr))', gap: 20 }}>
+                  {group.cards.map(card => (
+                    <div key={card.title} style={{ background: 'white', borderRadius: 14, padding: '24px 20px', border: '1px solid #F0EFFE', boxShadow: '0 2px 16px rgba(124,58,237,0.08), 0 1px 4px rgba(0,0,0,0.04)' }}>
+                      <div style={{ fontSize: 28, marginBottom: 12 }}>{card.icon}</div>
+                      <h4 style={{ fontSize: 15, fontWeight: 700, color: '#111827', marginBottom: 12 }}>{card.title}</h4>
+                      <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 7 }}>
+                        {card.points.map(point => (
+                          <li key={point} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
+                              <path d="M20 6L9 17l-5-5" stroke="#7C3AED" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                            <span style={{ fontSize: 13, color: '#374151', lineHeight: 1.5 }}>{point}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+
+                  {/* Access Anywhere card — sits in the last group */}
+                  {group.group === 'Understand Your Business' && (
+                    <div style={{ background: 'white', borderRadius: 14, padding: '24px 20px', border: '1px solid #F0EFFE', boxShadow: '0 2px 16px rgba(124,58,237,0.08), 0 1px 4px rgba(0,0,0,0.04)' }}>
+                      <div style={{ fontSize: 28, marginBottom: 12 }}>🌍</div>
+                      <h4 style={{ fontSize: 15, fontWeight: 700, color: '#111827', marginBottom: 12 }}>Access Your Business Anywhere</h4>
+                      <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 7 }}>
+                        {['Manage customers on the go', 'Access invoices from any device', 'Keep your business organised anywhere'].map(point => (
+                          <li key={point} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
+                              <path d="M20 6L9 17l-5-5" stroke="#7C3AED" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                            <span style={{ fontSize: 13, color: '#374151', lineHeight: 1.5 }}>{point}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
               </div>
             ))}
           </div>
