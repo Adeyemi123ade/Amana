@@ -23,12 +23,19 @@ export async function POST(request: NextRequest) {
     // Fetch invoice + customer + workspace
     const { data: invoice } = await supabase
       .from('invoices')
-      .select('*, customers(*), workspaces(*)')
+      .select('*, customers(*)')
       .eq('id', invoiceId)
       .single()
 
     if (!invoice) return NextResponse.json({ error: 'Invoice not found' }, { status: 404 })
     if (invoice.status === 'PAID') return NextResponse.json({ error: 'This invoice has already been paid.' }, { status: 400 })
+
+    // Fetch workspace separately — more reliable than Supabase auto-join
+    const { data: workspace } = await supabase
+      .from('workspaces')
+      .select('id, name, currency')
+      .eq('id', invoice.workspace_id)
+      .single()
 
     const customerEmail = invoice.customers?.email
     if (!customerEmail) {
@@ -37,7 +44,7 @@ export async function POST(request: NextRequest) {
 
     const amount = Math.round(Number(invoice.total_amount) * 100) // kobo
     const currencyMap: Record<string, string> = { NGN:'NGN', GHS:'GHS', ZAR:'ZAR', USD:'USD', KES:'KES' }
-    const currency = currencyMap[invoice.workspaces?.currency] || 'NGN'
+    const currency = currencyMap[workspace?.currency || ''] || 'NGN'
     const ref = 'AMN-' + invoice.invoice_number + '-' + Date.now()
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://amana-two.vercel.app'
 
@@ -61,7 +68,7 @@ export async function POST(request: NextRequest) {
         metadata: {
           invoice_id: invoiceId,
           invoice_number: invoice.invoice_number,
-          business_name: invoice.workspaces?.name,
+          business_name: workspace?.name,
         },
       }),
     })
