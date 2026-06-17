@@ -12,6 +12,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
   const [workspace, setWorkspace] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [emailSent, setEmailSent] = useState(false)
+  const [sendingEmail, setSendingEmail] = useState(false)
   const [copied, setCopied] = useState(false)
 
   useEffect(() => {
@@ -40,32 +41,29 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
     setInvoice((prev: any) => ({ ...prev, status: 'PAID' }))
   }
 
-  const sendEmail = () => {
-    if (!invoice?.customers?.email) return
-    const currency = workspace?.currency || 'NGN'
-    const dueDate = new Date(invoice.due_date).toLocaleDateString('en-NG', { day: 'numeric', month: 'long', year: 'numeric' })
-    const amount = formatCurrency(Number(invoice.total_amount), currency)
-    const subject = encodeURIComponent('Invoice ' + invoice.invoice_number + ' - Payment Request')
-    const lines = [
-      'Dear ' + invoice.customers.name + ',',
-      '',
-      'Please find your invoice details below.',
-      '',
-      'Invoice Number: ' + invoice.invoice_number,
-      'Amount Due: ' + amount,
-      'Due Date: ' + dueDate,
-      '',
-      'Click the link below to pay securely online:',
-      paymentLink,
-      '',
-      'You can pay by card, bank transfer, or upload a payment receipt.',
-      '',
-      'Best regards,',
-      workspace?.name || 'Amana Business',
-    ]
-    const body = encodeURIComponent(lines.join('\n'))
-    window.open('mailto:' + invoice.customers.email + '?subject=' + subject + '&body=' + body)
-    setEmailSent(true)
+  const sendEmail = async () => {
+    if (!invoice?.customers?.email) {
+      alert('This customer has no email address. Please add one in the customer profile.')
+      return
+    }
+    setSendingEmail(true)
+    try {
+      const res = await fetch('/api/send-invoice-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ invoiceId: id }),
+      })
+      const data = await res.json()
+      if (data.success) {
+        setEmailSent(true)
+      } else {
+        alert(data.error || 'Could not send email. Please try again.')
+      }
+    } catch {
+      alert('Could not connect to email service. Please try again.')
+    } finally {
+      setSendingEmail(false)
+    }
   }
 
   if (loading) return (

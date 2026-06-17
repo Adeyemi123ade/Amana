@@ -14,6 +14,8 @@ export default function CustomersPage() {
   const [customers, setCustomers] = useState<any[]>([])
   const [workspace, setWorkspace] = useState<any>(null)
   const [search, setSearch] = useState('')
+  const [page, setPage] = useState(0)
+  const PAGE_SIZE = 20
   const [showModal, setShowModal] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -40,6 +42,8 @@ export default function CustomersPage() {
     c.email?.toLowerCase().includes(search.toLowerCase()) ||
     c.phone?.includes(search)
   )
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE)
+  const paginated = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
 
   const handleAdd = async () => {
     if (!form.name.trim()) { setError('Please enter the customer name'); return }
@@ -105,12 +109,12 @@ export default function CustomersPage() {
         <div style={{padding:'16px 20px', borderBottom:'1px solid var(--border)'}}>
           <div style={{position:'relative'}}>
             <svg style={{position:'absolute', left:10, top:10}} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-            <input placeholder="Search customers..." value={search} onChange={e => setSearch(e.target.value)}
+            <input placeholder="Search customers..." value={search} onChange={e => { setSearch(e.target.value); setPage(0) }}
               style={{width:'100%', height:36, paddingLeft:34, paddingRight:12, borderRadius:8, border:'1px solid #E5E7EB', fontSize:13, outline:'none', boxSizing:'border-box', background:'white'}} />
           </div>
         </div>
 
-        {filtered.length === 0 ? (
+        {paginated.length === 0 ? (
           <div style={{padding:'48px 20px', textAlign:'center'}}>
             <div style={{fontSize:40, marginBottom:12}}>👥</div>
             <p style={{fontSize:15, fontWeight:600, color:'var(--text)', marginBottom:4}}>
@@ -120,7 +124,7 @@ export default function CustomersPage() {
               {search ? 'Try a different name or number' : 'Click Add Customer above to get started'}
             </p>
           </div>
-        ) : filtered.map((c: any) => (
+        ) : paginated.map((c: any) => (
           <Link key={c.id} href={`/dashboard/customers/${c.id}`}
             style={{display:'flex', alignItems:'center', justifyContent:'space-between', padding:'14px 20px', borderTop:'1px solid var(--border)', textDecoration:'none'}}>
             <div style={{display:'flex', alignItems:'center', gap:12}}>

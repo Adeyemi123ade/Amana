@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import CustomerNotes from './CustomerNotes'
 import Link from 'next/link'
 import { formatCurrency } from '@/lib/utils'
 import { notFound } from 'next/navigation'
@@ -103,18 +104,8 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
         </div>
       )}
 
-      {/* Customer Notes */}
-      <div style={{background:'white',borderRadius:14,border:'1px solid #F3F4F6',padding:'20px 24px',marginTop:0}}>
-        <p style={{fontSize:14,fontWeight:600,color:'#111827',marginBottom:12}}>Notes</p>
-        {notes && notes.length > 0 ? notes.map((note: any) => (
-          <div key={note.id} style={{padding:'10px 0',borderBottom:'1px solid #F9FAFB'}}>
-            <p style={{fontSize:13,color:'#374151',lineHeight:1.6,marginBottom:4}}>{note.content}</p>
-            <p style={{fontSize:11,color:'#9CA3AF'}}>{new Date(note.created_at).toLocaleDateString('en-NG',{month:'short',day:'numeric',year:'numeric'})}</p>
-          </div>
-        )) : (
-          <p style={{fontSize:13,color:'#9CA3AF'}}>No notes yet. Add notes from the customer edit form.</p>
-        )}
-      </div>
+      {/* Customer Notes — interactive */}
+      <CustomerNotes customerId={id} initialNotes={notes || []} />
     </div>
   )
 }

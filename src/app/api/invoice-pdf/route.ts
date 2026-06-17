@@ -17,13 +17,18 @@ export async function GET(request: NextRequest) {
 
   const { data: invoice } = await supabase
     .from('invoices')
-    .select('*, customers(*), workspaces(*)')
+    .select('*, customers(*)')
     .eq('id', invoiceId)
     .single()
 
   if (!invoice) return NextResponse.json({ error: 'Invoice not found' }, { status: 404 })
 
-  const ws = invoice.workspaces
+  const { data: ws } = await supabase
+    .from('workspaces')
+    .select('*')
+    .eq('id', invoice.workspace_id)
+    .single()
+
   const customer = invoice.customers
   const currency = ws?.currency || 'NGN'
 
