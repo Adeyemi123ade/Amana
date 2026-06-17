@@ -122,14 +122,7 @@ export default function LandingPage() {
               Watch Demo →
             </a>
           </div>
-          <div style={{ display: 'flex', gap: 36, justifyContent: 'center', flexWrap: 'wrap' }}>
-            {[{ n: '12,000+', l: 'Businesses' }, { n: '840K+', l: 'Invoices Sent' }, { n: '6 hrs', l: 'Saved Per Week' }].map(s => (
-              <div key={s.l} style={{ textAlign: 'center' }}>
-                <p style={{ fontSize: 26, fontWeight: 900, color: 'white', marginBottom: 2 }}>{s.n}</p>
-                <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>{s.l}</p>
-              </div>
-            ))}
-          </div>
+
         </div>
       </section>
 
@@ -241,11 +234,14 @@ export default function LandingPage() {
 
           {/* Right — signup form card */}
           <div style={{ background: 'white', borderRadius: 20, padding: '32px 28px', boxShadow: '0 24px 60px rgba(0,0,0,0.3)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
-              <div style={{ width: 30, height: 30, background: '#7C3AED', borderRadius: 7, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z" fill="white"/></svg>
+            <div style={{ marginBottom: 20 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                <div style={{ width: 30, height: 30, background: '#7C3AED', borderRadius: 7, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z" fill="white"/></svg>
+                </div>
+                <span style={{ fontWeight: 800, fontSize: 16, color: '#7C3AED' }}>Amana</span>
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column' }}><span style={{ fontWeight: 800, fontSize: 15, color: '#111827' }}>Create your free account</span><span style={{ fontSize: 11, color: '#7C3AED', fontWeight: 700 }}>Amana</span></div>
+              <p style={{ fontSize: 15, fontWeight: 700, color: '#111827' }}>Create your free account</p>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <div>
