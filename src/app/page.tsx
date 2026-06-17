@@ -100,6 +100,7 @@ const FAQS = [
 export default function LandingPage() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [openFaq, setOpenFaq] = useState<number | null>(null)
+  const [visibleFaqs, setVisibleFaqs] = useState(7)
 
   const navLinks = [
     { label: 'Demo', href: '#demo' },
@@ -324,7 +325,7 @@ export default function LandingPage() {
             <h2 style={{ fontSize: 'clamp(24px,3vw,36px)', fontWeight: 800, color: '#111827' }}>Frequently asked questions</h2>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-            {FAQS.map((faq, i) => (
+            {FAQS.slice(0, visibleFaqs).map((faq, i) => (
               <div key={i} style={{ background: 'white', borderRadius: 12, border: '1px solid #E5E7EB', overflow: 'hidden' }}>
                 <button onClick={() => setOpenFaq(openFaq === i ? null : i)}
                   style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', gap: 12 }}>
@@ -334,6 +335,29 @@ export default function LandingPage() {
                 {openFaq === i && <div style={{ padding: '0 20px 16px', fontSize: 14, color: '#6B7280', lineHeight: 1.7, borderTop: '1px solid #F3F4F6' }}>{faq.a}</div>}
               </div>
             ))}
+          </div>
+
+          {/* Show more / Show less controls */}
+          <div style={{ textAlign: 'center', marginTop: 20, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+            {visibleFaqs < FAQS.length && (
+              <button
+                onClick={() => setVisibleFaqs(v => Math.min(v + 10, FAQS.length))}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'white', border: '1px solid #E5E7EB', borderRadius: 10, padding: '11px 24px', fontSize: 14, fontWeight: 600, color: '#7C3AED', cursor: 'pointer', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+                Show more questions
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" strokeWidth="2.5" strokeLinecap="round"><path d="M6 9l6 6 6-6"/></svg>
+              </button>
+            )}
+            {visibleFaqs > 7 && (
+              <button
+                onClick={() => { setVisibleFaqs(7); setOpenFaq(null) }}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'none', border: 'none', fontSize: 13, fontWeight: 500, color: '#9CA3AF', cursor: 'pointer' }}>
+                Show less
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2.5" strokeLinecap="round"><path d="M18 15l-6-6-6 6"/></svg>
+              </button>
+            )}
+            <p style={{ fontSize: 12, color: '#D1D5DB' }}>
+              Showing {Math.min(visibleFaqs, FAQS.length)} of {FAQS.length} questions
+            </p>
           </div>
         </div>
       </section>
