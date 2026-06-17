@@ -5,10 +5,38 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import type { User } from '@supabase/supabase-js'
 import { createClient } from '@/lib/supabase/client'
+import { useTheme } from '@/lib/theme/ThemeProvider'
 
 interface TopbarProps { user: User }
 
 const supabase = createClient()
+
+// Quick dark/light toggle — cycles light → dark → light
+function ThemeToggle() {
+  const { themeId, setTheme } = useTheme()
+  const isDark = themeId === 'dark'
+
+  return (
+    <button
+      onClick={() => setTheme(isDark ? 'light' : 'dark')}
+      title={isDark ? 'Switch to Light mode' : 'Switch to Dark mode'}
+      style={{ width:36, height:36, borderRadius:8, background:'none', border:'1px solid var(--border-light)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}
+    >
+      {isDark ? (
+        // Sun icon — shown in dark mode to switch to light
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2" strokeLinecap="round">
+          <circle cx="12" cy="12" r="5"/>
+          <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+        </svg>
+      ) : (
+        // Moon icon — shown in light mode to switch to dark
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2" strokeLinecap="round">
+          <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+        </svg>
+      )}
+    </button>
+  )
+}
 
 export function Topbar({ user }: TopbarProps) {
   const router = useRouter()
@@ -148,6 +176,9 @@ export function Topbar({ user }: TopbarProps) {
       </div>
 
       <div style={{ display:'flex', alignItems:'center', gap:8, flexShrink:0 }}>
+
+        {/* Dark/Light mode quick toggle */}
+        <ThemeToggle />
 
         {/* Notification Bell */}
         <div ref={notifRef} style={{ position:'relative' }}>
