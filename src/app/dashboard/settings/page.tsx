@@ -315,15 +315,31 @@ export default function SettingsPage() {
       </div>
       <div style={{background:'white',borderRadius:14,border:'1px solid #E5E7EB',padding:18}}>
         <p style={{fontSize:13,fontWeight:600,color:'#111827',marginBottom:10}}>Current Team</p>
-        <div style={{display:'flex',alignItems:'center',gap:10,padding:10,background:'#F9FAFB',borderRadius:10}}>
+        {/* Owner row */}
+        <div style={{display:'flex',alignItems:'center',gap:10,padding:'10px 0',borderBottom:'1px solid #F3F4F6'}}>
           <div style={{width:36,height:36,borderRadius:'50%',background:'#EDE9FE',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:700,color:'#7C3AED',flexShrink:0}}>
             {(workspace?.name||user?.email||'U')[0].toUpperCase()}
           </div>
           <div style={{flex:1,minWidth:0}}>
-            <p style={{fontSize:13,fontWeight:500,color:'#111827',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{workspace?.name||user?.user_metadata?.full_name||user?.email}</p>
+            <p style={{fontSize:13,fontWeight:500,color:'#111827',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{user?.user_metadata?.full_name||user?.email}</p>
             <p style={{fontSize:11,color:'#6B7280',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{user?.email}</p>
           </div>
-          <span style={{fontSize:11,fontWeight:600,color:'#7C3AED',background:'#EDE9FE',padding:'3px 8px',borderRadius:20,flexShrink:0}}>Owner</span>
+          <span style={{fontSize:11,fontWeight:700,color:'#7C3AED',background:'#EDE9FE',padding:'3px 10px',borderRadius:20,flexShrink:0}}>Owner</span>
+        </div>
+        {/* Role legend */}
+        <div style={{marginTop:14,padding:12,background:'#F9FAFB',borderRadius:10}}>
+          <p style={{fontSize:11,fontWeight:700,color:'#374151',marginBottom:8,textTransform:'uppercase',letterSpacing:0.4}}>Role Permissions</p>
+          {[
+            {role:'Owner', desc:'Full control including workspace settings', color:'#7C3AED'},
+            {role:'Admin', desc:'Full access except workspace deletion', color:'#3B82F6'},
+            {role:'Staff', desc:'Create and edit — cannot delete or manage team', color:'#F59E0B'},
+            {role:'Viewer', desc:'Read-only — cannot create or edit anything', color:'#6B7280'},
+          ].map(r => (
+            <div key={r.role} style={{display:'flex',alignItems:'center',gap:8,marginBottom:6}}>
+              <span style={{fontSize:10,fontWeight:700,color:r.color,background:r.color+'18',padding:'2px 7px',borderRadius:10,minWidth:44,textAlign:'center'}}>{r.role}</span>
+              <span style={{fontSize:11,color:'#6B7280'}}>{r.desc}</span>
+            </div>
+          ))}
         </div>
       </div>
     </div>

@@ -61,12 +61,20 @@ export default function PaymentsPage() {
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
         <h1 style={{ fontSize: 22, fontWeight: 700, color: 'var(--text)' }}>Payment History</h1>
-        {total > 0 && (
-          <div style={{ textAlign: 'right' }}>
-            <p style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.4 }}>Total Received</p>
-            <p style={{ fontSize: 20, fontWeight: 800, color: '#22C55E' }}>{formatCurrency(totalRevenue, currency)}</p>
-          </div>
-        )}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          {total > 0 && (
+            <div style={{ textAlign: 'right' }}>
+              <p style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.4 }}>Total Received</p>
+              <p style={{ fontSize: 20, fontWeight: 800, color: '#22C55E' }}>{formatCurrency(totalRevenue, currency)}</p>
+            </div>
+          )}
+          {workspace && (
+            <a href={`/api/export?type=payments&workspace=${workspace.id}`}
+              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 9, border: '1px solid var(--border-light)', fontSize: 13, fontWeight: 600, color: 'var(--text-muted)', textDecoration: 'none', background: 'var(--bg-secondary)' }}>
+              ↓ Export CSV
+            </a>
+          )}
+        </div>
       </div>
 
       <div style={{ background: 'var(--card)', borderRadius: 14, border: '1px solid var(--border)', overflow: 'hidden' }}>

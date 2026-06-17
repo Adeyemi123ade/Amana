@@ -86,11 +86,19 @@ export default function CustomersPage() {
     <div>
       <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:20}}>
         <h1 style={{fontSize:22, fontWeight:700, color:'var(--text)'}}>Customers</h1>
-        <button onClick={() => { setShowModal(true); setError('') }}
-          style={{display:'flex', alignItems:'center', gap:6, background:'#7C3AED', color:'white', padding:'10px 18px', borderRadius:10, fontSize:14, fontWeight:600, border:'none', cursor:'pointer'}}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
-          Add Customer
-        </button>
+        <div style={{display:'flex', gap:8}}>
+          {workspace && (
+            <a href={`/api/export?type=customers&workspace=${workspace.id}`}
+              style={{display:'flex', alignItems:'center', gap:6, padding:'8px 14px', borderRadius:9, border:'1px solid var(--border-light)', fontSize:13, fontWeight:600, color:'var(--text-muted)', textDecoration:'none', background:'var(--bg-secondary)'}}>
+              ↓ Export CSV
+            </a>
+          )}
+          <button onClick={() => { setShowModal(true); setError('') }}
+            style={{display:'flex', alignItems:'center', gap:6, background:'#7C3AED', color:'white', padding:'10px 18px', borderRadius:10, fontSize:14, fontWeight:600, border:'none', cursor:'pointer'}}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            Add Customer
+          </button>
+        </div>
       </div>
 
       <div style={{background:'var(--card)', borderRadius:14, border:'1px solid var(--border)', overflow:'hidden'}}>

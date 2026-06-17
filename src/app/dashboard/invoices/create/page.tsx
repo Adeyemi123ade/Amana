@@ -20,6 +20,7 @@ export default function CreateInvoicePage() {
   const [error, setError] = useState('')
   const [items, setItems] = useState([{ description: '', amount: '' }])
   const [form, setForm] = useState({ customerId:'', dueDate:'', notes:'', paymentMethod:'Paystack' })
+  const [taxRate, setTaxRate] = useState(0)
 
   useEffect(() => {
     const load = async () => {
@@ -40,7 +41,9 @@ export default function CreateInvoicePage() {
   const currency = (ws?.currency || 'NGN') as string
   const symbolMap: Record<string, string> = { NGN:'₦', USD:'$', GBP:'£', EUR:'€', GHS:'GH₵', KES:'KSh', ZAR:'R', AED:'AED', SAR:'SAR', CAD:'CA$', AUD:'A$', INR:'₹' }
   const currencySymbol = symbolMap[currency] || currency
-  const total = items.reduce((s, i) => s + (parseFloat(i.amount) || 0), 0)
+  const subtotal = items.reduce((s, i) => s + (parseFloat(i.amount) || 0), 0)
+  const taxAmount = subtotal * (taxRate / 100)
+  const total = subtotal + taxAmount
 
   const handleSubmit = async (status: 'DRAFT' | 'UNPAID') => {
     if (!form.customerId) { setError('Please select a customer first'); return }
@@ -73,6 +76,9 @@ export default function CreateInvoicePage() {
       items: items.filter(i => i.description.trim()),
       notes: form.notes.trim() || null,
       total_amount: total,
+      tax_rate: taxRate,
+      tax_amount: taxAmount,
+      subtotal: subtotal,
       payment_method: form.paymentMethod,
     }).select('id').single()
 
@@ -184,10 +190,35 @@ export default function CreateInvoicePage() {
           ))}
         </div>
 
+        {/* Tax / VAT */}
+        <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:8, padding:'0 2px'}}>
+          <label style={{fontSize:13, fontWeight:500, color:'#374151'}}>Tax / VAT (%)</label>
+          <div style={{display:'flex', alignItems:'center', gap:6}}>
+            <input type="number" min="0" max="100" step="0.5" value={taxRate || ''} onChange={e => setTaxRate(parseFloat(e.target.value) || 0)}
+              placeholder="0"
+              style={{width:70, height:36, padding:'0 10px', borderRadius:8, border:'1px solid #E5E7EB', fontSize:13, textAlign:'right', outline:'none'}} />
+            <span style={{fontSize:13, color:'#6B7280'}}>%</span>
+          </div>
+        </div>
+
         {/* Total */}
-        <div style={{display:'flex', justifyContent:'space-between', padding:'14px 16px', background:'#F9FAFB', borderRadius:10, marginBottom:20}}>
-          <span style={{fontSize:14, fontWeight:600, color:'#374151'}}>Total Amount</span>
-          <span style={{fontSize:20, fontWeight:800, color:'#111827'}}>{currencySymbol}{total.toLocaleString()}</span>
+        <div style={{background:'#F9FAFB', borderRadius:10, padding:'12px 16px', marginBottom:20}}>
+          {taxRate > 0 && (
+            <>
+              <div style={{display:'flex', justifyContent:'space-between', marginBottom:6}}>
+                <span style={{fontSize:13, color:'#6B7280'}}>Subtotal</span>
+                <span style={{fontSize:13, color:'#374151'}}>{currencySymbol}{subtotal.toLocaleString()}</span>
+              </div>
+              <div style={{display:'flex', justifyContent:'space-between', marginBottom:8}}>
+                <span style={{fontSize:13, color:'#6B7280'}}>Tax ({taxRate}%)</span>
+                <span style={{fontSize:13, color:'#374151'}}>{currencySymbol}{taxAmount.toFixed(2)}</span>
+              </div>
+            </>
+          )}
+          <div style={{display:'flex', justifyContent:'space-between'}}>
+            <span style={{fontSize:14, fontWeight:700, color:'#111827'}}>Total Amount</span>
+            <span style={{fontSize:20, fontWeight:800, color:'#111827'}}>{currencySymbol}{total.toLocaleString()}</span>
+          </div>
         </div>
 
         {/* Buttons */}
