@@ -13,7 +13,7 @@ export default function PublicInvoicePage({ params }: { params: Promise<{ id: st
   const [paid, setPaid] = useState(false)
   const [paying, setPaying] = useState(false)
   const [payError, setPayError] = useState('')
-  const [scriptReady, setScriptReady] = useState(false)
+  const [verifying, setVerifying] = useState(false)
 
   useEffect(() => {
     const load = async () => {
@@ -32,90 +32,61 @@ export default function PublicInvoicePage({ params }: { params: Promise<{ id: st
         .single()
       setWorkspace(ws)
       setLoading(false)
-    }
-    load()
-  }, [id])
 
-  // Load Paystack inline script
-  useEffect(() => {
-    if (document.getElementById('paystack-script')) {
-      if ((window as any).PaystackPop) setScriptReady(true)
-      return
-    }
-    const script = document.createElement('script')
-    script.id = 'paystack-script'
-    script.src = 'https://js.paystack.co/v1/inline.js'
-    script.async = true
-    script.onload = () => setScriptReady(true)
-    script.onerror = () => setPayError('Could not load payment processor. Please refresh the page.')
-    document.body.appendChild(script)
-  }, [])
-
-  const handlePay = () => {
-    const publicKey = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY
-    if (!publicKey || publicKey.includes('PASTE_YOUR')) {
-      setPayError('Payment is not configured yet. Please contact the business.')
-      return
-    }
-    if (!scriptReady || !(window as any).PaystackPop) {
-      setPayError('Payment processor is still loading. Please wait a moment and try again.')
-      return
-    }
-    if (!invoice?.customers?.email) {
-      setPayError('No email address found for this customer. Please contact the business to update their profile.')
-      return
-    }
-
-    setPaying(true)
-    setPayError('')
-
-    const amount = Math.round(Number(invoice.total_amount) * 100)
-    const currencyMap: Record<string, string> = { NGN:'NGN', GHS:'GHS', ZAR:'ZAR', USD:'USD', KES:'KES' }
-    const currency = currencyMap[workspace?.currency] || 'NGN'
-    const ref = 'AMN-' + invoice.invoice_number + '-' + Date.now()
-
-    const handler = (window as any).PaystackPop.setup({
-      key: publicKey,
-      email: invoice.customers.email,
-      amount,
-      currency,
-      ref,
-      label: invoice.invoice_number,
-      metadata: {
-        invoice_id: id,
-        invoice_number: invoice.invoice_number,
-        business_name: workspace?.name,
-        custom_fields: [
-          { display_name: 'Invoice', variable_name: 'invoice_number', value: invoice.invoice_number },
-          { display_name: 'Business', variable_name: 'business_name', value: workspace?.name },
-        ],
-      },
-      onClose: () => {
-        setPaying(false)
-        setPayError('Payment was not completed. You can try again when ready.')
-      },
-      callback: async (response: { reference: string }) => {
+      // ── AUTO-VERIFY on return from Paystack ──────────────
+      // Paystack redirects back with ?verify=REF or ?reference=REF
+      const urlParams = new URLSearchParams(window.location.search)
+      const verifyRef = urlParams.get('verify') || urlParams.get('reference') || urlParams.get('trxref')
+      if (verifyRef && inv.status !== 'PAID') {
+        setVerifying(true)
         try {
           const res = await fetch('/api/paystack-verify', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ reference: response.reference, invoiceId: id }),
+            body: JSON.stringify({ reference: verifyRef, invoiceId: id }),
           })
           const data = await res.json()
           if (data.success) {
             setPaid(true)
           } else {
-            setPayError(data.message || 'Payment could not be verified. Please contact the business.')
+            setPayError(data.message || 'We could not confirm your payment. If you were charged, please contact the business with reference: ' + verifyRef)
           }
         } catch {
-          setPayError('Verification failed. Please contact the business with your payment reference: ' + response.reference)
+          setPayError('Could not verify payment. If you were charged, contact the business with reference: ' + verifyRef)
         } finally {
-          setPaying(false)
+          setVerifying(false)
+          // Clean the URL
+          window.history.replaceState({}, '', `/invoice/${id}`)
         }
-      },
-    })
+      }
+    }
+    load()
+  }, [id])
 
-    handler.openIframe()
+  const handlePay = async () => {
+    setPaying(true)
+    setPayError('')
+
+    try {
+      const res = await fetch('/api/paystack-initialize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ invoiceId: id }),
+      })
+      const data = await res.json()
+
+      if (data.success && data.authorization_url) {
+        // Redirect to Paystack's hosted payment page
+        // Customer picks card / bank transfer / USSD / OPay there
+        window.location.href = data.authorization_url
+      } else {
+        setPayError(data.error || 'Could not start payment. Please try again.')
+        setPaying(false)
+      }
+    } catch {
+      setPayError('Could not connect to payment processor. Please check your internet and try again.')
+      setPaying(false)
+    }
   }
 
   // ── Screens ──────────────────────────────────────────────
@@ -123,6 +94,15 @@ export default function PublicInvoicePage({ params }: { params: Promise<{ id: st
   if (loading) return (
     <div style={{ minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center', background:'#F9FAFB' }}>
       <div style={{ width:32, height:32, border:'3px solid #7C3AED', borderTopColor:'transparent', borderRadius:'50%', animation:'spin .8s linear infinite' }} />
+      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+    </div>
+  )
+
+  if (verifying) return (
+    <div style={{ minHeight:'100vh', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', background:'#F9FAFB', padding:24, fontFamily:'system-ui,sans-serif' }}>
+      <div style={{ width:48, height:48, border:'4px solid #7C3AED', borderTopColor:'transparent', borderRadius:'50%', animation:'spin .8s linear infinite', marginBottom:20 }} />
+      <p style={{ fontSize:17, fontWeight:700, color:'#111827', marginBottom:6 }}>Confirming your payment...</p>
+      <p style={{ fontSize:14, color:'#6B7280' }}>Please wait, do not close this page.</p>
       <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
     </div>
   )
@@ -250,7 +230,7 @@ export default function PublicInvoicePage({ params }: { params: Promise<{ id: st
 
           <button
             onClick={handlePay}
-            disabled={paying || !scriptReady}
+            disabled={paying}
             style={{
               width:'100%', height:56, background: paying ? '#6D28D9cc' : 'linear-gradient(135deg,#7C3AED,#6D28D9)',
               color:'white', border:'none', borderRadius:14, fontSize:16, fontWeight:800,
@@ -261,9 +241,7 @@ export default function PublicInvoicePage({ params }: { params: Promise<{ id: st
             }}
           >
             {paying ? (
-              <><span style={{ width:20, height:20, border:'2.5px solid white', borderTopColor:'transparent', borderRadius:'50%', display:'inline-block', animation:'spin .7s linear infinite' }} />Processing...</>
-            ) : !scriptReady ? (
-              <>Loading payment...</>
+              <><span style={{ width:20, height:20, border:'2.5px solid white', borderTopColor:'transparent', borderRadius:'50%', display:'inline-block', animation:'spin .7s linear infinite' }} />Redirecting to payment...</>
             ) : (
               <>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
