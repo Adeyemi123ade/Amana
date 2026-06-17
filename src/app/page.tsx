@@ -390,10 +390,10 @@ export default function LandingPage() {
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
 
           {/* 4 columns on desktop, stacked on mobile */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 40, marginBottom: 48 }} className="footer-grid">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 40, marginBottom: 48 }} className="footer-grid" id="footer-cols">
 
             {/* Col 1 — Brand */}
-            <div>
+            <div className="footer-brand-col">
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
                 <div style={{ width: 42, height: 42, background: '#7C3AED', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z" fill="white"/></svg>
@@ -411,6 +411,9 @@ export default function LandingPage() {
                 ))}
               </div>
             </div>
+
+            {/* Sub-columns wrapper — on mobile these 3 sit side by side */}
+            <div className="footer-sub-cols" style={{ display: 'contents' }}>
 
             {/* Col 2 — Support */}
             <div>
@@ -456,6 +459,8 @@ export default function LandingPage() {
                 </p>
               ))}
             </div>
+
+            </div>{/* end footer-sub-cols */}
           </div>
 
           {/* Bottom bar — copyright + Terms + Privacy only */}
@@ -483,7 +488,22 @@ export default function LandingPage() {
           .cta-grid { grid-template-columns: 1fr !important; }
           .cta-text { text-align: center !important; }
           .cta-text a { display: inline-block !important; }
+        .footer-grid { grid-template-columns: repeat(4,1fr) !important; }
+
+        @media (max-width: 768px) {
+          .desktop-nav { display: none !important; }
+          .mobile-header-right { display: flex !important; }
+          .cta-grid { grid-template-columns: 1fr !important; }
+          .cta-text { text-align: center !important; }
+          .cta-text a { display: inline-block !important; }
           .footer-grid { grid-template-columns: 1fr !important; }
+          .footer-brand-col { grid-column: 1 / -1; padding-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 8px; }
+          .footer-sub-cols { display: grid !important; grid-template-columns: repeat(3,1fr) !important; gap: 16px; grid-column: 1 / -1; }
+        }
+
+        @media (max-width: 480px) {
+          .footer-sub-cols { grid-template-columns: repeat(3,1fr) !important; }
+        }
         }
 
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }

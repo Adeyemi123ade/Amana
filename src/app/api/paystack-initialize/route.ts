@@ -41,6 +41,10 @@ export async function POST(request: NextRequest) {
     const ref = 'AMN-' + invoice.invoice_number + '-' + Date.now()
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://amana-two.vercel.app'
 
+    // Use dedicated verify page — more reliable than the invoice page
+    // Paystack appends ?reference=REF&trxref=REF to this URL
+    const callbackUrl = `${appUrl}/payment/verify?invoiceId=${invoiceId}`
+
     // Initialize transaction on Paystack
     const initRes = await fetch('https://api.paystack.co/transaction/initialize', {
       method: 'POST',
@@ -53,7 +57,7 @@ export async function POST(request: NextRequest) {
         amount,
         currency,
         reference: ref,
-        callback_url: `${appUrl}/invoice/${invoiceId}?verify=${ref}`,
+        callback_url: callbackUrl,
         metadata: {
           invoice_id: invoiceId,
           invoice_number: invoice.invoice_number,
