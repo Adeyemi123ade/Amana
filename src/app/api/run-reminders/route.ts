@@ -103,11 +103,11 @@ function appointmentReminderEmail(data: {
 }
 
 export async function POST(request: NextRequest) {
-  // Validate cron secret to prevent unauthorized calls
+  // CRON_SECRET is optional — if not set in env, allow all POST requests
   const cronSecret = request.headers.get('x-cron-secret')
   const expectedSecret = process.env.CRON_SECRET
   if (expectedSecret && cronSecret !== expectedSecret) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return NextResponse.json({ error: 'Unauthorized — invalid cron secret' }, { status: 401 })
   }
 
   const supabase = getSupabase()

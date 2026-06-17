@@ -108,8 +108,20 @@ export function Topbar({ user }: TopbarProps) {
 
   const markRead = async (id: string) => {
     await supabase.from('notifications').update({ read: true }).eq('id', id)
-    // Remove from active list immediately — only unread shown
+    // Remove from list when explicitly marked read
     setNotifications(prev => prev.filter(n => n.id !== id))
+  }
+
+  // When panel opens — mark all as "seen" (reduces counter) but keeps them visible
+  // until user explicitly clicks Mark as Read
+  const markAllSeen = async () => {
+    if (!wsId) return
+    const unseenIds = notifications.filter(n => !n.read).map(n => n.id)
+    if (unseenIds.length === 0) return
+    // Update in DB
+    await supabase.from('notifications').update({ read: true }).in('id', unseenIds)
+    // Mark as read in state but keep in list (they stay visible until dismissed)
+    setNotifications(prev => prev.map(n => unseenIds.includes(n.id) ? { ...n, read: true } : n))
   }
 
   const markAllRead = async () => {
@@ -184,7 +196,7 @@ export function Topbar({ user }: TopbarProps) {
 
         {/* Notification Bell */}
         <div ref={notifRef} style={{ position:'relative' }}>
-          <button onClick={() => { setNotifOpen(!notifOpen); setMenuOpen(false) }}
+          <button onClick={() => { const opening = !notifOpen; setNotifOpen(opening); setMenuOpen(false); if (opening) markAllSeen() }}
             style={{ width:36, height:36, borderRadius:8, background:'none', border:'1px solid var(--border-light)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', position:'relative' }}
             aria-label="Notifications">
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -220,13 +232,17 @@ export function Topbar({ user }: TopbarProps) {
                   </div>
                 ) : notifications.map(n => (
                   <div key={n.id}
-                    style={{ padding:'12px 16px', borderBottom:'1px solid var(--border)', background: n.read ? 'transparent' : 'var(--accent-light)', cursor:'pointer', display:'flex', gap:10, alignItems:'flex-start' }}
-                    onClick={() => markRead(n.id)}>
-                    <div style={{ width:8, height:8, borderRadius:'50%', background: n.read ? 'transparent' : 'var(--accent)', flexShrink:0, marginTop:5 }}/>
+                    style={{ padding:'12px 16px', borderBottom:'1px solid var(--border)', background:'transparent', display:'flex', gap:10, alignItems:'flex-start' }}>
                     <div style={{ flex:1, minWidth:0 }}>
-                      <p style={{ fontSize:13, fontWeight: n.read ? 400 : 600, color:'var(--text)', marginBottom:2 }}>{n.title}</p>
-                      <p style={{ fontSize:12, color:'var(--text-muted)', lineHeight:1.4, marginBottom:4 }}>{n.description}</p>
-                      <p style={{ fontSize:10, color:'var(--text-muted)' }}>{timeAgo(n.created_at)}</p>
+                      <p style={{ fontSize:13, fontWeight:600, color:'var(--text)', marginBottom:2 }}>{n.title}</p>
+                      <p style={{ fontSize:12, color:'var(--text-muted)', lineHeight:1.4, marginBottom:6 }}>{n.description}</p>
+                      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+                        <p style={{ fontSize:10, color:'var(--text-muted)' }}>{timeAgo(n.created_at)}</p>
+                        <button onClick={() => markRead(n.id)}
+                          style={{ fontSize:11, fontWeight:600, color:'var(--accent)', background:'none', border:'none', cursor:'pointer', padding:'2px 0' }}>
+                          Mark as read
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}

@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { useRole } from '@/lib/utils/use-role'
 import { can } from '@/lib/utils/permissions'
-import { formatTime } from '@/lib/utils'
+import { formatTime } from '@/lib/utils/index'
 
 const supabase = createClient()
 

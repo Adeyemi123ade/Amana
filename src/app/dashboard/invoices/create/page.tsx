@@ -196,7 +196,7 @@ export default function CreateInvoicePage() {
           <div style={{display:'flex', alignItems:'center', gap:6}}>
             <input type="number" min="0" max="100" step="0.5" value={taxRate || ''} onChange={e => setTaxRate(parseFloat(e.target.value) || 0)}
               placeholder="0"
-              style={{width:70, height:36, padding:'0 10px', borderRadius:8, border:'1px solid #E5E7EB', fontSize:13, textAlign:'right', outline:'none'}} />
+              style={{width:70, height:36, padding:'0 10px', borderRadius:8, border:'1px solid #E5E7EB', fontSize:13, textAlign:'right', outline:'none', color:'#111827', background:'white'}} />
             <span style={{fontSize:13, color:'#6B7280'}}>%</span>
           </div>
         </div>
