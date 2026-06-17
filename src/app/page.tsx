@@ -104,7 +104,7 @@ export default function LandingPage() {
         <div style={{ maxWidth: 720, margin: '0 auto', textAlign: 'center' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(124,58,237,0.15)', border: '1px solid rgba(124,58,237,0.35)', borderRadius: 24, padding: '6px 16px', marginBottom: 28 }}>
             <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#A78BFA', display: 'inline-block', animation: 'pulse 2s infinite' }} />
-            <span style={{ color: '#A78BFA', fontSize: 13, fontWeight: 500 }}>Free for all early users · No credit card needed</span>
+            <span style={{ color: '#A78BFA', fontSize: 13, fontWeight: 500 }}>Start free · No credit card needed · Set up in minutes</span>
           </div>
           <h1 style={{ fontSize: 'clamp(36px,5vw,60px)', fontWeight: 900, color: 'white', lineHeight: 1.1, marginBottom: 20, letterSpacing: -1 }}>
             Run your business.<br />
@@ -112,7 +112,7 @@ export default function LandingPage() {
             Stay organised.
           </h1>
           <p style={{ fontSize: 'clamp(15px,2vw,18px)', color: 'rgba(255,255,255,0.6)', maxWidth: 540, margin: '0 auto 36px', lineHeight: 1.75 }}>
-            The all-in-one platform for small businesses to invoice customers, track payments, manage appointments, and automate reminders.
+            Stop chasing payments, missing appointments, and losing track of customers. Amana gives small business owners one place to send invoices, get paid, manage bookings, and follow up automatically — so you spend less time on admin and more time growing.
           </p>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 48 }}>
             <Link href="/sign-up" style={{ background: 'linear-gradient(135deg,#7C3AED,#6D28D9)', color: 'white', fontSize: 15, fontWeight: 700, textDecoration: 'none', padding: '14px 30px', borderRadius: 12, boxShadow: '0 4px 20px rgba(124,58,237,0.4)' }}>
@@ -137,9 +137,9 @@ export default function LandingPage() {
       <section id="demo" style={{ background: '#ffffff', padding: '72px 20px' }}>
         <div style={{ maxWidth: 900, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 40 }}>
-            <h2 style={{ fontSize: 'clamp(24px,3vw,38px)', fontWeight: 800, color: '#111827', marginBottom: 12 }}>Watch Amana in action</h2>
+            <h2 style={{ fontSize: 'clamp(24px,3vw,38px)', fontWeight: 800, color: '#111827', marginBottom: 12 }}>See how Amana works for your business</h2>
             <p style={{ fontSize: 15, color: '#6B7280', maxWidth: 480, margin: '0 auto' }}>
-              See the complete workflow — sign in, add customers, book appointments, create invoices, and receive payments.
+              Watch a real business owner add a customer, book an appointment, send an invoice with a payment link, and receive payment — all in under five minutes.
             </p>
           </div>
           <AmanaDemo />
@@ -222,13 +222,13 @@ export default function LandingPage() {
           {/* Left — headline and benefits */}
           <div className="cta-text">
             <h2 style={{ fontSize: 'clamp(26px,3.5vw,40px)', fontWeight: 900, color: 'white', marginBottom: 16, lineHeight: 1.15 }}>
-              Create your free<br />account today
+              Your business runs<br />better with Amana
             </h2>
             <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.7)', marginBottom: 28, lineHeight: 1.75 }}>
-              Join thousands of business owners who get paid faster with Amana. No credit card required.
+              Join business owners who send invoices in seconds, get paid on time, and never miss a follow-up. Start free and upgrade as your business grows.
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {['Send professional invoices in seconds', 'Get paid online via card, USSD or transfer', 'Manage customers and appointments', 'Automated reminders — no manual follow-up', 'Free for all early users, forever'].map(b => (
+              {['Send professional invoices in seconds', 'Get paid via card, bank transfer, or USSD', 'Manage customers, appointments, and follow-ups', 'Automated reminders — no manual chasing', 'Start free. Upgrade as your business grows.'].map(b => (
                 <div key={b} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <div style={{ width: 20, height: 20, borderRadius: '50%', background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round"><path d="M20 6L9 17l-5-5"/></svg>
@@ -245,7 +245,7 @@ export default function LandingPage() {
               <div style={{ width: 30, height: 30, background: '#7C3AED', borderRadius: 7, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z" fill="white"/></svg>
               </div>
-              <span style={{ fontWeight: 800, fontSize: 15, color: '#111827' }}>Create your free account</span>
+              <span style={{ fontWeight: 800, fontSize: 15, color: '#111827' }}>Start running your business better</span>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <div>
@@ -270,7 +270,7 @@ export default function LandingPage() {
                 Create Free Account →
               </Link>
               <p style={{ textAlign: 'center', fontSize: 11, color: '#9CA3AF', marginTop: 2 }}>
-                No credit card required · Free forever for early users
+                No credit card required · Setup takes only a few minutes
               </p>
             </div>
           </div>
@@ -337,7 +337,7 @@ export default function LandingPage() {
                 <span style={{ fontWeight: 800, fontSize: 24 }}>Amana</span>
               </div>
               <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.5)', lineHeight: 1.75, marginBottom: 22 }}>
-                The all-in-one business platform for small businesses worldwide.
+                Helping small businesses send invoices, get paid, manage customers, and stay organised.
               </p>
               <div style={{ display: 'flex', gap: 10 }}>
                 {['#1DA1F2','#0A66C2','#E4405F','#25D366'].map((c, i) => (
