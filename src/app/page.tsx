@@ -210,7 +210,7 @@ export default function LandingPage() {
 
 
       {/* ── FEATURES ── */}
-      <section id="features" style={{ background: '#162272', padding: '72px 20px 0' }}>
+      <section id="features" style={{ background: '#162272', padding: '72px 20px 72px' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
           {/* Section header */}
           <div style={{ textAlign: 'center', marginBottom: 52 }}>
@@ -221,12 +221,6 @@ export default function LandingPage() {
               Amana helps you stay organized, get paid on time, and manage your daily operations with ease.
             </p>
           </div>
-        </div>
-      </section>
-
-      {/* ── 8 CARDS — white background, 4+4 ── */}
-      <div style={{ background: '#162272', padding: '24px 20px 72px' }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 20 }}>
 
           {/* Row 1 — Get Paid Faster (3 cards, blue shadow) + Customer Management (purple shadow) */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 20 }} className="cards-grid">
@@ -281,6 +275,9 @@ export default function LandingPage() {
               </div>
             ))}
           </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 20, marginTop: 0 }}>
+          </div>
         </div>
         <style>{`
           @media (max-width: 768px) {
@@ -292,7 +289,7 @@ export default function LandingPage() {
             .cards-grid { grid-template-columns: 1fr !important; }
           }
         `}</style>
-      </div>
+      </section>
 
       {/* ── CTA ── */}
       <section style={{ background: '#162272', padding: '44px 20px', overflow: 'hidden' }}>
