@@ -103,7 +103,7 @@ export default function LandingPage() {
   const [visibleFaqs, setVisibleFaqs] = useState(7)
 
   const navLinks = [
-    { label: 'Demo', href: '#demo' },
+    { label: 'Demo', href: '/demo' },
     { label: 'Features', href: '#features' },
     { label: 'FAQ', href: '#faq' },
     { label: 'Contact', href: '#contact' },
@@ -190,12 +190,12 @@ export default function LandingPage() {
               <Link href="/sign-up" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#7C3AED', color: 'white', fontSize: 15, fontWeight: 700, textDecoration: 'none', padding: '14px 28px', borderRadius: 12, boxShadow: '0 4px 28px rgba(124,58,237,0.5)' }}>
                 Create Free Account →
               </Link>
-              <a href="#demo" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, background: 'transparent', color: 'white', fontSize: 15, fontWeight: 600, textDecoration: 'none', padding: '14px 22px', borderRadius: 12, border: '1.5px solid rgba(255,255,255,0.16)' }}>
+              <Link href="/demo" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, background: 'transparent', color: 'white', fontSize: 15, fontWeight: 600, textDecoration: 'none', padding: '14px 22px', borderRadius: 12, border: '1.5px solid rgba(255,255,255,0.16)' }}>
                 <span style={{ width: 30, height: 30, borderRadius: '50%', border: '1.5px solid rgba(255,255,255,0.3)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="white"><path d="M5 3l14 9-14 9V3z"/></svg>
                 </span>
                 Watch Demo
-              </a>
+              </Link>
             </div>
           </div>
         </div>
@@ -209,18 +209,7 @@ export default function LandingPage() {
       </section>
 
 
-      {/* ── INTERACTIVE DEMO ── */}
-      <section id="demo" style={{ background: '#ffffff', padding: '72px 20px' }}>
-        <div style={{ maxWidth: 900, margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: 40 }}>
-            <h2 style={{ fontSize: 'clamp(24px,3vw,38px)', fontWeight: 800, color: '#111827', marginBottom: 12 }}>Watch Amana in action</h2>
-            <p style={{ fontSize: 15, color: '#6B7280', maxWidth: 480, margin: '0 auto' }}>
-              See the complete workflow — sign in, add customers, book appointments, create invoices, and receive payments.
-            </p>
-          </div>
-          <AmanaDemo />
-        </div>
-      </section>
+
 
       {/* ── FEATURES ── */}
       <section id="features" style={{ background: 'white', padding: '80px 20px' }}>
@@ -303,15 +292,40 @@ export default function LandingPage() {
             <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.7)', marginBottom: 28, lineHeight: 1.75 }}>
               Join thousands of business owners who get paid faster with Amana. No credit card required.
             </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {['Send professional invoices in seconds', 'Get paid online via card, USSD or transfer', 'Manage customers and appointments', 'Automated reminders — no manual follow-up', 'Free access for all early users'].map(b => (
-                <div key={b} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <div style={{ width: 20, height: 20, borderRadius: '50%', background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round"><path d="M20 6L9 17l-5-5"/></svg>
-                  </div>
-                  <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.82)' }}>{b}</span>
+            {/* Watch Full Demo button */}
+            <Link href="/demo"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 12, background: '#7C3AED', color: 'white', textDecoration: 'none', padding: '16px 28px', borderRadius: 14, fontSize: 16, fontWeight: 800, marginBottom: 24, boxShadow: '0 8px 28px rgba(0,0,0,0.35)', border: '1px solid rgba(255,255,255,0.15)' }}>
+              <span style={{ width: 34, height: 34, borderRadius: '50%', background: 'rgba(255,255,255,0.18)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="white"><path d="M5 3l14 9-14 9V3z"/></svg>
+              </span>
+              Watch Full Demo
+            </Link>
+
+            <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 20, lineHeight: 1.6 }}>
+              Not sure yet? Watch the demo to see exactly how Amana works before you sign up.
+            </p>
+
+            {/* Two trust badges */}
+            <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1, minWidth: 160 }}>
+                <div style={{ width: 42, height: 42, borderRadius: '50%', background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="2" strokeLinecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4" stroke="rgba(255,255,255,0.8)"/></svg>
                 </div>
-              ))}
+                <div>
+                  <p style={{ fontSize: 14, fontWeight: 700, color: 'white', marginBottom: 2 }}>No card required</p>
+                  <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>Start completely free</p>
+                </div>
+              </div>
+              <div style={{ width: 1, background: 'rgba(255,255,255,0.12)', alignSelf: 'stretch', flexShrink: 0 }} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1, minWidth: 160 }}>
+                <div style={{ width: 42, height: 42, borderRadius: '50%', background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="2" strokeLinecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.74"/></svg>
+                </div>
+                <div>
+                  <p style={{ fontSize: 14, fontWeight: 700, color: 'white', marginBottom: 2 }}>Free access for early users</p>
+                  <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>Be among the first to try Amana</p>
+                </div>
+              </div>
             </div>
           </div>
 
