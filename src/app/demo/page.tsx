@@ -41,13 +41,12 @@ export default function DemoPage() {
         {/* Back button sits inside the carousel at top-left (handled by AmanadDemo) */}
         <div style={{ position: 'relative' }}>
           {/* Back button — top left corner above carousel */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+          <div style={{ marginBottom: 12 }}>
             <Link href="/"
               style={{ display: 'inline-flex', alignItems: 'center', gap: 8, color: '#374151', fontSize: 14, fontWeight: 600, textDecoration: 'none', padding: '8px 16px', borderRadius: 10, border: '1.5px solid #E5E7EB', background: 'white' }}>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
               Back
             </Link>
-            <span style={{ fontSize: 12, color: '#9CA3AF' }}>Interactive demo — no sign up required</span>
           </div>
           <AmanaDemo />
         </div>
