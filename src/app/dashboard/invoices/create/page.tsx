@@ -48,7 +48,11 @@ export default function CreateInvoicePage() {
   const handleSubmit = async (status: 'DRAFT' | 'UNPAID') => {
     if (!form.customerId) { setError('Please select a customer first'); return }
     if (!form.dueDate) { setError('Please set a due date for this invoice'); return }
-    if (items.every(i => !i.description.trim())) { setError('Please add at least one item or service'); return }
+    if (items.every(i => !i.description.trim())) { setError('Please add at least one item or service name'); return }
+    if (items.some(i => i.description.trim() && (!i.amount || parseFloat(i.amount) <= 0))) {
+      setError('Please enter an amount greater than 0 for each item'); return
+    }
+    if (subtotal <= 0) { setError('Invoice total must be greater than 0'); return }
     if (!ws) { setError('Your workspace is still loading. Please wait and try again.'); return }
 
     setIsLoading(true)

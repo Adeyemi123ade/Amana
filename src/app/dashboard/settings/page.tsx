@@ -74,7 +74,11 @@ export default function SettingsPage() {
     }).eq('id', ws.id)
     setSavingBiz(false)
     if (error) { fail('We could not save your business profile. Please try again.') }
-    else { ok('Business profile saved successfully') }
+    else {
+      ok('Business profile saved successfully')
+      // Refresh the dashboard so the new name appears immediately
+      router.refresh()
+    }
   }
 
   const saveProfile = async () => {
@@ -124,8 +128,8 @@ export default function SettingsPage() {
 
   if (section === 'business') return (
     <div style={{maxWidth:600}}>
-      <button onClick={back} style={{display:'flex',alignItems:'center',gap:6,background:'none',border:'none',cursor:'pointer',color:'#6B7280',fontSize:13,marginBottom:18,padding:0}}>
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      <button onClick={back} style={{display:'inline-flex',alignItems:'center',gap:8,background:'var(--bg-secondary)',border:'1px solid var(--border-light)',borderRadius:9,cursor:'pointer',color:'var(--text-muted)',fontSize:14,fontWeight:500,marginBottom:20,padding:'8px 14px'}}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
         Back to Settings
       </button>
       <p style={{fontSize:18,fontWeight:700,color:'#111827',marginBottom:4}}>Business Profile</p>
@@ -198,8 +202,8 @@ export default function SettingsPage() {
 
   if (section === 'profile') return (
     <div style={{maxWidth:520}}>
-      <button onClick={back} style={{display:'flex',alignItems:'center',gap:6,background:'none',border:'none',cursor:'pointer',color:'#6B7280',fontSize:13,marginBottom:18,padding:0}}>
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      <button onClick={back} style={{display:'inline-flex',alignItems:'center',gap:8,background:'var(--bg-secondary)',border:'1px solid var(--border-light)',borderRadius:9,cursor:'pointer',color:'var(--text-muted)',fontSize:14,fontWeight:500,marginBottom:20,padding:'8px 14px'}}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
         Back to Settings
       </button>
       <p style={{fontSize:18,fontWeight:700,color:'#111827',marginBottom:4}}>Your Profile</p>
@@ -221,8 +225,8 @@ export default function SettingsPage() {
 
   if (section === 'kyc') return (
     <div style={{maxWidth:520}}>
-      <button onClick={back} style={{display:'flex',alignItems:'center',gap:6,background:'none',border:'none',cursor:'pointer',color:'#6B7280',fontSize:13,marginBottom:18,padding:0}}>
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      <button onClick={back} style={{display:'inline-flex',alignItems:'center',gap:8,background:'var(--bg-secondary)',border:'1px solid var(--border-light)',borderRadius:9,cursor:'pointer',color:'var(--text-muted)',fontSize:14,fontWeight:500,marginBottom:20,padding:'8px 14px'}}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
         Back to Settings
       </button>
       <p style={{fontSize:18,fontWeight:700,color:'var(--text)',marginBottom:4}}>Identity Verification</p>
@@ -255,8 +259,8 @@ export default function SettingsPage() {
 
   if (section === 'password') return (
     <div style={{maxWidth:520}}>
-      <button onClick={back} style={{display:'flex',alignItems:'center',gap:6,background:'none',border:'none',cursor:'pointer',color:'#6B7280',fontSize:13,marginBottom:18,padding:0}}>
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      <button onClick={back} style={{display:'inline-flex',alignItems:'center',gap:8,background:'var(--bg-secondary)',border:'1px solid var(--border-light)',borderRadius:9,cursor:'pointer',color:'var(--text-muted)',fontSize:14,fontWeight:500,marginBottom:20,padding:'8px 14px'}}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
         Back to Settings
       </button>
       <p style={{fontSize:18,fontWeight:700,color:'#111827',marginBottom:4}}>Change Password</p>
@@ -281,8 +285,8 @@ export default function SettingsPage() {
 
   if (section === 'notifications') return (
     <div style={{maxWidth:520}}>
-      <button onClick={back} style={{display:'flex',alignItems:'center',gap:6,background:'none',border:'none',cursor:'pointer',color:'#6B7280',fontSize:13,marginBottom:18,padding:0}}>
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      <button onClick={back} style={{display:'inline-flex',alignItems:'center',gap:8,background:'var(--bg-secondary)',border:'1px solid var(--border-light)',borderRadius:9,cursor:'pointer',color:'var(--text-muted)',fontSize:14,fontWeight:500,marginBottom:20,padding:'8px 14px'}}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
         Back to Settings
       </button>
       <p style={{fontSize:18,fontWeight:700,color:'#111827',marginBottom:4}}>Notification Preferences</p>
@@ -317,8 +321,8 @@ export default function SettingsPage() {
 
   if (section === 'team') return (
     <div style={{maxWidth:520}}>
-      <button onClick={back} style={{display:'flex',alignItems:'center',gap:6,background:'none',border:'none',cursor:'pointer',color:'#6B7280',fontSize:13,marginBottom:18,padding:0}}>
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      <button onClick={back} style={{display:'inline-flex',alignItems:'center',gap:8,background:'var(--bg-secondary)',border:'1px solid var(--border-light)',borderRadius:9,cursor:'pointer',color:'var(--text-muted)',fontSize:14,fontWeight:500,marginBottom:20,padding:'8px 14px'}}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
         Back to Settings
       </button>
       <p style={{fontSize:18,fontWeight:700,color:'#111827',marginBottom:4}}>Team Members</p>
@@ -385,8 +389,8 @@ export default function SettingsPage() {
 
   if (section === 'appearance') return (
     <div style={{maxWidth:640}}>
-      <button onClick={back} style={{display:'flex',alignItems:'center',gap:6,background:'none',border:'none',cursor:'pointer',color:'#6B7280',fontSize:13,marginBottom:18,padding:0}}>
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      <button onClick={back} style={{display:'inline-flex',alignItems:'center',gap:8,background:'var(--bg-secondary)',border:'1px solid var(--border-light)',borderRadius:9,cursor:'pointer',color:'var(--text-muted)',fontSize:14,fontWeight:500,marginBottom:20,padding:'8px 14px'}}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
         Back to Settings
       </button>
       <p style={{fontSize:18,fontWeight:700,color:'#111827',marginBottom:4}}>Appearance</p>

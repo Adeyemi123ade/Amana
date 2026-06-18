@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
+// Must use service role to bypass RLS on team_invites insert
+// The anon key cannot insert because RLS requires workspace ownership check
+// which only works when the request comes from an authenticated browser session
 function getSupabase() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -17,6 +20,18 @@ export async function POST(request: NextRequest) {
     }
 
     const supabase = getSupabase()
+
+    // Verify workspaceId belongs to invitedBy (manual ownership check)
+    const { data: wsCheck } = await supabase
+      .from('workspaces')
+      .select('id')
+      .eq('id', workspaceId)
+      .eq('created_by', invitedBy)
+      .maybeSingle()
+
+    if (!wsCheck) {
+      return NextResponse.json({ error: 'You do not have permission to invite to this workspace' }, { status: 403 })
+    }
 
     // Check for existing pending invite
     const { data: existing } = await supabase

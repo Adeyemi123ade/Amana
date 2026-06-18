@@ -3,8 +3,6 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
-import { useRole } from '@/lib/utils/use-role'
-import { can } from '@/lib/utils/permissions'
 import { formatTime } from '@/lib/utils/index'
 
 const supabase = createClient()
@@ -25,7 +23,6 @@ export default function AppointmentsPage() {
   const [user, setUser] = useState<any>(null)
   const wsRef = useRef<any>(null)
   const [wsId, setWsId] = useState<string|null>(null)
-  const { role } = useRole(wsId)
   const [pageError, setPageError] = useState('')
   const [pageLoading, setPageLoading] = useState(true)
   const [view, setView] = useState<'calendar'|'list'>('calendar')
@@ -245,11 +242,11 @@ export default function AppointmentsPage() {
             ))}
           </div>
         </div>
-        {can(role, 'appointment.create') && <button onClick={() => { setShowModal(true); setError(''); setSavedAppt(null); setForm(f => ({...f, date: selectedDateStr})) }}
+        <button onClick={() => { setShowModal(true); setError(''); setSavedAppt(null); setForm(f => ({...f, date: selectedDateStr})) }}
           style={{display:'flex', alignItems:'center', gap:6, background:'#7C3AED', color:'white', padding:'10px 18px', borderRadius:10, fontSize:14, fontWeight:600, border:'none', cursor:'pointer'}}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
           New Appointment
-        </button>}
+        </button>
       </div>
 
       {/* List view */}
