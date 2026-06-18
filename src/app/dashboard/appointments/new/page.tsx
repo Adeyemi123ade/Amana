@@ -44,7 +44,6 @@ export default function NewAppointmentPage() {
     connectionDetails: '',
     physicalAddress: '',
     notes: '',
-    status: 'PENDING',
     duration: '60',
   })
 
@@ -107,7 +106,7 @@ export default function NewAppointmentPage() {
         location_type:    form.locationType,
         location:         form.locationType === 'PHYSICAL' ? form.physicalAddress.trim()||null : form.meetingLink.trim()||null,
         notes:            form.notes.trim()||null,
-        status:           form.status,
+        status:           'PENDING',
       })
       .select('id').single()
 
@@ -217,15 +216,7 @@ export default function NewAppointmentPage() {
                 <option key={v} value={v}>{l}</option>)}
             </select>
           </div>
-          <div>
-            <label style={lbl}>Status</label>
-            <select style={inp} value={form.status} onChange={e => f('status',e.target.value)}>
-              <option value="PENDING">Pending</option>
-              <option value="CONFIRMED">Confirmed</option>
-              <option value="CANCELLED">Cancelled</option>
-              <option value="COMPLETED">Completed</option>
-            </select>
-          </div>
+
         </div>
       </div>
 
