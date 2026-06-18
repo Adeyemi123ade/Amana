@@ -20,17 +20,17 @@ function ThemeToggle() {
     <button
       onClick={() => setTheme(isDark ? 'light' : 'dark')}
       title={isDark ? 'Switch to Light mode' : 'Switch to Dark mode'}
-      style={{ width:36, height:36, borderRadius:8, background:'none', border:'1px solid rgba(255,255,255,0.15)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}
+      style={{ width:36, height:36, borderRadius:8, background:'none', border:'1px solid var(--border-light)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}
     >
       {isDark ? (
         // Sun icon — shown in dark mode to switch to light
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="2" strokeLinecap="round">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2" strokeLinecap="round">
           <circle cx="12" cy="12" r="5"/>
           <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
         </svg>
       ) : (
         // Moon icon — shown in light mode to switch to dark
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="2" strokeLinecap="round">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2" strokeLinecap="round">
           <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
         </svg>
       )}
@@ -178,13 +178,13 @@ export function Topbar({ user }: TopbarProps) {
   }
 
   return (
-    <header className="dashboard-topbar" style={{ background: 'var(--sidebar)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+    <header className="dashboard-topbar">
       {/* Greeting */}
       <div style={{ minWidth:0, flex:1 }}>
-        <p style={{ fontSize:15, fontWeight:600, color:'white', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>
+        <p style={{ fontSize:15, fontWeight:600, color:'var(--text)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>
           {greeting}, {greetingName} 👋
         </p>
-        <p className="topbar-subtitle" style={{ fontSize:12, color:'rgba(255,255,255,0.55)' }}>
+        <p className="topbar-subtitle" style={{ fontSize:12, color:'var(--text-muted)' }}>
           Here is what is happening with your business today.
         </p>
       </div>
@@ -197,9 +197,9 @@ export function Topbar({ user }: TopbarProps) {
         {/* Notification Bell */}
         <div ref={notifRef} style={{ position:'relative' }}>
           <button onClick={() => { const opening = !notifOpen; setNotifOpen(opening); setMenuOpen(false); if (opening) markAllSeen() }}
-            style={{ width:36, height:36, borderRadius:8, background:'none', border:'1px solid rgba(255,255,255,0.15)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', position:'relative' }}
+            style={{ width:36, height:36, borderRadius:8, background:'none', border:'1px solid var(--border-light)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', position:'relative' }}
             aria-label="Notifications">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/>
             </svg>
             {unread > 0 && (
