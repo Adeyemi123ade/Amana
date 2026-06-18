@@ -145,7 +145,7 @@ export default function LandingPage() {
       </header>
 
       {/* ── HERO ── */}
-      <section style={{ background: 'linear-gradient(135deg,#0c0720 0%,#130a2e 60%,#1a0d3d 100%)', minHeight: 'clamp(520px,82vh,780px)', display: 'flex', alignItems: 'center', overflow: 'hidden', position: 'relative' }}>
+      <section style={{ background: '#162272', minHeight: 'clamp(520px,82vh,780px)', display: 'flex', alignItems: 'center', overflow: 'hidden', position: 'relative' }}>
 
         {/* Right side — image bleeds from edge, fades into background */}
         <div style={{ position: 'absolute', top: 0, right: 0, width: '55%', height: '100%', zIndex: 0 }} className="hero-img-wrap">
@@ -212,14 +212,14 @@ export default function LandingPage() {
 
 
       {/* ── FEATURES ── */}
-      <section id="features" style={{ background: 'white', padding: '72px 20px 0' }}>
+      <section id="features" style={{ background: '#162272', padding: '72px 20px 0' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
           {/* Section header — white background */}
           <div style={{ textAlign: 'center', marginBottom: 52 }}>
-            <h2 style={{ fontSize: 'clamp(24px,3vw,38px)', fontWeight: 800, color: '#111827', marginBottom: 12 }}>
+            <h2 style={{ fontSize: 'clamp(24px,3vw,38px)', fontWeight: 800, color: 'white', marginBottom: 12 }}>
               Run Your Business With Confidence
             </h2>
-            <p style={{ fontSize: 16, color: '#6B7280', maxWidth: 560, margin: '0 auto', lineHeight: 1.7 }}>
+            <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.65)', maxWidth: 560, margin: '0 auto', lineHeight: 1.7 }}>
               Amana helps you stay organized, get paid on time, and manage your daily operations with ease.
             </p>
           </div>
@@ -227,7 +227,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── 8 CARDS — white background, 4+4 ── */}
-      <div style={{ background: 'white', padding: '24px 20px 72px' }}>
+      <div style={{ background: '#162272', padding: '24px 20px 72px' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 20 }}>
 
           {/* Row 1 — Get Paid Faster (3 cards, blue shadow) + Customer Management (purple shadow) */}
@@ -242,14 +242,14 @@ export default function LandingPage() {
               { title: 'Customer Management', points: ['Store customer info', 'Track payment history', 'Maintain relationships'], shadow: '0 4px 20px rgba(124,58,237,0.18)', border: '#EDE9FE', accent: '#7C3AED',
                 icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" strokeWidth="1.8" strokeLinecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.74"/></svg> },
             ].map(card => (
-              <div key={card.title} style={{ background: 'white', borderRadius: 14, padding: '24px 20px', border: `1px solid ${card.border}`, boxShadow: card.shadow }}>
+              <div key={card.title} style={{ background: 'rgba(255,255,255,0.07)', borderRadius: 14, padding: '24px 20px', border: '1px solid rgba(255,255,255,0.12)', boxShadow: 'none' }}>
                 <div style={{ marginBottom: 14 }}>{card.icon}</div>
-                <h4 style={{ fontSize: 15, fontWeight: 700, color: '#111827', marginBottom: 12 }}>{card.title}</h4>
+                <h4 style={{ fontSize: 15, fontWeight: 700, color: 'white', marginBottom: 12 }}>{card.title}</h4>
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 7 }}>
                   {card.points.map(p => (
                     <li key={p} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}><path d="M20 6L9 17l-5-5" stroke={card.accent} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                      <span style={{ fontSize: 13, color: '#374151', lineHeight: 1.5 }}>{p}</span>
+                      <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.75)', lineHeight: 1.5 }}>{p}</span>
                     </li>
                   ))}
                 </ul>
@@ -269,14 +269,14 @@ export default function LandingPage() {
               { title: 'Access Anywhere', points: ['Manage on the go', 'Any device, any time', 'Always stay organised'], shadow: '0 4px 20px rgba(34,197,94,0.18)', border: '#DCFCE7', accent: '#22C55E',
                 icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="1.8" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg> },
             ].map(card => (
-              <div key={card.title} style={{ background: 'white', borderRadius: 14, padding: '24px 20px', border: `1px solid ${card.border}`, boxShadow: card.shadow }}>
+              <div key={card.title} style={{ background: 'rgba(255,255,255,0.07)', borderRadius: 14, padding: '24px 20px', border: '1px solid rgba(255,255,255,0.12)', boxShadow: 'none' }}>
                 <div style={{ marginBottom: 14 }}>{card.icon}</div>
-                <h4 style={{ fontSize: 15, fontWeight: 700, color: '#111827', marginBottom: 12 }}>{card.title}</h4>
+                <h4 style={{ fontSize: 15, fontWeight: 700, color: 'white', marginBottom: 12 }}>{card.title}</h4>
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 7 }}>
                   {card.points.map(p => (
                     <li key={p} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}><path d="M20 6L9 17l-5-5" stroke={card.accent} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                      <span style={{ fontSize: 13, color: '#374151', lineHeight: 1.5 }}>{p}</span>
+                      <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.75)', lineHeight: 1.5 }}>{p}</span>
                     </li>
                   ))}
                 </ul>
@@ -297,7 +297,7 @@ export default function LandingPage() {
       </div>
 
       {/* ── CTA ── */}
-      <section style={{ background: 'linear-gradient(135deg,#0c0720 0%,#130a2e 60%,#1a0d3d 100%)', padding: '44px 20px', overflow: 'hidden' }}>
+      <section style={{ background: '#162272', padding: '44px 20px', overflow: 'hidden' }}>
         <div style={{ maxWidth: 860, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 52, alignItems: 'center' }} className="cta-grid">
           {/* Left — headline and benefits */}
           <div className="cta-text">
@@ -386,20 +386,20 @@ export default function LandingPage() {
       </section>
 
       {/* ── FAQ ── */}
-      <section id="faq" style={{ background: '#EEF2FF', padding: '52px 20px' }}>
+      <section id="faq" style={{ background: '#162272', padding: '52px 20px' }}>
         <div style={{ maxWidth: 720, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 28 }}>
-            <h2 style={{ fontSize: 'clamp(22px,3vw,32px)', fontWeight: 800, color: '#111827' }}>Frequently asked questions</h2>
+            <h2 style={{ fontSize: 'clamp(22px,3vw,32px)', fontWeight: 800, color: 'white' }}>Frequently asked questions</h2>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
             {FAQS.slice(0, visibleFaqs).map((faq, i) => (
-              <div key={i} style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E7FF', overflow: 'hidden' }}>
+              <div key={i} style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 12, border: '1px solid rgba(255,255,255,0.12)', overflow: 'hidden' }}>
                 <button onClick={() => setOpenFaq(openFaq === i ? null : i)}
                   style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 18px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', gap: 12 }}>
-                  <span style={{ fontSize: 14, fontWeight: 600, color: '#111827' }}>{faq.q}</span>
+                  <span style={{ fontSize: 14, fontWeight: 600, color: 'white' }}>{faq.q}</span>
                   <span style={{ fontSize: 22, color: '#7C3AED', flexShrink: 0, transition: 'transform 0.2s', display: 'inline-block', transform: openFaq === i ? 'rotate(45deg)' : 'none' }}>+</span>
                 </button>
-                {openFaq === i && <div style={{ padding: '0 18px 14px', fontSize: 13, color: '#6B7280', lineHeight: 1.7, borderTop: '1px solid #F3F4F6' }}>{faq.a}</div>}
+                {openFaq === i && <div style={{ padding: '0 18px 14px', fontSize: 13, color: 'rgba(255,255,255,0.65)', lineHeight: 1.7, borderTop: '1px solid rgba(255,255,255,0.1)' }}>{faq.a}</div>}
               </div>
             ))}
           </div>
@@ -409,7 +409,7 @@ export default function LandingPage() {
             {visibleFaqs < FAQS.length && (
               <button
                 onClick={() => setVisibleFaqs(v => Math.min(v + 10, FAQS.length))}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'white', border: '1px solid #C7D2FE', borderRadius: 10, padding: '10px 22px', fontSize: 13, fontWeight: 600, color: '#7C3AED', cursor: 'pointer' }}>
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'white', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 10, padding: '10px 22px', fontSize: 13, fontWeight: 600, color: '#7C3AED', cursor: 'pointer' }}>
                 Show more questions
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" strokeWidth="2.5" strokeLinecap="round"><path d="M6 9l6 6 6-6"/></svg>
               </button>
@@ -430,17 +430,17 @@ export default function LandingPage() {
       </section>
 
       {/* ── CONTACT ── */}
-      <section id="contact" style={{ background: 'white', padding: '52px 20px' }}>
+      <section id="contact" style={{ background: '#162272', padding: '52px 20px' }}>
         <div style={{ maxWidth: 520, margin: '0 auto', textAlign: 'center' }}>
-          <h2 style={{ fontSize: 'clamp(20px,3vw,30px)', fontWeight: 800, color: '#111827', marginBottom: 6 }}>Get in touch</h2>
-          <div style={{ background: '#F9FAFB', borderRadius: 14, padding: '20px', border: '1px solid #F3F4F6', textAlign: 'left' }}>
+          <h2 style={{ fontSize: 'clamp(20px,3vw,30px)', fontWeight: 800, color: 'white', marginBottom: 6 }}>Get in touch</h2>
+          <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 14, padding: '20px', border: '1px solid rgba(255,255,255,0.15)', textAlign: 'left' }}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
               <div>
-                <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: '#374151', marginBottom: 5 }}>Name</label>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: 'rgba(255,255,255,0.75)', marginBottom: 5 }}>Name</label>
                 <input placeholder="Your name" style={{ width: '100%', height: 40, padding: '0 12px', borderRadius: 8, border: '1px solid #E5E7EB', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: '#374151', marginBottom: 5 }}>Email</label>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: 'rgba(255,255,255,0.75)', marginBottom: 5 }}>Email</label>
                 <input type="email" placeholder="you@example.com" style={{ width: '100%', height: 40, padding: '0 12px', borderRadius: 8, border: '1px solid #E5E7EB', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
               </div>
             </div>
@@ -451,7 +451,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── FOOTER ── */}
-      <footer style={{ background: '#0c0720', color: 'white', padding: '40px 20px 24px', borderTop: '1px solid rgba(124,58,237,0.2)' }}>
+      <footer style={{ background: '#162272', color: 'white', padding: '40px 20px 24px', borderTop: '1px solid rgba(124,58,237,0.2)' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
 
           {/* 4 columns on desktop, stacked on mobile */}
