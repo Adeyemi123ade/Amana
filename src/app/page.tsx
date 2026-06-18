@@ -145,10 +145,28 @@ export default function LandingPage() {
       </header>
 
       {/* ── HERO ── */}
-      <section style={{ background: 'linear-gradient(135deg,#0c0720 0%,#130a2e 60%,#1a0d3d 100%)', minHeight: 'clamp(520px,80vh,760px)', display: 'flex', alignItems: 'center', overflow: 'hidden', position: 'relative' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '60px 20px', width: '100%', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 40, alignItems: 'center' }} className="hero-grid">
-          {/* Left — text content */}
-          <div>
+      <section style={{ background: 'linear-gradient(135deg,#0c0720 0%,#130a2e 60%,#1a0d3d 100%)', minHeight: 'clamp(520px,82vh,780px)', display: 'flex', alignItems: 'center', overflow: 'hidden', position: 'relative' }}>
+
+        {/* Right side — image bleeds from edge, fades into background */}
+        <div style={{ position: 'absolute', top: 0, right: 0, width: '55%', height: '100%', zIndex: 0 }} className="hero-img-wrap">
+          {/* The image itself — fills full height */}
+          <img
+            src="/hero-image.png"
+            alt=""
+            aria-hidden="true"
+            style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', display: 'block' }}
+          />
+          {/* Left fade — blends image into the dark background color */}
+          <div style={{ position: 'absolute', top: 0, left: 0, width: '55%', height: '100%', background: 'linear-gradient(to right, #0c0720 0%, #0c072099 40%, transparent 100%)', pointerEvents: 'none' }} />
+          {/* Top fade */}
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '18%', background: 'linear-gradient(to bottom, #0c0720 0%, transparent 100%)', pointerEvents: 'none' }} />
+          {/* Bottom fade */}
+          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '18%', background: 'linear-gradient(to top, #0c0720 0%, transparent 100%)', pointerEvents: 'none' }} />
+        </div>
+
+        {/* Left side — text content, sits above image layer */}
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '60px 20px', width: '100%', position: 'relative', zIndex: 1 }}>
+          <div style={{ maxWidth: 540 }}>
             {/* Badge */}
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(124,58,237,0.18)', border: '1px solid rgba(124,58,237,0.35)', borderRadius: 24, padding: '6px 16px', marginBottom: 28 }}>
               <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#A78BFA', display: 'inline-block', animation: 'pulse 2s infinite', flexShrink: 0 }} />
@@ -156,51 +174,37 @@ export default function LandingPage() {
             </div>
 
             {/* Headline */}
-            <h1 style={{ fontSize: 'clamp(36px,4vw,58px)', fontWeight: 900, lineHeight: 1.1, letterSpacing: -1, marginBottom: 20 }}>
+            <h1 style={{ fontSize: 'clamp(38px,4.5vw,62px)', fontWeight: 900, lineHeight: 1.08, letterSpacing: -1.5, marginBottom: 22 }}>
               <span style={{ color: 'white', display: 'block' }}>Run your business.</span>
               <span style={{ color: '#7C3AED', display: 'block' }}>Get paid faster.</span>
               <span style={{ color: 'white', display: 'block' }}>Stay organised.</span>
             </h1>
 
             {/* Subtext */}
-            <p style={{ fontSize: 'clamp(15px,1.5vw,17px)', color: 'rgba(255,255,255,0.6)', lineHeight: 1.75, marginBottom: 36, maxWidth: 480 }}>
+            <p style={{ fontSize: 'clamp(15px,1.4vw,17px)', color: 'rgba(255,255,255,0.58)', lineHeight: 1.8, marginBottom: 36, maxWidth: 460 }}>
               Amana helps you manage customers, schedule appointments, send professional invoices, track payments, and automate follow-ups. All in one place.
             </p>
 
             {/* CTAs */}
-            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-              <Link href="/sign-up" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#7C3AED', color: 'white', fontSize: 15, fontWeight: 700, textDecoration: 'none', padding: '14px 28px', borderRadius: 12, boxShadow: '0 4px 24px rgba(124,58,237,0.45)' }}>
+            <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
+              <Link href="/sign-up" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#7C3AED', color: 'white', fontSize: 15, fontWeight: 700, textDecoration: 'none', padding: '14px 28px', borderRadius: 12, boxShadow: '0 4px 28px rgba(124,58,237,0.5)' }}>
                 Create Free Account →
               </Link>
-              <a href="#demo" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'transparent', color: 'white', fontSize: 15, fontWeight: 600, textDecoration: 'none', padding: '14px 24px', borderRadius: 12, border: '1.5px solid rgba(255,255,255,0.18)' }}>
-                <span style={{ width: 32, height: 32, borderRadius: '50%', border: '1.5px solid rgba(255,255,255,0.3)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="white"><path d="M5 3l14 9-14 9V3z"/></svg>
+              <a href="#demo" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, background: 'transparent', color: 'white', fontSize: 15, fontWeight: 600, textDecoration: 'none', padding: '14px 22px', borderRadius: 12, border: '1.5px solid rgba(255,255,255,0.16)' }}>
+                <span style={{ width: 30, height: 30, borderRadius: '50%', border: '1.5px solid rgba(255,255,255,0.3)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="white"><path d="M5 3l14 9-14 9V3z"/></svg>
                 </span>
                 Watch Demo
               </a>
             </div>
           </div>
-
-          {/* Right — hero image */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }} className="hero-image-col">
-            {/* Glow behind image */}
-            <div style={{ position: 'absolute', width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle,rgba(124,58,237,0.35) 0%,transparent 70%)', pointerEvents: 'none' }} />
-            {/* Image placeholder — replace src with real photo */}
-            <img
-              src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=640&q=80"
-              alt="Business owner using Amana"
-              style={{ width: '100%', maxWidth: 520, borderRadius: 20, objectFit: 'cover', aspectRatio: '4/3', position: 'relative', zIndex: 1, boxShadow: '0 24px 80px rgba(0,0,0,0.5)' }}
-              onError={e => { (e.target as HTMLImageElement).style.display = 'none' }}
-            />
-          </div>
         </div>
 
         <style>{`
-          @media (max-width: 768px) {
-            .hero-grid { grid-template-columns: 1fr !important; text-align: center; }
-            .hero-image-col { display: none !important; }
-          }
           @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+          @media (max-width: 768px) {
+            .hero-img-wrap { width: 100% !important; opacity: 0.18; }
+          }
         `}</style>
       </section>
 
