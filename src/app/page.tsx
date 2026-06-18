@@ -113,7 +113,7 @@ export default function LandingPage() {
     <div style={{ fontFamily: "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif", color: '#111827', overflowX: 'hidden' }}>
 
       {/* ── HEADER ── */}
-      <header style={{ position: 'sticky', top: 0, zIndex: 50, background: 'rgba(12,7,32,0.97)', backdropFilter: 'blur(12px)', borderBottom: '1px solid rgba(124,58,237,0.2)' }}>
+      <header style={{ position: 'sticky', top: 0, zIndex: 50, background: 'rgba(22,34,114,0.98)', backdropFilter: 'blur(12px)', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 20px', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
             <div style={{ width: 34, height: 34, background: '#7C3AED', borderRadius: 9, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -209,12 +209,10 @@ export default function LandingPage() {
       </section>
 
 
-
-
       {/* ── FEATURES ── */}
       <section id="features" style={{ background: '#162272', padding: '72px 20px 0' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-          {/* Section header — white background */}
+          {/* Section header */}
           <div style={{ textAlign: 'center', marginBottom: 52 }}>
             <h2 style={{ fontSize: 'clamp(24px,3vw,38px)', fontWeight: 800, color: 'white', marginBottom: 12 }}>
               Run Your Business With Confidence
