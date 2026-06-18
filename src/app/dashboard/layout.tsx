@@ -52,10 +52,8 @@ export default async function DashboardLayout({ children }: { children: ReactNod
         <Sidebar user={enrichedUser} />
         <div className="dashboard-main">
           <Topbar user={enrichedUser} />
-          <main className="dashboard-content" style={{ background: 'var(--bg)' }}>
-            <div style={{ background: 'white', borderRadius: 16, margin: 16, padding: '24px 24px', minHeight: 'calc(100vh - 112px)', boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}>
-              {children}
-            </div>
+          <main className="dashboard-content">
+            {children}
           </main>
         </div>
       </div>

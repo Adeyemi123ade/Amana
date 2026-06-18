@@ -133,10 +133,10 @@ export default function LandingPage() {
           </div>
         </div>
         {menuOpen && (
-          <div style={{ background: '#162272', borderTop: '1px solid rgba(255,255,255,0.12)', paddingBottom: 16 }}>
-            {navLinks.map(l => <a key={l.label} href={l.href} onClick={() => setMenuOpen(false)} style={{ display: 'block', color: 'rgba(255,255,255,0.8)', fontSize: 15, textDecoration: 'none', padding: '12px 24px' }}>{l.label}</a>)}
-            <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', margin: '8px 24px' }} />
-            <Link href="/sign-in" onClick={() => setMenuOpen(false)} style={{ display: 'block', color: 'rgba(255,255,255,0.6)', fontSize: 15, textDecoration: 'none', padding: '12px 24px' }}>Sign in</Link>
+          <div style={{ background: 'white', borderTop: '1px solid #E5E7EB', paddingBottom: 16 }}>
+            {navLinks.map(l => <a key={l.label} href={l.href} onClick={() => setMenuOpen(false)} style={{ display: 'block', color: '#162272', fontSize: 15, fontWeight: 600, textDecoration: 'none', padding: '12px 24px' }}>{l.label}</a>)}
+            <div style={{ height: 1, background: '#E5E7EB', margin: '8px 24px' }} />
+            <Link href="/sign-in" onClick={() => setMenuOpen(false)} style={{ display: 'block', color: '#162272', fontSize: 15, textDecoration: 'none', padding: '12px 24px' }}>Sign in</Link>
             <div style={{ padding: '8px 24px 0' }}>
               <Link href="/sign-up" onClick={() => setMenuOpen(false)} style={{ display: 'block', background: '#7C3AED', color: 'white', fontSize: 15, fontWeight: 600, textDecoration: 'none', padding: '13px 20px', borderRadius: 10, textAlign: 'center' }}>Create Free Account</Link>
             </div>

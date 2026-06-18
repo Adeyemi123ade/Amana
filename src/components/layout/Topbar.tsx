@@ -178,7 +178,7 @@ export function Topbar({ user }: TopbarProps) {
   }
 
   return (
-    <header className="dashboard-topbar" style={{ background: 'var(--sidebar)' }}>
+    <header className="dashboard-topbar">
       {/* Greeting */}
       <div style={{ minWidth:0, flex:1 }}>
         <p style={{ fontSize:15, fontWeight:600, color:'var(--text)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>
