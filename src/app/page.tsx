@@ -212,11 +212,10 @@ export default function LandingPage() {
 
 
       {/* ── FEATURES ── */}
-      <section id="features" style={{ background: 'white', padding: '80px 20px' }}>
+      <section id="features" style={{ background: 'white', padding: '72px 20px 0' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-
-          {/* Section header */}
-          <div style={{ textAlign: 'center', marginBottom: 64 }}>
+          {/* Section header — white background */}
+          <div style={{ textAlign: 'center', marginBottom: 52 }}>
             <h2 style={{ fontSize: 'clamp(24px,3vw,38px)', fontWeight: 800, color: '#111827', marginBottom: 12 }}>
               Run Your Business With Confidence
             </h2>
@@ -224,65 +223,121 @@ export default function LandingPage() {
               Amana helps you stay organized, get paid on time, and manage your daily operations with ease.
             </p>
           </div>
+        </div>
+      </section>
 
-          {/* Outcome groups */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 56 }}>
-            {FEATURE_GROUPS.map(group => (
-              <div key={group.group}>
-                {/* Group label */}
-                <div style={{ marginBottom: 24 }}>
-                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                    <span style={{ fontSize: 18 }}>{group.icon}</span>
-                    <h3 style={{ fontSize: 20, fontWeight: 800, color: '#111827' }}>{group.group}</h3>
-                  </div>
-                  <p style={{ fontSize: 14, color: '#6B7280', maxWidth: 540, lineHeight: 1.7 }}>{group.desc}</p>
+      {/* ── CATEGORY BADGES — dark navy strip ── */}
+      <div style={{ background: 'linear-gradient(135deg,#0c0720 0%,#130a2e 60%,#1a0d3d 100%)', padding: '40px 20px' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 1 }} className="badge-grid">
+            {[
+              {
+                title: 'Get Paid Faster',
+                sub: 'Invoices, payments & tracking',
+                icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" strokeWidth="1.8" strokeLinecap="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>,
+              },
+              {
+                title: 'Stay Organised',
+                sub: 'Customers & appointments',
+                icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" strokeWidth="1.8" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>,
+              },
+              {
+                title: 'Reduce Manual Work',
+                sub: 'Automated reminders',
+                icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" strokeWidth="1.8" strokeLinecap="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>,
+              },
+              {
+                title: 'Understand Your Business',
+                sub: 'Reports & insights',
+                icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" strokeWidth="1.8" strokeLinecap="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>,
+              },
+            ].map((badge, i) => (
+              <div key={badge.title} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '20px 24px', borderLeft: i > 0 ? '1px solid rgba(255,255,255,0.08)' : 'none' }}>
+                <div style={{ width: 46, height: 46, borderRadius: '50%', background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  {badge.icon}
                 </div>
-
-                {/* Cards — same style as before */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(240px,1fr))', gap: 20 }}>
-                  {group.cards.map(card => (
-                    <div key={card.title} style={{ background: 'white', borderRadius: 14, padding: '24px 20px', border: '1px solid #F0EFFE', boxShadow: '0 2px 16px rgba(124,58,237,0.08), 0 1px 4px rgba(0,0,0,0.04)' }}>
-                      <div style={{ fontSize: 28, marginBottom: 12 }}>{card.icon}</div>
-                      <h4 style={{ fontSize: 15, fontWeight: 700, color: '#111827', marginBottom: 12 }}>{card.title}</h4>
-                      <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 7 }}>
-                        {card.points.map(point => (
-                          <li key={point} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
-                              <path d="M20 6L9 17l-5-5" stroke="#7C3AED" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-                            </svg>
-                            <span style={{ fontSize: 13, color: '#374151', lineHeight: 1.5 }}>{point}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-
-                  {/* Access Anywhere card — sits in the last group */}
-                  {group.group === 'Understand Your Business' && (
-                    <div style={{ background: 'white', borderRadius: 14, padding: '24px 20px', border: '1px solid #F0EFFE', boxShadow: '0 2px 16px rgba(124,58,237,0.08), 0 1px 4px rgba(0,0,0,0.04)' }}>
-                      <div style={{ fontSize: 28, marginBottom: 12 }}>🌍</div>
-                      <h4 style={{ fontSize: 15, fontWeight: 700, color: '#111827', marginBottom: 12 }}>Access Your Business Anywhere</h4>
-                      <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 7 }}>
-                        {['Manage customers on the go', 'Access invoices from any device', 'Keep your business organised anywhere'].map(point => (
-                          <li key={point} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
-                              <path d="M20 6L9 17l-5-5" stroke="#7C3AED" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-                            </svg>
-                            <span style={{ fontSize: 13, color: '#374151', lineHeight: 1.5 }}>{point}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
+                <div>
+                  <p style={{ fontSize: 14, fontWeight: 800, color: 'white', marginBottom: 3 }}>{badge.title}</p>
+                  <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>{badge.sub}</p>
                 </div>
               </div>
             ))}
           </div>
         </div>
-      </section>
+      </div>
+
+      {/* ── 8 CARDS — white background, 4+4 ── */}
+      <div style={{ background: 'white', padding: '52px 20px 80px' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 20 }}>
+
+          {/* Row 1 — Get Paid Faster (3 cards, blue shadow) + Customer Management (purple shadow) */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 20 }} className="cards-grid">
+            {[
+              { title: 'Professional Invoicing', points: ['Create branded invoices', 'Send invoices instantly', 'Track invoice status'], shadow: '0 4px 20px rgba(59,130,246,0.18)', border: '#DBEAFE', accent: '#3B82F6',
+                icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" strokeWidth="1.8" strokeLinecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg> },
+              { title: 'Secure Online Payments', points: ['Accept card, USSD & transfer', 'Receive payments faster', 'Automatic confirmation'], shadow: '0 4px 20px rgba(59,130,246,0.18)', border: '#DBEAFE', accent: '#3B82F6',
+                icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" strokeWidth="1.8" strokeLinecap="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> },
+              { title: 'Payment Tracking', points: ['See who has paid', 'See outstanding balances', 'Monitor overdue payments'], shadow: '0 4px 20px rgba(59,130,246,0.18)', border: '#DBEAFE', accent: '#3B82F6',
+                icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" strokeWidth="1.8" strokeLinecap="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg> },
+              { title: 'Customer Management', points: ['Store customer info', 'Track payment history', 'Maintain relationships'], shadow: '0 4px 20px rgba(124,58,237,0.18)', border: '#EDE9FE', accent: '#7C3AED',
+                icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" strokeWidth="1.8" strokeLinecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.74"/></svg> },
+            ].map(card => (
+              <div key={card.title} style={{ background: 'white', borderRadius: 14, padding: '24px 20px', border: `1px solid ${card.border}`, boxShadow: card.shadow }}>
+                <div style={{ marginBottom: 14 }}>{card.icon}</div>
+                <h4 style={{ fontSize: 15, fontWeight: 700, color: '#111827', marginBottom: 12 }}>{card.title}</h4>
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 7 }}>
+                  {card.points.map(p => (
+                    <li key={p} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}><path d="M20 6L9 17l-5-5" stroke={card.accent} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      <span style={{ fontSize: 13, color: '#374151', lineHeight: 1.5 }}>{p}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+
+          {/* Row 2 — Appointments (purple) + Reminders (amber) + Reports + Anywhere (green) */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 20 }} className="cards-grid">
+            {[
+              { title: 'Appointment Booking', points: ['Schedule appointments', 'Track upcoming bookings', 'Public booking page'], shadow: '0 4px 20px rgba(124,58,237,0.18)', border: '#EDE9FE', accent: '#7C3AED',
+                icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" strokeWidth="1.8" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> },
+              { title: 'Automated Reminders', points: ['Invoice reminders', 'Appointment reminders', 'No manual follow-up'], shadow: '0 4px 20px rgba(245,158,11,0.18)', border: '#FEF3C7', accent: '#F59E0B',
+                icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" strokeWidth="1.8" strokeLinecap="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg> },
+              { title: 'Business Reports', points: ['Revenue trends', 'Top earning services', 'Performance insights'], shadow: '0 4px 20px rgba(34,197,94,0.18)', border: '#DCFCE7', accent: '#22C55E',
+                icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="1.8" strokeLinecap="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg> },
+              { title: 'Access Anywhere', points: ['Manage on the go', 'Any device, any time', 'Always stay organised'], shadow: '0 4px 20px rgba(34,197,94,0.18)', border: '#DCFCE7', accent: '#22C55E',
+                icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="1.8" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg> },
+            ].map(card => (
+              <div key={card.title} style={{ background: 'white', borderRadius: 14, padding: '24px 20px', border: `1px solid ${card.border}`, boxShadow: card.shadow }}>
+                <div style={{ marginBottom: 14 }}>{card.icon}</div>
+                <h4 style={{ fontSize: 15, fontWeight: 700, color: '#111827', marginBottom: 12 }}>{card.title}</h4>
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 7 }}>
+                  {card.points.map(p => (
+                    <li key={p} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}><path d="M20 6L9 17l-5-5" stroke={card.accent} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      <span style={{ fontSize: 13, color: '#374151', lineHeight: 1.5 }}>{p}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+        <style>{`
+          @media (max-width: 768px) {
+            .badge-grid { grid-template-columns: 1fr 1fr !important; }
+            .cards-grid { grid-template-columns: 1fr 1fr !important; }
+          }
+          @media (max-width: 480px) {
+            .badge-grid { grid-template-columns: 1fr !important; }
+            .cards-grid { grid-template-columns: 1fr !important; }
+          }
+        `}</style>
+      </div>
 
       {/* ── CTA ── */}
-      <section style={{ background: 'linear-gradient(135deg,#7C3AED,#4C1D95)', padding: '80px 20px', overflow: 'hidden' }}>
+      <section style={{ background: 'linear-gradient(135deg,#0c0720 0%,#130a2e 60%,#1a0d3d 100%)', padding: '80px 20px', overflow: 'hidden' }}>
         <div style={{ maxWidth: 860, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 52, alignItems: 'center' }} className="cta-grid">
           {/* Left — headline and benefits */}
           <div className="cta-text">
