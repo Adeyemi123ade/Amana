@@ -52,13 +52,25 @@ export default function AppointmentsPage() {
       setWorkspace(ws)
       wsRef.current = ws
       setWsId(ws.id)
+
+      // Fetch appointments and customers separately — do NOT use Supabase join
+      // The join 'customers(name,email)' fails if FK metadata is not detected
       const [apptRes, custRes] = await Promise.all([
-        supabase.from('appointments').select('*, customers(name,email)').eq('workspace_id', ws.id).order('start_time', { ascending: true }),
+        supabase.from('appointments').select('*').eq('workspace_id', ws.id).order('start_time', { ascending: true }),
         supabase.from('customers').select('id,name,email,phone').eq('workspace_id', ws.id),
       ])
-      if (apptRes.error) throw new Error('Could not load appointments: ' + apptRes.error.message)
-      setAppointments(apptRes.data || [])
-      setCustomers(custRes.data || [])
+      if (apptRes.error) throw new Error(apptRes.error.message)
+
+      const custList = custRes.data || []
+      setCustomers(custList)
+
+      // Merge customer info into each appointment manually
+      const custMap = new Map(custList.map(c => [c.id, c]))
+      const merged = (apptRes.data || []).map(a => ({
+        ...a,
+        customers: a.customer_id ? custMap.get(a.customer_id) || null : null,
+      }))
+      setAppointments(merged)
     } catch (e: any) {
       setPageError(e.message || 'Unable to load appointments right now.')
     } finally {
@@ -127,7 +139,7 @@ export default function AppointmentsPage() {
     if (form.customerId) insertData.customer_id = form.customerId
 
     const { data: appt, error: err } = await supabase
-      .from('appointments').insert(insertData).select('*, customers(name,email)').single()
+      .from('appointments').insert(insertData).select('*').single()
 
     setSaving(false)
 
@@ -141,7 +153,9 @@ export default function AppointmentsPage() {
       return
     }
 
-    setSavedAppt(appt)
+    // Attach customer info manually since we no longer use the join
+    const apptWithCustomer = { ...appt, customers: selectedCustomer || null }
+    setSavedAppt(apptWithCustomer)
     // Create notification
     const date = new Date(appt.start_time).toLocaleDateString('en-NG',{weekday:'short',day:'numeric',month:'short'})
     await supabase.from('notifications').insert({

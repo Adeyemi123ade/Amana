@@ -22,6 +22,12 @@ function VerifyContent() {
     }
 
     const verify = async () => {
+      // Hard timeout — if verification takes more than 25s, show a result anyway
+      const timeout = setTimeout(() => {
+        setStatus(prev => prev === 'verifying' ? 'failed' : prev)
+        setError('Verification is taking longer than expected. If you were charged, your payment is safe and the invoice will update shortly. Reference: ' + reference)
+      }, 25000)
+
       try {
         const res = await fetch('/api/paystack-verify', {
           method: 'POST',
@@ -29,19 +35,19 @@ function VerifyContent() {
           body: JSON.stringify({ reference, invoiceId }),
         })
         const data = await res.json()
+        clearTimeout(timeout)
 
         if (data.success) {
           setDetails(data)
           setStatus('success')
-          // NOTE: Auto-redirect disabled — user chooses where to go next manually
-          // setTimeout(() => router.push(`/invoice/${invoiceId}`), 4000)
         } else {
           setStatus('failed')
           setError(data.message || data.error || 'Payment could not be verified.')
         }
       } catch {
+        clearTimeout(timeout)
         setStatus('failed')
-        setError('Could not connect to verification server. Please try again.')
+        setError('Could not connect to verification server. If you were charged, your payment is safe. Reference: ' + reference)
       }
     }
 

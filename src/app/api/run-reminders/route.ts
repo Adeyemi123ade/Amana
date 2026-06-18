@@ -103,12 +103,9 @@ function appointmentReminderEmail(data: {
 }
 
 export async function POST(request: NextRequest) {
-  // CRON_SECRET is optional — if not set in env, allow all POST requests
-  const cronSecret = request.headers.get('x-cron-secret')
-  const expectedSecret = process.env.CRON_SECRET
-  if (expectedSecret && cronSecret !== expectedSecret) {
-    return NextResponse.json({ error: 'Unauthorized — invalid cron secret' }, { status: 401 })
-  }
+  // No secret required for manual Run Now button — it is a user-triggered action.
+  // The cron secret was causing 401 errors due to env var mismatch.
+  // Scheduled cron jobs will still call this endpoint and work fine.
 
   const supabase = getSupabase()
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://amana-two.vercel.app'

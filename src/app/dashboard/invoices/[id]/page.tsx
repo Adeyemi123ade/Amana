@@ -66,7 +66,9 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
       `Best regards,`,
       workspace?.name || 'Business',
     ].join('\n'))
-    window.open(`mailto:${invoice.customers.email}?subject=${subject}&body=${body}`)
+    // Use location.href not window.open — window.open leaves a blank tab
+    // if no mail client handles the mailto link
+    window.location.href = `mailto:${invoice.customers.email}?subject=${subject}&body=${body}`
     setEmailSent(true)
   }
 

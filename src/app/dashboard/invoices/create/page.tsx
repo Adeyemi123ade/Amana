@@ -32,6 +32,12 @@ export default function CreateInvoicePage() {
         wsRef.current = ws
         const { data: custs } = await supabase.from('customers').select('id,name').eq('workspace_id', ws.id)
         setCustomers(custs || [])
+        // Pre-select customer if passed in URL (?customer=ID)
+        const params = new URLSearchParams(window.location.search)
+        const preCustomer = params.get('customer')
+        if (preCustomer && custs?.some(c => c.id === preCustomer)) {
+          setForm(f => ({ ...f, customerId: preCustomer }))
+        }
       }
     }
     load()

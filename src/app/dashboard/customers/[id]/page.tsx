@@ -69,18 +69,18 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
         <div style={{borderTop:'1px solid #F9FAFB',paddingTop:16}}>
           <p style={{fontSize:12,fontWeight:600,color:'#6B7280',marginBottom:10,textTransform:'uppercase',letterSpacing:0.5}}>Actions</p>
           {[
-            {label:'Send Message', icon:'M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z'},
-            {label:'Create Invoice', icon:'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'},
-            {label:'Schedule Appointment', icon:'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'},
-            {label:'Add Note', icon:'M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z'},
+            {label:'Send Message', href: customer.email ? `mailto:${customer.email}` : `/dashboard/customers/${id}`, external: !!customer.email, icon:'M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z'},
+            {label:'Create Invoice', href:`/dashboard/invoices/create?customer=${id}`, external:false, icon:'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'},
+            {label:'Schedule Appointment', href:`/dashboard/appointments?customer=${id}`, external:false, icon:'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'},
           ].map(action => (
-            <button key={action.label} style={{width:'100%',display:'flex',alignItems:'center',justifyContent:'space-between',padding:'12px 0',borderBottom:'1px solid #F9FAFB',background:'none',border:'none',cursor:'pointer'}}>
+            <a key={action.label} href={action.href} {...(action.external ? {} : {})}
+              style={{width:'100%',display:'flex',alignItems:'center',justifyContent:'space-between',padding:'12px 0',borderBottom:'1px solid #F9FAFB',textDecoration:'none'}}>
               <div style={{display:'flex',alignItems:'center',gap:10}}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d={action.icon}/></svg>
                 <span style={{fontSize:14,color:'#111827'}}>{action.label}</span>
               </div>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round"><path d="M9 18l6-6-6-6"/></svg>
-            </button>
+            </a>
           ))}
         </div>
       </div>

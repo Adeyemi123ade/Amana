@@ -346,7 +346,14 @@ export default function SettingsPage() {
               }),
             })
             const data = await res.json()
-            if (res.ok) { ok(`Invitation sent to ${inviteEmail}`); setInviteEmail('') }
+            if (res.ok) {
+              if (data.emailSent) {
+                ok(`Invitation sent to ${inviteEmail}`)
+              } else {
+                ok(`Invite created. Email could not be sent automatically — share this link: ${data.acceptUrl}`)
+              }
+              setInviteEmail('')
+            }
             else fail(data.error || 'Could not send invite')
           }}
             style={{height:44,padding:'0 16px',background:'#7C3AED',color:'white',border:'none',borderRadius:8,fontSize:13,fontWeight:600,cursor:'pointer',flexShrink:0}}>

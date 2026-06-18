@@ -68,11 +68,13 @@ export async function POST(request: NextRequest) {
 
     // Send invite email via Resend
     const resendKey = process.env.RESEND_API_KEY
+    let emailSent = false
+    let emailError = ''
     if (resendKey && !resendKey.includes('PASTE_YOUR')) {
       const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://amana-two.vercel.app'
       const acceptUrl = `${appUrl}/join/${invite.token}`
 
-      await fetch('https://api.resend.com/emails', {
+      const emailRes = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: { Authorization: `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -101,9 +103,21 @@ export async function POST(request: NextRequest) {
           `,
         }),
       })
+      const emailData = await emailRes.json()
+      if (emailRes.ok) {
+        emailSent = true
+      } else {
+        emailError = emailData?.message || 'Email could not be sent'
+      }
     }
 
-    return NextResponse.json({ success: true, inviteId: invite.id })
+    return NextResponse.json({
+      success: true,
+      inviteId: invite.id,
+      emailSent,
+      acceptUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'https://amana-two.vercel.app'}/join/${invite.token}`,
+      emailWarning: emailSent ? null : (emailError || 'Invite created but email not sent. Share the link manually.'),
+    })
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 })
   }

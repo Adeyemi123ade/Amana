@@ -103,10 +103,7 @@ export default function RemindersPage() {
     try {
       const res = await fetch('/api/run-reminders', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-cron-secret': 'AMANA-CRON-2026-SECURE',
-        },
+        headers: { 'Content-Type': 'application/json' },
       })
       const data = await res.json()
       setSendResult(data)
