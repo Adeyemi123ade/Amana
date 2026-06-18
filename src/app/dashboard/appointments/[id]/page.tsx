@@ -20,10 +20,7 @@ export default function AppointmentDetailPage({ params }: { params: Promise<{ id
   const [error, setError]   = useState('')
   const [updating, setUpdating] = useState(false)
   const [copied, setCopied] = useState(false)
-  const [showEmail, setShowEmail] = useState(false)
   const [emailSent, setEmailSent] = useState(false)
-  const [sending, setSending]     = useState(false)
-  const [sendError, setSendError] = useState('')
 
   const load = async () => {
     setLoading(true); setError('')
@@ -64,29 +61,38 @@ export default function AppointmentDetailPage({ params }: { params: Promise<{ id
     setTimeout(() => setCopied(false), 2500)
   }
 
-  const sendEmail = async () => {
-    if (!cust?.email) return
-    setSending(true)
-    setSendError('')
-    try {
-      const res = await fetch('/api/send-appointment-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ appointmentId: id }),
-      })
-      const data = await res.json()
-      if (data.success) {
-        setEmailSent(true)
-        setShowEmail(false)
-        setSendError('')
-      } else {
-        setSendError(data.error || 'Could not send email. Please try again.')
-      }
-    } catch {
-      setSendError('Could not connect to email service. Please try again.')
-    } finally {
-      setSending(false)
+  const sendEmail = () => {
+    if (!cust?.email) {
+      alert('This customer has no email address. Please add one in their customer profile first.')
+      return
     }
+    const apptLink = `${window.location.origin}/dashboard/appointments/${id}`
+    const subject = encodeURIComponent(`Appointment Confirmation — ${appt.title}`)
+    const body = encodeURIComponent([
+      `Dear ${cust.name},`,
+      ``,
+      `Your appointment has been confirmed. Please find the details below.`,
+      ``,
+      `Appointment: ${appt.title}`,
+      `Date:        ${fmt(appt.start_time)}`,
+      `Time:        ${fmtT(appt.start_time)}`,
+      `Type:        ${appt.location_type === 'PHYSICAL' ? 'In-Person' : 'Virtual'}`,
+      appt.location ? `Location:    ${appt.location}` : ``,
+      appt.notes   ? `Notes:       ${appt.notes}` : ``,
+      ``,
+      `Appointment Link:`,
+      apptLink,
+      ``,
+      `Best regards,`,
+      ws?.name || 'Business',
+    ].filter(l => l !== null && l !== undefined).join('\n'))
+    window.location.href = `mailto:${cust.email}?subject=${subject}&body=${body}`
+    setEmailSent(true)
+  }
+
+  const resendEmail = () => {
+    setEmailSent(false)
+    setTimeout(() => sendEmail(), 100)
   }
 
   const na = (v: any) => v || 'Not provided'
@@ -169,25 +175,41 @@ export default function AppointmentDetailPage({ params }: { params: Promise<{ id
       <div style={card}>
         <p style={{fontSize:12,fontWeight:700,color:'var(--text-muted)',textTransform:'uppercase',letterSpacing:.5,marginBottom:12}}>Actions</p>
         <div style={{display:'flex',flexDirection:'column',gap:10}}>
-          <button onClick={() => setShowEmail(true)}
-            style={{width:'100%',height:44,background:'var(--accent)',color:'white',border:'none',borderRadius:10,fontSize:14,fontWeight:600,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8}}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/></svg>
-            {emailSent ? '✓ Email Opened' : 'Send Appointment Email'}
-          </button>
+
+          {/* Send Email — same pattern as invoice */}
+          {cust?.email ? (
+            <>
+              <button onClick={sendEmail}
+                style={{width:'100%',height:48,background:emailSent?'#22C55E':'#111827',color:'white',border:'none',borderRadius:12,fontSize:14,fontWeight:600,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8}}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/>
+                </svg>
+                {emailSent ? '✓ Email Opened — Check Your Email App' : `Send Appointment to ${cust.email}`}
+              </button>
+              {emailSent && (
+                <button onClick={resendEmail}
+                  style={{width:'100%',height:38,background:'none',border:'1px solid var(--border-light)',borderRadius:10,fontSize:13,fontWeight:600,color:'var(--text-muted)',cursor:'pointer'}}>
+                  Resend Appointment Email →
+                </button>
+              )}
+            </>
+          ) : (
+            <div style={{background:'#FFFBEB',border:'1px solid #FDE68A',borderRadius:10,padding:'12px 14px',fontSize:13,color:'#92400E'}}>
+              No email for this customer. Add one to their profile to send the appointment details.
+            </div>
+          )}
+
+          {/* Copy link */}
           <button onClick={copyLink}
-            style={{width:'100%',height:44,background:'var(--bg-secondary)',border:'1px solid var(--border-light)',borderRadius:10,fontSize:14,fontWeight:500,color:'var(--text)',cursor:'pointer'}}>
+            style={{width:'100%',height:44,background:copied?'#22C55E':'var(--bg-secondary)',border:'1px solid var(--border-light)',borderRadius:10,fontSize:13,fontWeight:600,color:copied?'white':'var(--text)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8,transition:'all .2s'}}>
             {copied ? '✓ Link Copied!' : '🔗 Copy Appointment Link'}
           </button>
+
+          {/* Status actions */}
           {appt.status === 'PENDING' && (
             <button onClick={() => updateStatus('CONFIRMED')} disabled={updating}
               style={{width:'100%',height:40,background:'#EFF6FF',border:'1px solid #BFDBFE',borderRadius:10,fontSize:13,fontWeight:600,color:'#3B82F6',cursor:'pointer'}}>
               Mark as Confirmed
-            </button>
-          )}
-          {['PENDING','CONFIRMED'].includes(appt.status) && (
-            <button onClick={() => updateStatus('CANCELLED')} disabled={updating}
-              style={{width:'100%',height:40,background:'#FEF2F2',border:'1px solid #FECACA',borderRadius:10,fontSize:13,fontWeight:600,color:'#EF4444',cursor:'pointer'}}>
-              Cancel Appointment
             </button>
           )}
           {appt.status === 'CONFIRMED' && (
@@ -196,82 +218,14 @@ export default function AppointmentDetailPage({ params }: { params: Promise<{ id
               Mark as Completed
             </button>
           )}
+          {['PENDING','CONFIRMED'].includes(appt.status) && (
+            <button onClick={() => updateStatus('CANCELLED')} disabled={updating}
+              style={{width:'100%',height:40,background:'#FEF2F2',border:'1px solid #FECACA',borderRadius:10,fontSize:13,fontWeight:600,color:'#EF4444',cursor:'pointer'}}>
+              Cancel Appointment
+            </button>
+          )}
         </div>
       </div>
-
-      {/* Email modal */}
-      {showEmail && (
-        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.55)',display:'flex',alignItems:'flex-end',justifyContent:'center',zIndex:1000,padding:16}}>
-          <div style={{background:'var(--card)',borderRadius:20,padding:24,width:'100%',maxWidth:520,maxHeight:'90vh',overflowY:'auto'}}>
-            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
-              <p style={{fontSize:16,fontWeight:700,color:'var(--text)'}}>Send Appointment Email</p>
-              <button onClick={() => { setShowEmail(false); setSendError('') }}
-                style={{background:'none',border:'none',fontSize:22,cursor:'pointer',color:'var(--text-muted)',padding:0,lineHeight:1}}>×</button>
-            </div>
-
-            {/* Email preview */}
-            <div style={{background:'var(--bg-secondary)',borderRadius:12,padding:16,marginBottom:16,fontSize:13,lineHeight:1.8}}>
-              <div style={{display:'flex',justifyContent:'space-between',marginBottom:6,paddingBottom:8,borderBottom:'1px solid var(--border)'}}>
-                <span style={{color:'var(--text-muted)'}}>To</span>
-                <span style={{fontWeight:600,color:cust?.email?'var(--accent)':'#EF4444'}}>{cust?.email || '⚠️ No email'}</span>
-              </div>
-              <div style={{display:'flex',justifyContent:'space-between',marginBottom:12,paddingBottom:8,borderBottom:'1px solid var(--border)'}}>
-                <span style={{color:'var(--text-muted)'}}>Subject</span>
-                <span style={{fontWeight:500,color:'var(--text)',textAlign:'right',maxWidth:'60%'}}>Your appointment with {ws?.name||'Business'}</span>
-              </div>
-              <p style={{color:'var(--text-muted)',marginBottom:6,fontSize:12,fontWeight:600,textTransform:'uppercase',letterSpacing:.4}}>Message Preview</p>
-              <p style={{color:'var(--text)',marginBottom:4}}>Hello {cust?.name||'Customer'},</p>
-              <p style={{color:'var(--text-muted)',marginBottom:10}}>Your appointment has been scheduled.</p>
-              {[
-                ['Appointment', appt?.title],
-                ['Date', appt ? fmt(appt.start_time) : ''],
-                ['Time', appt ? fmtT(appt.start_time) : ''],
-                ['Type', appt?.location_type === 'PHYSICAL' ? 'In-Person' : 'Virtual'],
-                appt?.location ? [appt.location_type === 'PHYSICAL' ? 'Address' : 'Meeting Link', appt.location] : null,
-                appt?.notes ? ['Notes', appt.notes] : null,
-              ].filter(Boolean).map((row: any) => (
-                <div key={row[0]} style={{display:'flex',gap:8,marginBottom:3}}>
-                  <span style={{color:'var(--text-muted)',minWidth:90,flexShrink:0}}>{row[0]}:</span>
-                  <span style={{color:'var(--text)',fontWeight:500}}>{row[1]}</span>
-                </div>
-              ))}
-            </div>
-
-            {!cust?.email && (
-              <div style={{background:'#FFFBEB',border:'1px solid #FEF3C7',borderRadius:8,padding:'10px 12px',marginBottom:12,fontSize:12,color:'#92400E'}}>
-                ⚠️ This customer has no email. Add one in their customer profile first.
-              </div>
-            )}
-
-            {sendError && (
-              <div style={{background:'#FEF2F2',border:'1px solid #FEE2E2',borderRadius:8,padding:'10px 12px',marginBottom:12,fontSize:13,color:'#DC2626'}}>
-                {sendError}
-              </div>
-            )}
-
-            <div style={{display:'flex',gap:10}}>
-              <button onClick={() => { setShowEmail(false); setSendError('') }}
-                style={{flex:1,height:46,background:'var(--bg-secondary)',border:'1px solid var(--border-light)',borderRadius:10,fontSize:14,fontWeight:500,color:'var(--text-muted)',cursor:'pointer'}}>
-                Cancel
-              </button>
-              <button onClick={sendEmail} disabled={!cust?.email || sending}
-                style={{flex:2,height:46,background:'var(--accent)',color:'white',border:'none',borderRadius:10,fontSize:14,fontWeight:700,cursor:(!cust?.email||sending)?'not-allowed':'pointer',opacity:(!cust?.email)?0.5:1,display:'flex',alignItems:'center',justifyContent:'center',gap:8}}>
-                {sending
-                  ? <><span style={{width:16,height:16,border:'2px solid white',borderTopColor:'transparent',borderRadius:'50%',display:'inline-block',animation:'spin .7s linear infinite'}}/>Sending...</>
-                  : 'Send Email →'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Success toast */}
-      {emailSent && (
-        <div style={{position:'fixed',bottom:24,left:'50%',transform:'translateX(-50%)',background:'#22C55E',color:'white',padding:'12px 24px',borderRadius:12,fontSize:14,fontWeight:600,boxShadow:'0 4px 20px rgba(0,0,0,0.15)',zIndex:2000,display:'flex',alignItems:'center',gap:8}}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><path d="M20 6L9 17l-5-5"/></svg>
-          Appointment email sent successfully.
-        </div>
-      )}
 
       <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
     </div>

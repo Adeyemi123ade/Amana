@@ -145,31 +145,65 @@ export default function LandingPage() {
       </header>
 
       {/* ── HERO ── */}
-      <section style={{ background: 'linear-gradient(160deg,#160b35 0%,#1e1048 50%,#160b35 100%)', padding: '88px 20px 80px' }}>
-        <div style={{ maxWidth: 720, margin: '0 auto', textAlign: 'center' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(124,58,237,0.15)', border: '1px solid rgba(124,58,237,0.35)', borderRadius: 24, padding: '6px 16px', marginBottom: 28 }}>
-            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#A78BFA', display: 'inline-block', animation: 'pulse 2s infinite' }} />
-            <span style={{ color: '#A78BFA', fontSize: 13, fontWeight: 500 }}>Free access for all early users · No card required · Setup in minutes</span>
-          </div>
-          <h1 style={{ fontSize: 'clamp(36px,5vw,60px)', fontWeight: 900, color: 'white', lineHeight: 1.1, marginBottom: 20, letterSpacing: -1 }}>
-            Run your business.<br />
-            <span style={{ background: 'linear-gradient(135deg,#A78BFA,#7C3AED)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Get paid faster.</span><br />
-            Stay organised.
-          </h1>
-          <p style={{ fontSize: 'clamp(15px,2vw,18px)', color: 'rgba(255,255,255,0.6)', maxWidth: 540, margin: '0 auto 36px', lineHeight: 1.75 }}>
-            Amana helps you manage customers, schedule appointments, send professional invoices, track payments, and automate follow-ups. All in one place.
-          </p>
-          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 48 }}>
-            <Link href="/sign-up" style={{ background: 'linear-gradient(135deg,#7C3AED,#6D28D9)', color: 'white', fontSize: 15, fontWeight: 700, textDecoration: 'none', padding: '14px 30px', borderRadius: 12, boxShadow: '0 4px 20px rgba(124,58,237,0.4)' }}>
-              Create Free Account
-            </Link>
-            <a href="#demo" style={{ background: 'rgba(255,255,255,0.07)', color: 'white', fontSize: 15, fontWeight: 600, textDecoration: 'none', padding: '14px 24px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.12)' }}>
-              Watch Demo →
-            </a>
+      <section style={{ background: 'linear-gradient(135deg,#0c0720 0%,#130a2e 60%,#1a0d3d 100%)', minHeight: 'clamp(520px,80vh,760px)', display: 'flex', alignItems: 'center', overflow: 'hidden', position: 'relative' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '60px 20px', width: '100%', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 40, alignItems: 'center' }} className="hero-grid">
+          {/* Left — text content */}
+          <div>
+            {/* Badge */}
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(124,58,237,0.18)', border: '1px solid rgba(124,58,237,0.35)', borderRadius: 24, padding: '6px 16px', marginBottom: 28 }}>
+              <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#A78BFA', display: 'inline-block', animation: 'pulse 2s infinite', flexShrink: 0 }} />
+              <span style={{ color: '#A78BFA', fontSize: 13, fontWeight: 500 }}>Free access for all early users · No card required · Setup in minutes</span>
+            </div>
+
+            {/* Headline */}
+            <h1 style={{ fontSize: 'clamp(36px,4vw,58px)', fontWeight: 900, lineHeight: 1.1, letterSpacing: -1, marginBottom: 20 }}>
+              <span style={{ color: 'white', display: 'block' }}>Run your business.</span>
+              <span style={{ color: '#7C3AED', display: 'block' }}>Get paid faster.</span>
+              <span style={{ color: 'white', display: 'block' }}>Stay organised.</span>
+            </h1>
+
+            {/* Subtext */}
+            <p style={{ fontSize: 'clamp(15px,1.5vw,17px)', color: 'rgba(255,255,255,0.6)', lineHeight: 1.75, marginBottom: 36, maxWidth: 480 }}>
+              Amana helps you manage customers, schedule appointments, send professional invoices, track payments, and automate follow-ups. All in one place.
+            </p>
+
+            {/* CTAs */}
+            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+              <Link href="/sign-up" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#7C3AED', color: 'white', fontSize: 15, fontWeight: 700, textDecoration: 'none', padding: '14px 28px', borderRadius: 12, boxShadow: '0 4px 24px rgba(124,58,237,0.45)' }}>
+                Create Free Account →
+              </Link>
+              <a href="#demo" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'transparent', color: 'white', fontSize: 15, fontWeight: 600, textDecoration: 'none', padding: '14px 24px', borderRadius: 12, border: '1.5px solid rgba(255,255,255,0.18)' }}>
+                <span style={{ width: 32, height: 32, borderRadius: '50%', border: '1.5px solid rgba(255,255,255,0.3)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="white"><path d="M5 3l14 9-14 9V3z"/></svg>
+                </span>
+                Watch Demo
+              </a>
+            </div>
           </div>
 
+          {/* Right — hero image */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }} className="hero-image-col">
+            {/* Glow behind image */}
+            <div style={{ position: 'absolute', width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle,rgba(124,58,237,0.35) 0%,transparent 70%)', pointerEvents: 'none' }} />
+            {/* Image placeholder — replace src with real photo */}
+            <img
+              src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=640&q=80"
+              alt="Business owner using Amana"
+              style={{ width: '100%', maxWidth: 520, borderRadius: 20, objectFit: 'cover', aspectRatio: '4/3', position: 'relative', zIndex: 1, boxShadow: '0 24px 80px rgba(0,0,0,0.5)' }}
+              onError={e => { (e.target as HTMLImageElement).style.display = 'none' }}
+            />
+          </div>
         </div>
+
+        <style>{`
+          @media (max-width: 768px) {
+            .hero-grid { grid-template-columns: 1fr !important; text-align: center; }
+            .hero-image-col { display: none !important; }
+          }
+          @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+        `}</style>
       </section>
+
 
       {/* ── INTERACTIVE DEMO ── */}
       <section id="demo" style={{ background: '#ffffff', padding: '72px 20px' }}>
