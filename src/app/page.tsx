@@ -133,7 +133,7 @@ export default function LandingPage() {
           </div>
         </div>
         {menuOpen && (
-          <div style={{ background: 'rgba(12,7,32,0.99)', borderTop: '1px solid rgba(255,255,255,0.08)', paddingBottom: 16 }}>
+          <div style={{ background: '#162272', borderTop: '1px solid rgba(255,255,255,0.12)', paddingBottom: 16 }}>
             {navLinks.map(l => <a key={l.label} href={l.href} onClick={() => setMenuOpen(false)} style={{ display: 'block', color: 'rgba(255,255,255,0.8)', fontSize: 15, textDecoration: 'none', padding: '12px 24px' }}>{l.label}</a>)}
             <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', margin: '8px 24px' }} />
             <Link href="/sign-in" onClick={() => setMenuOpen(false)} style={{ display: 'block', color: 'rgba(255,255,255,0.6)', fontSize: 15, textDecoration: 'none', padding: '12px 24px' }}>Sign in</Link>
@@ -407,9 +407,9 @@ export default function LandingPage() {
             {visibleFaqs < FAQS.length && (
               <button
                 onClick={() => setVisibleFaqs(v => Math.min(v + 10, FAQS.length))}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'white', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 10, padding: '10px 22px', fontSize: 13, fontWeight: 600, color: '#7C3AED', cursor: 'pointer' }}>
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#162272', border: '1px solid rgba(255,255,255,0.25)', borderRadius: 10, padding: '10px 22px', fontSize: 13, fontWeight: 600, color: 'white', cursor: 'pointer' }}>
                 Show more questions
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" strokeWidth="2.5" strokeLinecap="round"><path d="M6 9l6 6 6-6"/></svg>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><path d="M6 9l6 6 6-6"/></svg>
               </button>
             )}
             {visibleFaqs > 7 && (
@@ -431,14 +431,14 @@ export default function LandingPage() {
       <section id="contact" style={{ background: '#162272', padding: '52px 20px' }}>
         <div style={{ maxWidth: 520, margin: '0 auto', textAlign: 'center' }}>
           <h2 style={{ fontSize: 'clamp(20px,3vw,30px)', fontWeight: 800, color: 'white', marginBottom: 6 }}>Get in touch</h2>
-          <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 14, padding: '20px', border: '1px solid rgba(255,255,255,0.15)', textAlign: 'left' }}>
+          <div style={{ background: 'white', borderRadius: 14, padding: '20px', border: 'none', textAlign: 'left', boxShadow: '0 4px 24px rgba(0,0,0,0.15)' }}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
               <div>
-                <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: 'rgba(255,255,255,0.75)', marginBottom: 5 }}>Name</label>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: '#374151', marginBottom: 5 }}>Name</label>
                 <input placeholder="Your name" style={{ width: '100%', height: 40, padding: '0 12px', borderRadius: 8, border: '1px solid #E5E7EB', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: 'rgba(255,255,255,0.75)', marginBottom: 5 }}>Email</label>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: '#374151', marginBottom: 5 }}>Email</label>
                 <input type="email" placeholder="you@example.com" style={{ width: '100%', height: 40, padding: '0 12px', borderRadius: 8, border: '1px solid #E5E7EB', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
               </div>
             </div>
