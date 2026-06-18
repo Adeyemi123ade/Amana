@@ -386,43 +386,43 @@ export default function LandingPage() {
       </section>
 
       {/* ── FAQ ── */}
-      <section id="faq" style={{ background: '#F9FAFB', padding: '80px 20px' }}>
+      <section id="faq" style={{ background: '#EEF2FF', padding: '52px 20px' }}>
         <div style={{ maxWidth: 720, margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: 44 }}>
-            <h2 style={{ fontSize: 'clamp(24px,3vw,36px)', fontWeight: 800, color: '#111827' }}>Frequently asked questions</h2>
+          <div style={{ textAlign: 'center', marginBottom: 28 }}>
+            <h2 style={{ fontSize: 'clamp(22px,3vw,32px)', fontWeight: 800, color: '#111827' }}>Frequently asked questions</h2>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
             {FAQS.slice(0, visibleFaqs).map((faq, i) => (
-              <div key={i} style={{ background: 'white', borderRadius: 12, border: '1px solid #E5E7EB', overflow: 'hidden' }}>
+              <div key={i} style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E7FF', overflow: 'hidden' }}>
                 <button onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                  style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', gap: 12 }}>
+                  style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 18px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', gap: 12 }}>
                   <span style={{ fontSize: 14, fontWeight: 600, color: '#111827' }}>{faq.q}</span>
                   <span style={{ fontSize: 22, color: '#7C3AED', flexShrink: 0, transition: 'transform 0.2s', display: 'inline-block', transform: openFaq === i ? 'rotate(45deg)' : 'none' }}>+</span>
                 </button>
-                {openFaq === i && <div style={{ padding: '0 20px 16px', fontSize: 14, color: '#6B7280', lineHeight: 1.7, borderTop: '1px solid #F3F4F6' }}>{faq.a}</div>}
+                {openFaq === i && <div style={{ padding: '0 18px 14px', fontSize: 13, color: '#6B7280', lineHeight: 1.7, borderTop: '1px solid #F3F4F6' }}>{faq.a}</div>}
               </div>
             ))}
           </div>
 
           {/* Show more / Show less controls */}
-          <div style={{ textAlign: 'center', marginTop: 20, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+          <div style={{ textAlign: 'center', marginTop: 16, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
             {visibleFaqs < FAQS.length && (
               <button
                 onClick={() => setVisibleFaqs(v => Math.min(v + 10, FAQS.length))}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'white', border: '1px solid #E5E7EB', borderRadius: 10, padding: '11px 24px', fontSize: 14, fontWeight: 600, color: '#7C3AED', cursor: 'pointer', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'white', border: '1px solid #C7D2FE', borderRadius: 10, padding: '10px 22px', fontSize: 13, fontWeight: 600, color: '#7C3AED', cursor: 'pointer' }}>
                 Show more questions
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" strokeWidth="2.5" strokeLinecap="round"><path d="M6 9l6 6 6-6"/></svg>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" strokeWidth="2.5" strokeLinecap="round"><path d="M6 9l6 6 6-6"/></svg>
               </button>
             )}
             {visibleFaqs > 7 && (
               <button
                 onClick={() => { setVisibleFaqs(7); setOpenFaq(null) }}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'none', border: 'none', fontSize: 13, fontWeight: 500, color: '#9CA3AF', cursor: 'pointer' }}>
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'none', border: 'none', fontSize: 12, fontWeight: 500, color: '#9CA3AF', cursor: 'pointer' }}>
                 Show less
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2.5" strokeLinecap="round"><path d="M18 15l-6-6-6 6"/></svg>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2.5" strokeLinecap="round"><path d="M18 15l-6-6-6 6"/></svg>
               </button>
             )}
-            <p style={{ fontSize: 12, color: '#D1D5DB' }}>
+            <p style={{ fontSize: 11, color: '#C7D2FE' }}>
               Showing {Math.min(visibleFaqs, FAQS.length)} of {FAQS.length} questions
             </p>
           </div>
@@ -430,24 +430,24 @@ export default function LandingPage() {
       </section>
 
       {/* ── CONTACT ── */}
-      <section id="contact" style={{ background: 'white', padding: '80px 20px' }}>
-        <div style={{ maxWidth: 540, margin: '0 auto', textAlign: 'center' }}>
-          <h2 style={{ fontSize: 'clamp(22px,3vw,34px)', fontWeight: 800, color: '#111827', marginBottom: 8 }}>Get in touch</h2>
-          <p style={{ fontSize: 14, color: '#6B7280', marginBottom: 6 }}>We respond within 24 hours.</p>
-          <p style={{ fontSize: 14, fontWeight: 600, color: '#7C3AED', marginBottom: 28 }}>support@amana.app</p>
-          <div style={{ background: '#F9FAFB', borderRadius: 14, padding: '26px', border: '1px solid #F3F4F6', textAlign: 'left' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
+      <section id="contact" style={{ background: 'white', padding: '52px 20px' }}>
+        <div style={{ maxWidth: 520, margin: '0 auto', textAlign: 'center' }}>
+          <h2 style={{ fontSize: 'clamp(20px,3vw,30px)', fontWeight: 800, color: '#111827', marginBottom: 6 }}>Get in touch</h2>
+          <p style={{ fontSize: 13, color: '#6B7280', marginBottom: 4 }}>We respond within 24 hours.</p>
+          <p style={{ fontSize: 14, fontWeight: 600, color: '#7C3AED', marginBottom: 20 }}>support@amana.app</p>
+          <div style={{ background: '#F9FAFB', borderRadius: 14, padding: '20px', border: '1px solid #F3F4F6', textAlign: 'left' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
               <div>
-                <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#374151', marginBottom: 6 }}>Name</label>
-                <input placeholder="Your name" style={{ width: '100%', height: 42, padding: '0 12px', borderRadius: 8, border: '1px solid #E5E7EB', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: '#374151', marginBottom: 5 }}>Name</label>
+                <input placeholder="Your name" style={{ width: '100%', height: 40, padding: '0 12px', borderRadius: 8, border: '1px solid #E5E7EB', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#374151', marginBottom: 6 }}>Email</label>
-                <input type="email" placeholder="you@example.com" style={{ width: '100%', height: 42, padding: '0 12px', borderRadius: 8, border: '1px solid #E5E7EB', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: '#374151', marginBottom: 5 }}>Email</label>
+                <input type="email" placeholder="you@example.com" style={{ width: '100%', height: 40, padding: '0 12px', borderRadius: 8, border: '1px solid #E5E7EB', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
               </div>
             </div>
-            <textarea placeholder="How can we help?" rows={3} style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #E5E7EB', fontSize: 13, outline: 'none', boxSizing: 'border-box', resize: 'none', fontFamily: 'inherit', marginBottom: 12 }} />
-            <button style={{ width: '100%', height: 44, background: '#7C3AED', color: 'white', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>Send Message</button>
+            <textarea placeholder="How can we help?" rows={3} style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #E5E7EB', fontSize: 13, outline: 'none', boxSizing: 'border-box', resize: 'none', fontFamily: 'inherit', marginBottom: 10 }} />
+            <button style={{ width: '100%', height: 42, background: '#7C3AED', color: 'white', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>Send Message</button>
           </div>
         </div>
       </section>
