@@ -186,11 +186,11 @@ export default function LandingPage() {
             </p>
 
             {/* CTAs */}
-            <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
-              <Link href="/sign-up" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#7C3AED', color: 'white', fontSize: 15, fontWeight: 700, textDecoration: 'none', padding: '14px 28px', borderRadius: 12, boxShadow: '0 4px 28px rgba(124,58,237,0.5)' }}>
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'nowrap' }}>
+              <Link href="/sign-up" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#7C3AED', color: 'white', fontSize: 14, fontWeight: 700, textDecoration: 'none', padding: '13px 20px', borderRadius: 12, boxShadow: '0 4px 28px rgba(124,58,237,0.5)', whiteSpace: 'nowrap' }}>
                 Create Free Account →
               </Link>
-              <Link href="/demo" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, background: 'transparent', color: 'white', fontSize: 15, fontWeight: 600, textDecoration: 'none', padding: '14px 22px', borderRadius: 12, border: '1.5px solid rgba(255,255,255,0.16)' }}>
+              <Link href="/demo" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'transparent', color: 'white', fontSize: 14, fontWeight: 600, textDecoration: 'none', padding: '13px 16px', borderRadius: 12, border: '1.5px solid rgba(255,255,255,0.16)', whiteSpace: 'nowrap' }}>
                 <span style={{ width: 30, height: 30, borderRadius: '50%', border: '1.5px solid rgba(255,255,255,0.3)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="white"><path d="M5 3l14 9-14 9V3z"/></svg>
                 </span>
@@ -433,8 +433,6 @@ export default function LandingPage() {
       <section id="contact" style={{ background: 'white', padding: '52px 20px' }}>
         <div style={{ maxWidth: 520, margin: '0 auto', textAlign: 'center' }}>
           <h2 style={{ fontSize: 'clamp(20px,3vw,30px)', fontWeight: 800, color: '#111827', marginBottom: 6 }}>Get in touch</h2>
-          <p style={{ fontSize: 13, color: '#6B7280', marginBottom: 4 }}>We respond within 24 hours.</p>
-          <p style={{ fontSize: 14, fontWeight: 600, color: '#7C3AED', marginBottom: 20 }}>support@amana.app</p>
           <div style={{ background: '#F9FAFB', borderRadius: 14, padding: '20px', border: '1px solid #F3F4F6', textAlign: 'left' }}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
               <div>
