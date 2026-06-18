@@ -226,31 +226,8 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── CATEGORY BADGES — compact chips ── */}
-      <div style={{ background: 'white', padding: '0 20px 48px' }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }} className="badge-row">
-            {[
-              { title: 'Get Paid Faster',
-                icon: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> },
-              { title: 'Stay Organised',
-                icon: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> },
-              { title: 'Reduce Manual Work',
-                icon: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg> },
-              { title: 'Understand Your Business',
-                icon: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg> },
-            ].map(badge => (
-              <div key={badge.title} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: '#130a2e', borderRadius: 20, padding: '7px 14px' }}>
-                {badge.icon}
-                <span style={{ fontSize: 13, fontWeight: 700, color: 'white', whiteSpace: 'nowrap' }}>{badge.title}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
       {/* ── 8 CARDS — white background, 4+4 ── */}
-      <div style={{ background: 'white', padding: '52px 20px 80px' }}>
+      <div style={{ background: 'white', padding: '24px 20px 72px' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 20 }}>
 
           {/* Row 1 — Get Paid Faster (3 cards, blue shadow) + Customer Management (purple shadow) */}
@@ -320,7 +297,7 @@ export default function LandingPage() {
       </div>
 
       {/* ── CTA ── */}
-      <section style={{ background: 'linear-gradient(135deg,#0c0720 0%,#130a2e 60%,#1a0d3d 100%)', padding: '80px 20px', overflow: 'hidden' }}>
+      <section style={{ background: 'linear-gradient(135deg,#0c0720 0%,#130a2e 60%,#1a0d3d 100%)', padding: '44px 20px', overflow: 'hidden' }}>
         <div style={{ maxWidth: 860, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 52, alignItems: 'center' }} className="cta-grid">
           {/* Left — headline and benefits */}
           <div className="cta-text">
@@ -343,25 +320,25 @@ export default function LandingPage() {
               Not sure yet? Watch the demo to see exactly how Amana works before you sign up.
             </p>
 
-            {/* Two trust badges */}
-            <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1, minWidth: 160 }}>
-                <div style={{ width: 42, height: 42, borderRadius: '50%', background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="2" strokeLinecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4" stroke="rgba(255,255,255,0.8)"/></svg>
+            {/* Two trust badges — side by side, compact */}
+            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1, minWidth: 140 }}>
+                <div style={{ width: 34, height: 34, borderRadius: '50%', background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="2" strokeLinecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4" stroke="rgba(255,255,255,0.8)"/></svg>
                 </div>
                 <div>
-                  <p style={{ fontSize: 14, fontWeight: 700, color: 'white', marginBottom: 2 }}>No card required</p>
-                  <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>Start completely free</p>
+                  <p style={{ fontSize: 12, fontWeight: 700, color: 'white', marginBottom: 1 }}>No card required</p>
+                  <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>Start completely free</p>
                 </div>
               </div>
               <div style={{ width: 1, background: 'rgba(255,255,255,0.12)', alignSelf: 'stretch', flexShrink: 0 }} />
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1, minWidth: 160 }}>
-                <div style={{ width: 42, height: 42, borderRadius: '50%', background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="2" strokeLinecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.74"/></svg>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1, minWidth: 140 }}>
+                <div style={{ width: 34, height: 34, borderRadius: '50%', background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="2" strokeLinecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.74"/></svg>
                 </div>
                 <div>
-                  <p style={{ fontSize: 14, fontWeight: 700, color: 'white', marginBottom: 2 }}>Free access for early users</p>
-                  <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>Be among the first to try Amana</p>
+                  <p style={{ fontSize: 12, fontWeight: 700, color: 'white', marginBottom: 1 }}>Free access for early users</p>
+                  <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>Be among the first to try Amana</p>
                 </div>
               </div>
             </div>
@@ -476,11 +453,11 @@ export default function LandingPage() {
       </section>
 
       {/* ── FOOTER ── */}
-      <footer style={{ background: '#0c0720', color: 'white', padding: '72px 20px 40px', borderTop: '1px solid rgba(124,58,237,0.2)' }}>
+      <footer style={{ background: '#0c0720', color: 'white', padding: '40px 20px 24px', borderTop: '1px solid rgba(124,58,237,0.2)' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
 
           {/* 4 columns on desktop, stacked on mobile */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 40, marginBottom: 48 }} className="footer-grid" id="footer-cols">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 24, marginBottom: 28 }} className="footer-grid" id="footer-cols">
 
             {/* Col 1 — Brand */}
             <div className="footer-brand-col">
@@ -490,7 +467,7 @@ export default function LandingPage() {
                 </div>
                 <span style={{ fontWeight: 800, fontSize: 24 }}>Amana</span>
               </div>
-              <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.5)', lineHeight: 1.75, marginBottom: 22 }}>
+              <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6, marginBottom: 14 }}>
                 The all-in-one business platform for small business growth.
               </p>
               <div style={{ display: 'flex', gap: 10 }}>
@@ -507,24 +484,24 @@ export default function LandingPage() {
 
             {/* Col 2 — Support */}
             <div>
-              <p style={{ fontSize: 13, fontWeight: 800, marginBottom: 20, textTransform: 'uppercase', letterSpacing: 1.2, color: 'rgba(255,255,255,0.5)' }}>Support</p>
+              <p style={{ fontSize: 13, fontWeight: 800, marginBottom: 12, textTransform: 'uppercase', letterSpacing: 1.2, color: 'rgba(255,255,255,0.5)' }}>Support</p>
               {[
                 { icon: '✉', l: 'Email', v: 'support@amana.app' },
                 { icon: '🕐', l: 'Support Hours', v: '9am – 6pm WAT' },
                 { icon: '📍', l: 'Location', v: 'Lagos, Nigeria' },
               ].map(c => (
-                <div key={c.l} style={{ display: 'flex', gap: 12, marginBottom: 18, alignItems: 'flex-start' }}>
-                  <div style={{ width: 36, height: 36, borderRadius: 9, background: 'rgba(124,58,237,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, flexShrink: 0 }}>{c.icon}</div>
+                <div key={c.l} style={{ display: 'flex', gap: 8, marginBottom: 10, alignItems: 'flex-start' }}>
+                  <div style={{ width: 28, height: 28, borderRadius: 7, background: 'rgba(124,58,237,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, flexShrink: 0 }}>{c.icon}</div>
                   <div>
-                    <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginBottom: 3 }}>{c.l}</p>
-                    <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.8)', fontWeight: 600 }}>{c.v}</p>
+                    <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginBottom: 1 }}>{c.l}</p>
+                    <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', fontWeight: 600 }}>{c.v}</p>
                   </div>
                 </div>
               ))}
               <div style={{ marginTop: 4 }}>
                 {[['Help Center','#'],['Business Support','#']].map(([l,h]) => (
-                  <p key={l} style={{ marginBottom: 12 }}>
-                    <Link href={h} style={{ fontSize: 15, color: 'rgba(255,255,255,0.65)', textDecoration: 'none', fontWeight: 500 }}>{l}</Link>
+                  <p key={l} style={{ marginBottom: 6 }}>
+                    <Link href={h} style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)', textDecoration: 'none', fontWeight: 500 }}>{l}</Link>
                   </p>
                 ))}
               </div>
@@ -532,20 +509,20 @@ export default function LandingPage() {
 
             {/* Col 3 — Company */}
             <div>
-              <p style={{ fontSize: 13, fontWeight: 800, marginBottom: 20, textTransform: 'uppercase', letterSpacing: 1.2, color: 'rgba(255,255,255,0.5)' }}>Company</p>
+              <p style={{ fontSize: 13, fontWeight: 800, marginBottom: 12, textTransform: 'uppercase', letterSpacing: 1.2, color: 'rgba(255,255,255,0.5)' }}>Company</p>
               {[['Home','/'],['About','#'],['Terms & Conditions','/terms'],['Privacy Policy','/privacy'],['Contact','#contact']].map(([l,h]) => (
-                <p key={l} style={{ marginBottom: 14 }}>
-                  <Link href={h} style={{ fontSize: 15, color: 'rgba(255,255,255,0.65)', textDecoration: 'none', fontWeight: 500 }}>{l}</Link>
+                <p key={l} style={{ marginBottom: 8 }}>
+                  <Link href={h} style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)', textDecoration: 'none', fontWeight: 500 }}>{l}</Link>
                 </p>
               ))}
             </div>
 
             {/* Col 4 — Product */}
             <div>
-              <p style={{ fontSize: 13, fontWeight: 800, marginBottom: 20, textTransform: 'uppercase', letterSpacing: 1.2, color: 'rgba(255,255,255,0.5)' }}>Product</p>
+              <p style={{ fontSize: 13, fontWeight: 800, marginBottom: 12, textTransform: 'uppercase', letterSpacing: 1.2, color: 'rgba(255,255,255,0.5)' }}>Product</p>
               {[['Invoices','/dashboard/invoices'],['Payments','/dashboard/payments'],['Customers','/dashboard/customers'],['Appointments','/dashboard/appointments'],['Reports','/dashboard/reports']].map(([l,h]) => (
-                <p key={l} style={{ marginBottom: 14 }}>
-                  <Link href={h} style={{ fontSize: 15, color: 'rgba(255,255,255,0.65)', textDecoration: 'none', fontWeight: 500 }}>{l}</Link>
+                <p key={l} style={{ marginBottom: 8 }}>
+                  <Link href={h} style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)', textDecoration: 'none', fontWeight: 500 }}>{l}</Link>
                 </p>
               ))}
             </div>
