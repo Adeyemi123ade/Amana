@@ -226,28 +226,23 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── CATEGORY BADGES — coloured pills on white ── */}
+      {/* ── CATEGORY BADGES — compact chips ── */}
       <div style={{ background: 'white', padding: '0 20px 48px' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14 }} className="badge-grid">
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }} className="badge-row">
             {[
-              { title: 'Get Paid Faster',           sub: 'Invoices, payments & tracking', bg: '#3B82F6',
-                icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> },
-              { title: 'Stay Organised',             sub: 'Customers & appointments',     bg: '#7C3AED',
-                icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> },
-              { title: 'Reduce Manual Work',         sub: 'Automated reminders',          bg: '#F59E0B',
-                icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg> },
-              { title: 'Understand Your Business',   sub: 'Reports & insights',           bg: '#22C55E',
-                icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg> },
+              { title: 'Get Paid Faster',
+                icon: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> },
+              { title: 'Stay Organised',
+                icon: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> },
+              { title: 'Reduce Manual Work',
+                icon: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg> },
+              { title: 'Understand Your Business',
+                icon: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg> },
             ].map(badge => (
-              <div key={badge.title} style={{ background: badge.bg, borderRadius: 14, padding: '16px 18px', display: 'flex', alignItems: 'center', gap: 12 }}>
-                <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  {badge.icon}
-                </div>
-                <div style={{ minWidth: 0 }}>
-                  <p style={{ fontSize: 13, fontWeight: 800, color: 'white', marginBottom: 2, lineHeight: 1.3 }}>{badge.title}</p>
-                  <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)', lineHeight: 1.3 }}>{badge.sub}</p>
-                </div>
+              <div key={badge.title} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: '#130a2e', borderRadius: 20, padding: '7px 14px' }}>
+                {badge.icon}
+                <span style={{ fontSize: 13, fontWeight: 700, color: 'white', whiteSpace: 'nowrap' }}>{badge.title}</span>
               </div>
             ))}
           </div>
