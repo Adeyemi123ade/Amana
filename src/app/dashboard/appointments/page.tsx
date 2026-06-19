@@ -19,6 +19,15 @@ export default function AppointmentsPage() {
   const [loading, setLoading]           = useState(true)
   const [error, setError]               = useState('')
 
+  const confirmDelete = async () => {
+    if (!deleteId) return
+    setDeleting(true)
+    await supabase.from('appointments').delete().eq('id', deleteId)
+    setAppointments(prev => prev.filter(a => a.id !== deleteId))
+    setDeleteId(null)
+    setDeleting(false)
+  }
+
   const load = async () => {
     setLoading(true)
     setError('')
@@ -98,6 +107,10 @@ export default function AppointmentsPage() {
           <p style={{fontSize:12,color:'var(--text-muted)',marginTop:2}}>{a.customer?.name || 'No customer'} · {fmtTime(a.start_time)}</p>
         </div>
         <div style={{display:'flex',flexDirection:'column',alignItems:'flex-end',gap:4,flexShrink:0}}>
+          <button onClick={e => { e.stopPropagation(); setDeleteId(a.id) }}
+            style={{fontSize:10,fontWeight:600,color:'#EF4444',background:'#FEF2F2',border:'1px solid #FECACA',borderRadius:6,padding:'3px 8px',cursor:'pointer'}}>
+            Delete
+          </button>
           <span style={{fontSize:10,fontWeight:700,color:sc,background:sb,padding:'3px 8px',borderRadius:20}}>{a.status}</span>
           <span style={{fontSize:11,color:'var(--text-muted)'}}>{a.location_type === 'PHYSICAL' ? '📍' : '💻'} {a.location_type === 'PHYSICAL' ? 'Physical' : 'Virtual'}</span>
         </div>
@@ -150,6 +163,26 @@ export default function AppointmentsPage() {
         </>
       )}
       <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+
+      {deleteId && (
+        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.5)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:1000,padding:20}}>
+          <div style={{background:'var(--card)',borderRadius:16,padding:28,width:'100%',maxWidth:400,textAlign:'center'}}>
+            <div style={{fontSize:40,marginBottom:12}}>🗑️</div>
+            <h3 style={{fontSize:17,fontWeight:700,color:'var(--text)',marginBottom:8}}>Delete Appointment?</h3>
+            <p style={{fontSize:13,color:'var(--text-muted)',marginBottom:24,lineHeight:1.6}}>Are you sure you want to delete this appointment?</p>
+            <div style={{display:'flex',gap:10}}>
+              <button onClick={() => setDeleteId(null)}
+                style={{flex:1,height:44,background:'var(--bg-secondary)',border:'1px solid var(--border-light)',borderRadius:10,fontSize:14,fontWeight:500,color:'var(--text-muted)',cursor:'pointer'}}>
+                Cancel
+              </button>
+              <button onClick={confirmDelete} disabled={deleting}
+                style={{flex:1,height:44,background:'#EF4444',color:'white',border:'none',borderRadius:10,fontSize:14,fontWeight:700,cursor:'pointer'}}>
+                {deleting ? 'Deleting...' : 'Yes, delete appointment'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

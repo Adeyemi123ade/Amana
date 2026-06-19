@@ -16,6 +16,17 @@ export default function InvoicesPage() {
   const [page, setPage] = useState(0)
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
+  const [deleteId, setDeleteId] = useState<string|null>(null)
+  const [deleting, setDeleting] = useState(false)
+
+  const confirmDelete = async () => {
+    if (!deleteId) return
+    setDeleting(true)
+    await supabase.from('invoices').delete().eq('id', deleteId)
+    setInvoices(prev => prev.filter(i => i.id !== deleteId))
+    setDeleteId(null)
+    setDeleting(false)
+  }
 
   useEffect(() => {
     const load = async () => {
@@ -173,6 +184,26 @@ export default function InvoicesPage() {
         )}
       </div>
       <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+
+      {deleteId && (
+        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.5)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:1000,padding:20}}>
+          <div style={{background:'var(--card)',borderRadius:16,padding:28,width:'100%',maxWidth:400,textAlign:'center'}}>
+            <div style={{fontSize:40,marginBottom:12}}>🗑️</div>
+            <h3 style={{fontSize:17,fontWeight:700,color:'var(--text)',marginBottom:8}}>Delete Invoice?</h3>
+            <p style={{fontSize:13,color:'var(--text-muted)',marginBottom:24,lineHeight:1.6}}>Are you sure you want to delete this invoice?</p>
+            <div style={{display:'flex',gap:10}}>
+              <button onClick={() => setDeleteId(null)}
+                style={{flex:1,height:44,background:'var(--bg-secondary)',border:'1px solid var(--border-light)',borderRadius:10,fontSize:14,fontWeight:500,color:'var(--text-muted)',cursor:'pointer'}}>
+                Cancel
+              </button>
+              <button onClick={confirmDelete} disabled={deleting}
+                style={{flex:1,height:44,background:'#EF4444',color:'white',border:'none',borderRadius:10,fontSize:14,fontWeight:700,cursor:'pointer'}}>
+                {deleting ? 'Deleting...' : 'Yes, delete invoice'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

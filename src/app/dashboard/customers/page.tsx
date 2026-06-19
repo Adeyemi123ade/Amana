@@ -17,6 +17,8 @@ export default function CustomersPage() {
   const [page, setPage] = useState(0)
   const PAGE_SIZE = 20
   const [showModal, setShowModal] = useState(false)
+  const [deleteId, setDeleteId] = useState<string|null>(null)
+  const [deleting, setDeleting] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [form, setForm] = useState({ name:'', email:'', phone:'', address:'', notes:'' })
