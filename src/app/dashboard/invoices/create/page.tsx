@@ -30,7 +30,7 @@ export default function CreateInvoicePage() {
       if (ws) {
         setWorkspace(ws)
         wsRef.current = ws
-        const { data: custs } = await supabase.from('customers').select('id,name').eq('workspace_id', ws.id)
+        const { data: custs } = await supabase.from('customers').select('id,name,email,phone').eq('workspace_id', ws.id)
         setCustomers(custs || [])
         // Pre-select customer if passed in URL (?customer=ID)
         const params = new URLSearchParams(window.location.search)
@@ -54,6 +54,11 @@ export default function CreateInvoicePage() {
   const handleSubmit = async (status: 'DRAFT' | 'UNPAID') => {
     if (!form.customerId) { setError('Please select a customer first'); return }
     if (!form.dueDate) { setError('Please set a due date for this invoice'); return }
+    const today = new Date(); today.setHours(0,0,0,0)
+    if (new Date(form.dueDate) < today) { setError('Due date cannot be in the past. Please select today or a future date.'); return }
+    // Warn if selected customer has no email — Paystack will reject payment
+    const selCust = customers.find((c: any) => c.id === form.customerId)
+    if (!selCust?.email?.trim()) { setError('This customer has no email address. Paystack requires a customer email to process payment. Please add an email to this customer first.'); return }
     if (items.every(i => !i.description.trim())) { setError('Please add at least one item or service name'); return }
     if (items.some(i => i.description.trim() && (!i.amount || parseFloat(i.amount) <= 0))) {
       setError('Please enter an amount greater than 0 for each item'); return
@@ -142,8 +147,19 @@ export default function CreateInvoicePage() {
           </div>
           <select value={form.customerId} onChange={e => setForm({...form, customerId:e.target.value})} style={field}>
             <option value="">Select customer...</option>
-            {customers.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+            {customers.map((c: any) => <option key={c.id} value={c.id}>{c.name}{c.email ? ' — ' + c.email : ' ⚠️ no email'}</option>)}
           </select>
+          {form.customerId && (() => {
+            const sc = customers.find((c: any) => c.id === form.customerId)
+            return sc ? (
+              <div style={{marginTop:8, padding:'8px 12px', background:'#F5F3FF', borderRadius:8, border:'1px solid #DDD6FE', fontSize:12}}>
+                <span style={{fontWeight:600, color:'#7C3AED'}}>{sc.name}</span>
+                {sc.email
+                  ? <span style={{color:'#6B7280'}}> · {sc.email}</span>
+                  : <span style={{color:'#EF4444'}}> · ⚠️ No email — add one before payment</span>}
+              </div>
+            ) : null
+          })()}
           {customers.length === 0 && (
             <p style={{fontSize:11, color:'#F59E0B', marginTop:4}}>No customers yet. <Link href="/dashboard/customers" style={{color:'#7C3AED', textDecoration:'none', fontWeight:500}}>Add a customer first</Link>.</p>
           )}

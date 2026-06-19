@@ -30,9 +30,8 @@ export default function NewAppointmentPage() {
   const [error, setError]       = useState('')
 
   // Customer mode
-  const [custMode, setCustMode] = useState<'existing'|'new'>('existing')
   const [custId, setCustId]     = useState('')
-  const [newCust, setNewCust]   = useState({ name:'', email:'', phone:'' })
+  const [selectedCust, setSelectedCust] = useState<any>(null)
 
   // Appointment fields
   const [form, setForm] = useState({
@@ -70,27 +69,21 @@ export default function NewAppointmentPage() {
 
   const handleSubmit = async () => {
     setError('')
+    if (!custId)             { setError('Please select a customer from your database'); return }
     if (!form.title.trim()) { setError('Please enter an appointment title'); return }
     if (!form.date)          { setError('Please select a date'); return }
     if (!form.time)          { setError('Please select a time'); return }
-    if (custMode === 'existing' && !custId) { setError('Please select a customer'); return }
-    if (custMode === 'new' && !newCust.name.trim()) { setError('Please enter the customer name'); return }
+    // Block past dates
+    const today = new Date(); today.setHours(0,0,0,0)
+    if (new Date(form.date) < today) { setError('Cannot book an appointment in the past. Please select today or a future date.'); return }
+    // Warn if customer has no email - needed for sending appointment details
+    if (!selectedCust?.email?.trim()) {
+      setError('This customer has no email address. Please add one to their profile so appointment details can be sent.')
+      return
+    }
 
     setSaving(true)
-    let finalCustId = custId
-
-    // Create new customer if needed
-    if (custMode === 'new') {
-      const { data: created, error: custErr } = await supabase
-        .from('customers')
-        .insert({ workspace_id: ws.id, name: newCust.name.trim(), email: newCust.email.trim()||null, phone: newCust.phone.trim()||null })
-        .select('id').single()
-      if (custErr || !created) {
-        setError('Could not save new customer: ' + (custErr?.message||''))
-        setSaving(false); return
-      }
-      finalCustId = created.id
-    }
+    const finalCustId = custId
 
     const startTime = new Date(`${form.date}T${form.time}:00`).toISOString()
     const endTime   = new Date(new Date(startTime).getTime() + parseInt(form.duration)*60000).toISOString()
@@ -146,47 +139,28 @@ export default function NewAppointmentPage() {
       {/* Customer */}
       <div style={card}>
         <p style={{fontSize:14,fontWeight:700,color:'var(--text)',marginBottom:14}}>Customer</p>
-        <div style={{display:'flex',gap:8,marginBottom:14}}>
-          {(['existing','new'] as const).map(m => (
-            <button key={m} onClick={() => setCustMode(m)}
-              style={{flex:1,height:38,borderRadius:9,border:`2px solid ${custMode===m?'var(--accent)':'var(--border-light)'}`,background:custMode===m?'var(--accent)':'var(--bg-secondary)',color:custMode===m?'white':'var(--text-muted)',fontSize:13,fontWeight:600,cursor:'pointer'}}>
-              {m === 'existing' ? 'Select Existing' : 'Add New Customer'}
-            </button>
+        <label style={lbl}>Select Customer *</label>
+        <select style={{...inp}} value={custId} onChange={e => {
+          setCustId(e.target.value)
+          setSelectedCust(customers.find((c: any) => c.id === e.target.value) || null)
+        }}>
+          <option value="">Choose a customer...</option>
+          {customers.map((c: any) => (
+            <option key={c.id} value={c.id}>{c.name}{c.email ? ' — ' + c.email : ' ⚠️ no email'}</option>
           ))}
-        </div>
-
-        {custMode === 'existing' ? (
-          <div>
-            <label style={lbl}>Select Customer *</label>
-            <select style={{...inp}} value={custId} onChange={e => setCustId(e.target.value)}>
-              <option value="">Choose a customer...</option>
-              {customers.map(c => <option key={c.id} value={c.id}>{c.name}{c.email ? ` — ${c.email}` : ''}</option>)}
-            </select>
-            {custId && (() => {
-              const c = customers.find(x => x.id === custId)
-              return c ? (
-                <div style={{marginTop:10,padding:'10px 12px',background:'var(--bg-secondary)',borderRadius:9,border:'1px solid var(--border-light)'}}>
-                  <p style={{fontSize:13,fontWeight:600,color:'var(--text)'}}>{c.name}</p>
-                  {c.email && <p style={{fontSize:12,color:'var(--text-muted)'}}>{c.email}</p>}
-                  {c.phone && <p style={{fontSize:12,color:'var(--text-muted)'}}>{c.phone}</p>}
-                </div>
-              ) : null
-            })()}
-          </div>
-        ) : (
-          <div style={{display:'flex',flexDirection:'column',gap:12}}>
-            <div>
-              <label style={lbl}>Full Name *</label>
-              <input style={inp} placeholder="Customer name" value={newCust.name} onChange={e => setNewCust(p=>({...p,name:e.target.value}))}/>
-            </div>
-            <div>
-              <label style={lbl}>Email Address</label>
-              <input type="email" style={inp} placeholder="customer@email.com" value={newCust.email} onChange={e => setNewCust(p=>({...p,email:e.target.value}))}/>
-            </div>
-            <div>
-              <label style={lbl}>Phone Number</label>
-              <input type="tel" style={inp} placeholder="+234 800 000 0000" value={newCust.phone} onChange={e => setNewCust(p=>({...p,phone:e.target.value}))}/>
-            </div>
+        </select>
+        {customers.length === 0 && (
+          <p style={{fontSize:12,color:'#F59E0B',marginTop:6}}>
+            No customers yet. <a href="/dashboard/customers" style={{color:'var(--accent)',fontWeight:600}}>Add a customer first →</a>
+          </p>
+        )}
+        {selectedCust && (
+          <div style={{marginTop:10,padding:'10px 12px',background:'var(--bg-secondary)',borderRadius:9,border:'1px solid var(--border-light)'}}>
+            <p style={{fontSize:13,fontWeight:700,color:'var(--text)',marginBottom:2}}>{selectedCust.name}</p>
+            {selectedCust.email
+              ? <p style={{fontSize:12,color:'var(--text-muted)'}}>{selectedCust.email}</p>
+              : <p style={{fontSize:12,color:'#EF4444'}}>⚠️ No email — add one in customer profile before sending appointment</p>}
+            {selectedCust.phone && <p style={{fontSize:12,color:'var(--text-muted)'}}>{selectedCust.phone}</p>}
           </div>
         )}
       </div>

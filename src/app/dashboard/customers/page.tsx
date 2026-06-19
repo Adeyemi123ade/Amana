@@ -165,8 +165,9 @@ export default function CustomersPage() {
                 <input style={inp} placeholder="e.g. Tunde Oladipo" value={form.name} onChange={e => setForm({...form, name:e.target.value})} />
               </div>
               <div>
-                <label style={lbl}>Email Address</label>
+                <label style={lbl}>Email Address *</label>
                 <input type="email" style={inp} placeholder="tunde@example.com" value={form.email} onChange={e => setForm({...form, email:e.target.value})} />
+                <p style={{fontSize:11,color:'#F59E0B',marginTop:3}}>Required for invoices and appointment emails</p>
               </div>
               <div>
                 <label style={lbl}>Phone Number</label>
