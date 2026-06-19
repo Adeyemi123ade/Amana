@@ -148,7 +148,7 @@ export default function LandingPage() {
       <section style={{ background: '#0E1A6E', minHeight: 'clamp(520px,82vh,780px)', display: 'flex', alignItems: 'center', overflow: 'hidden', position: 'relative' }}>
 
         {/* Right side — image bleeds from edge, fades into background */}
-        <div style={{ position: 'absolute', top: 0, right: 0, width: '45%', height: '100%', zIndex: 0 }} className="hero-img-wrap">
+        <div style={{ position: 'absolute', top: 0, right: 0, width: '50%', height: '100%', zIndex: 0 }} className="hero-img-wrap">
           {/* The image itself — fills full height */}
           <img
             src="/hero-image.png"
@@ -157,7 +157,7 @@ export default function LandingPage() {
             style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', display: 'block' }}
           />
           {/* Left fade — blends image into the dark background color */}
-          <div style={{ position: 'absolute', top: 0, left: 0, width: '55%', height: '100%', background: 'linear-gradient(to right, #0E1A6E 0%, #0E1A6Eee 35%, #0E1A6E99 60%, #0E1A6E33 80%, transparent 100%)', pointerEvents: 'none' }} />
+          <div style={{ position: 'absolute', top: 0, left: 0, width: '60%', height: '100%', background: 'linear-gradient(to right, #0E1A6E 0%, #0E1A6Ecc 30%, #0E1A6E77 55%, #0E1A6E22 75%, transparent 100%)', pointerEvents: 'none' }} />
           {/* Top fade */}
           <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '22%', background: 'linear-gradient(to bottom, #0E1A6E 0%, transparent 100%)', pointerEvents: 'none' }} />
           {/* Bottom fade */}
@@ -166,11 +166,11 @@ export default function LandingPage() {
 
         {/* Left side — text content, sits above image layer */}
         <div style={{ maxWidth: 1200, margin: '0 auto', padding: '60px 20px', width: '100%', position: 'relative', zIndex: 1 }}>
-          <div style={{ maxWidth: 540 }}>
+          <div style={{ maxWidth: 540, marginLeft: 'clamp(0px, 8vw, 120px)' }}>
             {/* Badge */}
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(124,58,237,0.18)', border: '1px solid rgba(124,58,237,0.35)', borderRadius: 24, padding: '6px 16px', marginBottom: 28 }}>
               <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#A78BFA', display: 'inline-block', animation: 'pulse 2s infinite', flexShrink: 0 }} />
-              <span style={{ color: '#A78BFA', fontSize: 13, fontWeight: 500 }}>Free access for all early users · No card required · Setup in minutes</span>
+              <span style={{ color: 'white', fontSize: 13, fontWeight: 600 }}>Free access for all early users · No card required · Setup in minutes</span>
             </div>
 
             {/* Headline */}
@@ -182,12 +182,12 @@ export default function LandingPage() {
 
             {/* Subtext */}
             <p style={{ fontSize: 'clamp(15px,1.4vw,17px)', color: 'rgba(255,255,255,0.58)', lineHeight: 1.8, marginBottom: 36, maxWidth: 460 }}>
-              Amana helps you manage customers, schedule appointments, send professional invoices, track payments, and automate follow-ups. All in one place.
+              <strong>Amana helps you manage customers, schedule appointments, send professional invoices, track payments, and automate follow-ups. All in one place.</strong>
             </p>
 
             {/* CTAs */}
             <div style={{ display: 'flex', gap: 10, flexWrap: 'nowrap' }}>
-              <Link href="/sign-up" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#7C3AED', color: 'white', fontSize: 14, fontWeight: 700, textDecoration: 'none', padding: '13px 20px', borderRadius: 12, boxShadow: '0 4px 28px rgba(124,58,237,0.5)', whiteSpace: 'nowrap' }}>
+              <Link href="/sign-up" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#7C3AED', color: 'white', fontSize: 16, fontWeight: 700, textDecoration: 'none', padding: '14px 24px', borderRadius: 12, boxShadow: '0 4px 28px rgba(124,58,237,0.5)', whiteSpace: 'nowrap' }}>
                 Create Free Account →
               </Link>
               <Link href="/demo" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'transparent', color: 'white', fontSize: 14, fontWeight: 600, textDecoration: 'none', padding: '13px 16px', borderRadius: 12, border: '1.5px solid rgba(255,255,255,0.16)', whiteSpace: 'nowrap' }}>
@@ -235,7 +235,7 @@ export default function LandingPage() {
                 icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" strokeWidth="1.8" strokeLinecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.74"/></svg> },
             ].map(card => (
               <div key={card.title} style={{ background: '#F9FAFB', borderRadius: 14, padding: '24px 20px', border: `1px solid ${card.border}`, boxShadow: card.shadow }}>
-                <div style={{ marginBottom: 14 }}>{card.icon}</div>
+                <div style={{ width: 44, height: 44, borderRadius: '50%', background: `${card.accent}18`, border: `1.5px solid ${card.accent}44`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 }}>{card.icon}</div>
                 <h4 style={{ fontSize: 15, fontWeight: 700, color: '#111827', marginBottom: 12 }}>{card.title}</h4>
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 7 }}>
                   {card.points.map(p => (
@@ -250,7 +250,7 @@ export default function LandingPage() {
           </div>
 
           {/* Row 2 — Appointments (purple) + Reminders (amber) + Reports + Anywhere (green) */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 20 }} className="cards-grid">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 20, marginTop: 20 }} className="cards-grid">
             {[
               { title: 'Appointment Booking', points: ['Schedule appointments', 'Track upcoming bookings', 'Public booking page'], shadow: '0 4px 20px rgba(124,58,237,0.18)', border: '#EDE9FE', accent: '#7C3AED',
                 icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" strokeWidth="1.8" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> },
@@ -262,7 +262,7 @@ export default function LandingPage() {
                 icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="1.8" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg> },
             ].map(card => (
               <div key={card.title} style={{ background: '#F9FAFB', borderRadius: 14, padding: '24px 20px', border: `1px solid ${card.border}`, boxShadow: card.shadow }}>
-                <div style={{ marginBottom: 14 }}>{card.icon}</div>
+                <div style={{ width: 44, height: 44, borderRadius: '50%', background: `${card.accent}18`, border: `1.5px solid ${card.accent}44`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 }}>{card.icon}</div>
                 <h4 style={{ fontSize: 15, fontWeight: 700, color: '#111827', marginBottom: 12 }}>{card.title}</h4>
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 7 }}>
                   {card.points.map(p => (
