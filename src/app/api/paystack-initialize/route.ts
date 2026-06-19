@@ -20,7 +20,6 @@ export async function POST(request: NextRequest) {
 
     const supabase = getSupabase()
 
-    // Fetch invoice + customer + workspace
     const { data: invoice } = await supabase
       .from('invoices')
       .select('*, customers(*)')
@@ -30,7 +29,6 @@ export async function POST(request: NextRequest) {
     if (!invoice) return NextResponse.json({ error: 'Invoice not found' }, { status: 404 })
     if (invoice.status === 'PAID') return NextResponse.json({ error: 'This invoice has already been paid.' }, { status: 400 })
 
-    // Fetch workspace separately — more reliable than Supabase auto-join
     const { data: workspace } = await supabase
       .from('workspaces')
       .select('id, name, currency')
@@ -38,8 +36,6 @@ export async function POST(request: NextRequest) {
       .single()
 
     const customerEmail = (invoice.customers?.email || '').trim().toLowerCase()
-
-    // Validate email properly — Paystack returns "invalid email" for blank or malformed emails
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!customerEmail || !emailRegex.test(customerEmail)) {
       return NextResponse.json({
@@ -47,28 +43,26 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
-    // Validate amount — Paystack rejects 0 and sometimes returns "invalid email" as a misleading error
     const rawAmount = Number(invoice.total_amount)
     if (!rawAmount || rawAmount <= 0 || isNaN(rawAmount)) {
-      return NextResponse.json({
-        error: 'Invoice total amount is invalid. Please check the invoice amount.',
-      }, { status: 400 })
+      return NextResponse.json({ error: 'Invoice total amount is invalid.' }, { status: 400 })
     }
-    const amount = Math.round(rawAmount * 100) // convert to kobo/smallest unit
+
+    const amount = Math.round(rawAmount * 100)
     const currencyMap: Record<string, string> = { NGN:'NGN', GHS:'GHS', ZAR:'ZAR', USD:'USD', KES:'KES' }
     const currency = currencyMap[workspace?.currency || ''] || 'NGN'
+
+    // REQUIREMENT 1: Generate reference and store it against the invoice BEFORE charging
     const ref = 'AMN-' + invoice.invoice_number + '-' + Date.now()
+    await supabase.from('invoices').update({ paystack_reference: ref }).eq('id', invoiceId)
+
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://amana-two.vercel.app'
+    const callbackUrl = appUrl + '/payment/verify?invoiceId=' + invoiceId
 
-    // Use dedicated verify page — more reliable than the invoice page
-    // Paystack appends ?reference=REF&trxref=REF to this URL
-    const callbackUrl = `${appUrl}/payment/verify?invoiceId=${invoiceId}`
-
-    // Initialize transaction on Paystack
     const initRes = await fetch('https://api.paystack.co/transaction/initialize', {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${secretKey}`,
+        Authorization: 'Bearer ' + secretKey,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -81,6 +75,7 @@ export async function POST(request: NextRequest) {
           invoice_id: invoiceId,
           invoice_number: invoice.invoice_number,
           business_name: workspace?.name,
+          customer_name: invoice.customers?.name,
         },
       }),
     })
@@ -100,7 +95,6 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
-    // Return the Paystack hosted checkout URL
     return NextResponse.json({
       success: true,
       authorization_url: initData.data.authorization_url,

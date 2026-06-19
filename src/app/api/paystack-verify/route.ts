@@ -143,6 +143,29 @@ export async function POST(request: NextRequest) {
         if (error) console.error('Notification insert failed:', error)
       })
 
+    // ── REQUIREMENT 8: Send payment confirmation email ──
+    const resendKey = process.env.RESEND_API_KEY
+    if (resendKey && !resendKey.includes('PASTE_YOUR') && customerEmail) {
+      const date = new Date(paidAt).toLocaleDateString('en-NG', { day:'numeric', month:'long', year:'numeric' })
+      const custName = txData.customer?.first_name || txData.metadata?.customer_name || 'Customer'
+      fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          from: 'Amana Help Desk <noreply@chichatapp.com>',
+          to: [customerEmail],
+          subject: `Payment Confirmed — ${invoice.invoice_number}`,
+          html: `<div style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto;padding:24px">
+            <h2 style="color:#15803D">✓ Payment Confirmed</h2>
+            <p>Hello ${custName},</p>
+            <p>Your payment of <strong>${currency} ${amountPaid.toLocaleString()}</strong> for invoice <strong>${invoice.invoice_number}</strong> has been received.</p>
+            <p>Date: ${date}<br/>Reference: ${reference}</p>
+            <p>Please keep this email as your receipt. Thank you for your payment.</p>
+          </div>`,
+        }),
+      }).catch(e => console.error('Confirmation email failed:', e))
+    }
+
     return NextResponse.json({
       success: true,
       amount: amountPaid,
