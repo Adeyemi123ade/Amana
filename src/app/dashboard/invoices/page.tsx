@@ -141,26 +141,25 @@ export default function InvoicesPage() {
         ) : (
           <>
             {/* Table header */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 140px 100px 80px 60px', gap: 12, padding: '10px 20px', borderBottom: '1px solid var(--border)', background: 'var(--bg-secondary)' }}>
-              {['Invoice / Customer', 'Amount', 'Due Date', 'Status', ''].map(h => (
-                <p key={h} style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.4 }}>{h}</p>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr auto auto auto', gap: 8, padding: '8px 16px', borderBottom: '1px solid var(--border)', background: 'var(--bg-secondary)' }}>
+              {['Invoice / Customer', 'Amount', 'Due', 'Status'].map(h => (
+                <p key={h} style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.4 }}>{h}</p>
               ))}
             </div>
             {invoices.map((inv: any) => {
               const [sc, sb] = statusColor[inv.status] || ['#6B7280', '#F9FAFB']
               return (
-                <div key={inv.id} style={{ display: 'grid', gridTemplateColumns: '1fr 140px 100px 80px 60px', gap: 12, padding: '13px 20px', borderTop: '1px solid var(--border)', alignItems: 'center' }}>
+                <Link key={inv.id} href={`/dashboard/invoices/${inv.id}`} style={{ display: 'grid', gridTemplateColumns: '1fr auto auto auto', gap: 8, padding: '11px 16px', borderTop: '1px solid var(--border)', alignItems: 'center', textDecoration: 'none' }}>
                   <div style={{ minWidth: 0 }}>
-                    <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{inv.invoice_number}</p>
-                    <p style={{ fontSize: 12, color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{inv.customers?.name || '—'}</p>
+                    <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{inv.invoice_number}</p>
+                    <p style={{ fontSize: 11, color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{inv.customers?.name || '—'}</p>
                   </div>
-                  <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)' }}>{formatCurrency(Number(inv.total_amount), currency)}</p>
-                  <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>{new Date(inv.due_date).toLocaleDateString('en-NG', { day: 'numeric', month: 'short' })}</p>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: sc, background: sb, padding: '3px 8px', borderRadius: 20, display: 'inline-block' }}>
+                  <p style={{ fontSize: 12, fontWeight: 600, color: 'var(--text)', whiteSpace: 'nowrap' }}>{formatCurrency(Number(inv.total_amount), currency)}</p>
+                  <p style={{ fontSize: 11, color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>{new Date(inv.due_date).toLocaleDateString('en-NG', { day: 'numeric', month: 'short' })}</p>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: sc, background: sb, padding: '3px 7px', borderRadius: 20, display: 'inline-block', whiteSpace: 'nowrap' }}>
                     {inv.status.charAt(0) + inv.status.slice(1).toLowerCase()}
                   </span>
-                  <Link href={`/dashboard/invoices/${inv.id}`} style={{ fontSize: 12, color: 'var(--accent)', textDecoration: 'none', fontWeight: 600 }}>View</Link>
-                </div>
+                </Link>
               )
             })}
 

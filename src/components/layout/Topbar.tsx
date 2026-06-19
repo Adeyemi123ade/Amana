@@ -181,7 +181,7 @@ export function Topbar({ user }: TopbarProps) {
     <header className="dashboard-topbar">
       {/* Greeting */}
       <div style={{ minWidth:0, flex:1 }}>
-        <p style={{ fontSize:15, fontWeight:600, color:'var(--text)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>
+        <p style={{ fontSize:15, fontWeight:600, color:'var(--text)', whiteSpace:'normal', lineHeight:1.3, wordBreak:'break-word' }}>
           {greeting}, {greetingName} 👋
         </p>
         <p className="topbar-subtitle" style={{ fontSize:12, color:'var(--text-muted)' }}>
