@@ -45,6 +45,13 @@ export default function SignInPage() {
 
   return (
     <div>
+      {/* Back button — goes to landing page */}
+      <div style={{marginBottom:20}}>
+        <a href="/" style={{display:'inline-flex', alignItems:'center', gap:6, color:'#6B7280', textDecoration:'none', fontSize:13, fontWeight:500}}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+          Back
+        </a>
+      </div>
       <h2 style={{fontSize:20, fontWeight:700, color:'#111827', marginBottom:4}}>Welcome back 👋</h2>
       <p style={{fontSize:13, color:'#6B7280', marginBottom:20}}>Sign in to your Amana account</p>
 
