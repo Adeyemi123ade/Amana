@@ -50,11 +50,6 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
     setCopied(true); setTimeout(() => setCopied(false), 2000)
   }
 
-  const markPaid = async () => {
-    await supabase.from('invoices').update({ status:'PAID', paid_at: new Date().toISOString() }).eq('id', id)
-    setInvoice((p: any) => ({ ...p, status:'PAID' }))
-  }
-
   const sendEmail = () => {
     if (!invoice?.customers?.email) {
       alert('No email on this customer. Add one in the customer profile first.')
@@ -277,38 +272,69 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
 
       {/* ── Actions ── */}
       <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
-        {!isPaid && (
+
+        {emailSent ? (
+          /* ── STATE: Email just sent this session ── */
           <>
-            {/* Mark paid */}
-            <button onClick={markPaid}
-              style={{ width:'100%', height:44, background:'#F0FDF4', border:'1px solid #BBF7D0', borderRadius:12, fontSize:14, fontWeight:600, color:'#16A34A', cursor:'pointer' }}>
-              ✓ Mark as Paid
+            {/* Non-clickable confirmation — email is sent */}
+            <div style={{ width:'100%', height:48, background:'#F0FDF4', border:'1px solid #BBF7D0', borderRadius:12, fontSize:14, fontWeight:700, color:'#16A34A', display:'flex', alignItems:'center', justifyContent:'center', gap:8 }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="2.5" strokeLinecap="round"><path d="M20 6L9 17l-5-5"/></svg>
+              Email Sent — Check Your Inbox
+            </div>
+
+            {/* Resend Invoice — opens the email flow again from scratch */}
+            <button onClick={resendEmail}
+              style={{ width:'100%', height:44, background:'#111827', color:'white', border:'none', borderRadius:12, fontSize:14, fontWeight:600, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:8 }}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/>
+              </svg>
+              Resend Invoice
             </button>
 
-            {/* Send email */}
+            {/* Copy payment link */}
+            <button onClick={copyLink}
+              style={{ width:'100%', height:44, background:copied?'#22C55E':'#7C3AED', color:'white', border:'none', borderRadius:12, fontSize:14, fontWeight:600, cursor:'pointer' }}>
+              {copied ? '✓ Link Copied!' : '🔗 Copy Payment Link'}
+            </button>
+          </>
+        ) : isPaid ? (
+          /* ── STATE: Invoice is paid — receipt view ── */
+          <>
+            <div style={{ background:'#F0FDF4', border:'1px solid #BBF7D0', borderRadius:12, padding:'16px 18px', display:'flex', alignItems:'center', gap:12, marginBottom:2 }}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="2.5" strokeLinecap="round"><path d="M20 6L9 17l-5-5"/></svg>
+              <div>
+                <p style={{ fontSize:14, fontWeight:700, color:'#16A34A' }}>Payment Received</p>
+                {invoice.paid_at && <p style={{ fontSize:12, color:'#15803D' }}>Paid on {fmtDate(invoice.paid_at, true)}</p>}
+              </div>
+            </div>
+            <a href={'/api/invoice-pdf?id=' + id} target="_blank" rel="noreferrer"
+              style={{ display:'block', width:'100%', height:46, background:'#111827', color:'white', borderRadius:12, fontSize:14, fontWeight:600, textDecoration:'none', lineHeight:'46px', textAlign:'center' }}>
+              ⬇ Download Invoice PDF
+            </a>
+            <button onClick={copyLink}
+              style={{ width:'100%', height:40, background:copied?'#22C55E':'var(--bg-secondary)', border:'1px solid var(--border-light)', borderRadius:10, fontSize:13, fontWeight:500, color:copied?'white':'var(--text-muted)', cursor:'pointer' }}>
+              {copied ? '✓ Link Copied!' : '🔗 Copy Payment Link'}
+            </button>
+          </>
+        ) : (
+          /* ── STATE: Existing unpaid invoice from list ── */
+          <>
+            {/* Send invoice email */}
             {invoice.customers?.email ? (
-              <>
-                <button onClick={sendEmail}
-                  style={{ width:'100%', height:48, background:emailSent?'#22C55E':'#111827', color:'white', border:'none', borderRadius:12, fontSize:14, fontWeight:600, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:8 }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/>
-                  </svg>
-                  {emailSent ? '✓ Email Opened — Check Your Email App' : 'Send Invoice to ' + invoice.customers.email}
-                </button>
-                {emailSent && (
-                  <button onClick={resendEmail}
-                    style={{ width:'100%', height:38, background:'none', border:'1px solid var(--border-light)', borderRadius:10, fontSize:13, fontWeight:600, color:'var(--text-muted)', cursor:'pointer' }}>
-                    Resend Invoice →
-                  </button>
-                )}
-              </>
+              <button onClick={sendEmail}
+                style={{ width:'100%', height:48, background:'#111827', color:'white', border:'none', borderRadius:12, fontSize:14, fontWeight:600, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:8 }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/>
+                </svg>
+                Send Invoice to {invoice.customers.email}
+              </button>
             ) : (
               <div style={{ background:'#FFFBEB', border:'1px solid #FDE68A', borderRadius:10, padding:'12px 14px', fontSize:13, color:'#92400E' }}>
                 ⚠️ No email on this customer. Add one to their profile to send the invoice.
               </div>
             )}
 
-            {/* Payment link */}
+            {/* Copy payment link */}
             <div style={{ background:'#F5F3FF', border:'1px solid #DDD6FE', borderRadius:12, padding:'14px 16px' }}>
               <p style={{ fontSize:11, fontWeight:700, color:'#7C3AED', marginBottom:8 }}>Customer Payment Link</p>
               <div style={{ display:'flex', gap:8 }}>
@@ -320,16 +346,16 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
                   {copied ? 'Copied!' : 'Copy'}
                 </button>
               </div>
-              <p style={{ fontSize:11, color:'#9CA3AF', marginTop:6 }}>Share with customer to accept payment by card, bank transfer, or USSD</p>
+              <p style={{ fontSize:11, color:'#9CA3AF', marginTop:6 }}>Customer pays by card, bank transfer, or USSD</p>
             </div>
+
+            {/* Download PDF */}
+            <a href={'/api/invoice-pdf?id=' + id} target="_blank" rel="noreferrer"
+              style={{ display:'block', width:'100%', height:42, background:'var(--bg-secondary)', border:'1px solid var(--border-light)', borderRadius:10, fontSize:13, fontWeight:500, color:'var(--text-muted)', textDecoration:'none', lineHeight:'42px', textAlign:'center' }}>
+              ⬇ Download PDF
+            </a>
           </>
         )}
-
-        {/* Download PDF — always visible */}
-        <a href={'/api/invoice-pdf?id=' + id} target="_blank" rel="noreferrer"
-          style={{ display:'block', width:'100%', height:44, background:'var(--bg-secondary)', border:'1px solid var(--border-light)', borderRadius:12, fontSize:13, fontWeight:500, color:'var(--text-muted)', textDecoration:'none', lineHeight:'44px', textAlign:'center' }}>
-          ⬇ Download PDF
-        </a>
       </div>
 
       <style>{`
