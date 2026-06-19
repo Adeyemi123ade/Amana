@@ -9,7 +9,7 @@ function SignOutButton() {
   const handleSignOut = async () => {
     const supabase = createClient()
     await supabase.auth.signOut()
-    router.push('/sign-in')
+    window.location.href = '/sign-in'
   }
   return (
     <button onClick={handleSignOut}

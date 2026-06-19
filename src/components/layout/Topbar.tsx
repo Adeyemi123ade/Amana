@@ -163,7 +163,7 @@ export function Topbar({ user }: TopbarProps) {
   const handleSignOut = async () => {
     setMenuOpen(false)
     await supabase.auth.signOut()
-    router.push('/sign-in')
+    window.location.href = '/sign-in'
     router.refresh()
   }
 
