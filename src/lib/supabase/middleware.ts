@@ -24,6 +24,20 @@ export const updateSession = async (request: NextRequest) => {
   const { data: { user } } = await supabase.auth.getUser()
   const { pathname } = request.nextUrl
 
+  const adminEmails = ['admin@kajolacooperative.com', 'admin@amana.app']
+  const isAdmin = user?.email ? adminEmails.includes(user.email.toLowerCase()) : false
+
+  // ── ADMIN ROUTES ──────────────────────────────────────────────
+  // Not logged in → send to sign-in
+  if (pathname.startsWith('/admin')) {
+    if (!user) return NextResponse.redirect(new URL('/sign-in', request.url))
+    // Logged in but NOT an admin → send to their dashboard
+    if (!isAdmin) return NextResponse.redirect(new URL('/dashboard', request.url))
+    // Is admin — allow through
+    return supabaseResponse
+  }
+
+  // ── CUSTOMER ROUTES ───────────────────────────────────────────
   // Not logged in → sign-in (for dashboard/onboarding)
   if (!user && pathname.startsWith('/dashboard')) {
     return NextResponse.redirect(new URL('/sign-in', request.url))
