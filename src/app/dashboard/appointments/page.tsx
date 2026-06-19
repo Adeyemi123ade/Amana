@@ -18,6 +18,8 @@ export default function AppointmentsPage() {
   const [appointments, setAppointments] = useState<any[]>([])
   const [loading, setLoading]           = useState(true)
   const [error, setError]               = useState('')
+  const [deleteId, setDeleteId]         = useState<string|null>(null)
+  const [deleting, setDeleting]         = useState(false)
 
   const confirmDelete = async () => {
     if (!deleteId) return
