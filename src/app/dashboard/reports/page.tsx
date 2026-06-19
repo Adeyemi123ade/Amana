@@ -84,17 +84,36 @@ export default function ReportsPage() {
 
   const periodLabel = period === 'this_month' ? 'This Month' : period === 'last_month' ? 'Last Month' : period === 'this_year' ? 'This Year' : 'All Time'
 
+  const exportUrl = (type: string, format: string) =>
+    `/api/reports?workspace=${workspace?.id || ''}&type=${type}&format=${format}`
+
   return (
     <div>
-      <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:20}}>
+      <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:20, flexWrap:'wrap', gap:10}}>
         <h1 style={{fontSize:22, fontWeight:700, color:'var(--text)'}}>Reports</h1>
-        <select value={period} onChange={e => setPeriod(e.target.value)}
-          style={{height:36, padding:'0 12px', borderRadius:8, border:'1px solid #E5E7EB', fontSize:13, color:'#374151', outline:'none', background:'white'}}>
-          <option value="this_month">This Month</option>
-          <option value="last_month">Last Month</option>
-          <option value="this_year">This Year</option>
-          <option value="all">All Time</option>
-        </select>
+        <div style={{display:'flex', gap:8, flexWrap:'wrap', alignItems:'center'}}>
+          <select value={period} onChange={e => setPeriod(e.target.value)}
+            style={{height:36, padding:'0 12px', borderRadius:8, border:'1px solid var(--border-light)', fontSize:13, color:'var(--text)', outline:'none', background:'var(--card)'}}>
+            <option value="this_month">This Month</option>
+            <option value="last_month">Last Month</option>
+            <option value="this_year">This Year</option>
+            <option value="all">All Time</option>
+          </select>
+          {workspace && <>
+            <a href={exportUrl('full','pdf')} target="_blank" rel="noreferrer"
+              style={{display:'inline-flex',alignItems:'center',gap:6,padding:'8px 14px',background:'#7C3AED',color:'white',borderRadius:9,fontSize:12,fontWeight:700,textDecoration:'none',whiteSpace:'nowrap'}}>
+              📄 Full Report PDF
+            </a>
+            <a href={exportUrl('invoices','csv')} target="_blank" rel="noreferrer"
+              style={{display:'inline-flex',alignItems:'center',gap:6,padding:'8px 14px',background:'var(--bg-secondary)',border:'1px solid var(--border-light)',color:'var(--text-muted)',borderRadius:9,fontSize:12,fontWeight:600,textDecoration:'none',whiteSpace:'nowrap'}}>
+              📊 Invoice CSV
+            </a>
+            <a href={exportUrl('payments','csv')} target="_blank" rel="noreferrer"
+              style={{display:'inline-flex',alignItems:'center',gap:6,padding:'8px 14px',background:'var(--bg-secondary)',border:'1px solid var(--border-light)',color:'var(--text-muted)',borderRadius:9,fontSize:12,fontWeight:600,textDecoration:'none',whiteSpace:'nowrap'}}>
+              💳 Payment CSV
+            </a>
+          </>}
+        </div>
       </div>
 
       {/* Summary stats */}
