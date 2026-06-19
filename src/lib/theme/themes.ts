@@ -1,4 +1,4 @@
-export type ThemeId = 'light' | 'dark' | 'green'
+export type ThemeId = 'light' | 'dark' | 'green' | 'gray'
 
 export interface Theme {
   id: ThemeId
@@ -146,6 +146,43 @@ export const THEMES: Theme[] = [
       '--border-light': '#BBF7D0',
       '--topbar': '#FFFFFF',
       '--success': '#16A34A',
+      '--danger': '#EF4444',
+      '--warning': '#F59E0B',
+    },
+  },
+  {
+    id: 'gray',
+    name: 'Slate Gray',
+    description: 'Neutral and sophisticated. A calm gray palette for focused, distraction-free work.',
+    preview: {
+      bg: '#F8FAFC',
+      sidebar: '#334155',
+      card: '#FFFFFF',
+      accent: '#7C3AED',
+      text: '#1E293B',
+      subtext: '#64748B',
+      border: '#E2E8F0',
+      hover: '#F1F5F9',
+    },
+    css: {
+      '--bg': '#F8FAFC',
+      '--bg-secondary': '#F1F5F9',
+      '--card': '#FFFFFF',
+      '--card-hover': '#F8FAFC',
+      '--sidebar': '#334155',
+      '--sidebar-active': '#7C3AED',
+      '--sidebar-text': '#94A3B8',
+      '--sidebar-subtext': '#64748B',
+      '--accent': '#7C3AED',
+      '--accent-hover': '#6D28D9',
+      '--accent-light': '#EDE9FE',
+      '--text': '#1E293B',
+      '--text-secondary': '#334155',
+      '--text-muted': '#64748B',
+      '--border': '#E2E8F0',
+      '--border-light': '#CBD5E1',
+      '--topbar': '#FFFFFF',
+      '--success': '#22C55E',
       '--danger': '#EF4444',
       '--warning': '#F59E0B',
     },
