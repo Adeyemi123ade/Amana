@@ -40,11 +40,16 @@ export const updateSession = async (request: NextRequest) => {
     }
   }
 
-  // Logged in on sign-in/sign-up → dashboard
+  // Logged in on sign-in/sign-up → dashboard (or admin for admin emails)
   if (user && (pathname === '/sign-in' || pathname === '/sign-up')) {
     // If email not verified, go to verify page
     if (user.user_metadata?.email_verified === false) {
       return NextResponse.redirect(new URL('/verify-email', request.url))
+    }
+    // Admin emails go directly to admin dashboard
+    const adminEmails = ['admin@kajolacooperative.com', 'admin@amana.app']
+    if (user.email && adminEmails.includes(user.email.toLowerCase())) {
+      return NextResponse.redirect(new URL('/admin', request.url))
     }
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }

@@ -1,6 +1,22 @@
 'use client'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
+
+function SignOutButton() {
+  const router = useRouter()
+  const handleSignOut = async () => {
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    router.push('/sign-in')
+  }
+  return (
+    <button onClick={handleSignOut}
+      style={{ background: 'none', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 7, padding: '6px 12px', color: 'rgba(255,255,255,0.55)', fontSize: 11, fontWeight: 600, cursor: 'pointer', textAlign: 'left', width: '100%' }}>
+      Sign Out
+    </button>
+  )
+}
 
 const NAV = [
   { href: '/admin',            label: 'Overview',         icon: 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z' },
@@ -45,11 +61,14 @@ export default function AdminSidebar({ email }: { email: string }) {
         })}
       </nav>
 
-      {/* Admin info */}
+      {/* Admin info + sign out */}
       <div style={{ padding: '12px 16px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
         <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginBottom: 2 }}>Signed in as</p>
-        <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{email}</p>
-        <Link href="/dashboard" style={{ display: 'inline-block', marginTop: 8, fontSize: 11, color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>← Back to App</Link>
+        <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginBottom: 10 }}>{email}</p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <Link href="/" style={{ display: 'block', fontSize: 11, color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>← Back to Landing Page</Link>
+          <SignOutButton />
+        </div>
       </div>
     </aside>
   )

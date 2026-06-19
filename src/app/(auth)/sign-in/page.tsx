@@ -27,7 +27,14 @@ export default function SignInPage() {
     try {
       const { error } = await supabase.auth.signInWithPassword({ email: data.email, password: data.password })
       if (error) { setServerError(error.message.includes('Invalid') ? 'That password does not match your account.' : 'Something went wrong. Please try again.'); return }
-      router.push('/dashboard'); router.refresh()
+      const adminEmails = ['admin@kajolacooperative.com', 'admin@amana.app']
+      const { data: { user: signedInUser } } = await supabase.auth.getUser()
+      if (signedInUser?.email && adminEmails.includes(signedInUser.email.toLowerCase())) {
+        router.push('/admin')
+      } else {
+        router.push('/dashboard')
+      }
+      router.refresh()
     } catch { setServerError('Something went wrong. Please try again.') }
     finally { setIsLoading(false) }
   }
