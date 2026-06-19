@@ -37,12 +37,24 @@ export async function POST(request: NextRequest) {
       .eq('id', invoice.workspace_id)
       .single()
 
-    const customerEmail = invoice.customers?.email
-    if (!customerEmail) {
-      return NextResponse.json({ error: 'No customer email on this invoice. The business must add a customer email.' }, { status: 400 })
+    const customerEmail = (invoice.customers?.email || '').trim().toLowerCase()
+
+    // Validate email properly — Paystack returns "invalid email" for blank or malformed emails
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!customerEmail || !emailRegex.test(customerEmail)) {
+      return NextResponse.json({
+        error: 'Customer email is missing or invalid. Please add a valid email address to the customer profile before payment can proceed.',
+      }, { status: 400 })
     }
 
-    const amount = Math.round(Number(invoice.total_amount) * 100) // kobo
+    // Validate amount — Paystack rejects 0 and sometimes returns "invalid email" as a misleading error
+    const rawAmount = Number(invoice.total_amount)
+    if (!rawAmount || rawAmount <= 0 || isNaN(rawAmount)) {
+      return NextResponse.json({
+        error: 'Invoice total amount is invalid. Please check the invoice amount.',
+      }, { status: 400 })
+    }
+    const amount = Math.round(rawAmount * 100) // convert to kobo/smallest unit
     const currencyMap: Record<string, string> = { NGN:'NGN', GHS:'GHS', ZAR:'ZAR', USD:'USD', KES:'KES' }
     const currency = currencyMap[workspace?.currency || ''] || 'NGN'
     const ref = 'AMN-' + invoice.invoice_number + '-' + Date.now()
@@ -78,6 +90,13 @@ export async function POST(request: NextRequest) {
     if (!initRes.ok || !initData.status) {
       return NextResponse.json({
         error: initData.message || 'Could not start payment. Please try again.',
+        debug: {
+          paystackStatus: initData.status,
+          paystackMessage: initData.message,
+          emailUsed: customerEmail,
+          amountKobo: amount,
+          currency,
+        },
       }, { status: 400 })
     }
 
