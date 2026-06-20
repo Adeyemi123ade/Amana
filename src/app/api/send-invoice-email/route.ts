@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Amana Help Desk <noreply@chichatapp.com>',
+        from: 'Amana Help Desk <admin@amana.app>',
         to: [customer.email],
         subject: `Invoice ${invoice.invoice_number} from ${workspace?.name || 'Business'} — Payment Request`,
         html,

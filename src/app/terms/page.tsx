@@ -11,7 +11,7 @@ These Terms & Conditions govern your access to and use of the Amana platform. Pl
 
 By creating an account, accessing, or using Amana, you agree to be bound by these Terms & Conditions. If you do not agree with these terms, you should not use the platform.
 
-If you have questions at any time, you can contact us at teshoade2020@gmail.com.`,
+If you have questions at any time, you can contact us at admin@amana.app.`,
   },
   {
     title: '1. About Amana',
@@ -60,7 +60,7 @@ To protect your account, you should:
 — Avoid accessing your account on public or shared devices.
 — Log out of your account when using a shared computer or browser.
 — Enable email notifications to stay informed of account activity.
-— Contact us immediately at teshoade2020@gmail.com if you suspect unauthorised access.
+— Contact us immediately at admin@amana.app if you suspect unauthorised access.
 
 Amana is not responsible for losses arising from your failure to protect your login credentials.`,
   },
@@ -196,7 +196,7 @@ By submitting feedback or suggestions, you acknowledge that:
 — Amana may review and use your suggestions to improve the platform.
 — You are not entitled to compensation for suggestions we choose to implement.
 — Submission of feedback does not create any obligation for us to implement any specific feature or change.
-— Feedback may be submitted to teshoade2020@gmail.com.`,
+— Feedback may be submitted to admin@amana.app.`,
   },
   {
     title: '14. Future Features and Changes',
@@ -297,7 +297,7 @@ Nothing in these terms limits your rights under mandatory consumer protection la
     title: '22. Contact Us',
     body: `For support, complaints, feedback, questions, or enquiries regarding these Terms & Conditions, please contact us:
 
-Email: teshoade2020@gmail.com
+Email: admin@amana.app
 
 We aim to respond to all enquiries within 5 business days.
 
@@ -346,7 +346,7 @@ export default function TermsPage() {
               'Amana is currently free. Paid plans may be introduced with advance notice.',
               'Do not use Amana for fraudulent, illegal, or harmful activities.',
               'We may update these terms — continued use means you accept the updated version.',
-              'Contact us at teshoade2020@gmail.com for any questions or support.',
+              'Contact us at admin@amana.app for any questions or support.',
             ].map(point => (
               <div key={point} style={{display:'flex',gap:8,fontSize:14,color:'#78350F',lineHeight:1.6}}>
                 <span style={{flexShrink:0,marginTop:2}}>→</span>
@@ -380,8 +380,8 @@ export default function TermsPage() {
         <div style={{background:'#111827',borderRadius:16,padding:'28px 32px',textAlign:'center',marginTop:16}}>
           <p style={{fontSize:16,fontWeight:600,color:'white',marginBottom:6}}>Questions about these terms?</p>
           <p style={{fontSize:14,color:'#9CA3AF',marginBottom:16}}>We respond to all enquiries within 5 business days.</p>
-          <a href="mailto:teshoade2020@gmail.com" style={{display:'inline-block',background:'#7C3AED',color:'white',padding:'10px 24px',borderRadius:8,fontSize:14,fontWeight:600,textDecoration:'none'}}>
-            teshoade2020@gmail.com
+          <a href="mailto:admin@amana.app" style={{display:'inline-block',background:'#7C3AED',color:'white',padding:'10px 24px',borderRadius:8,fontSize:14,fontWeight:600,textDecoration:'none'}}>
+            admin@amana.app
           </a>
         </div>
       </div>
@@ -392,7 +392,7 @@ export default function TermsPage() {
           <Link href="/" style={{fontSize:13,color:'#9CA3AF',textDecoration:'none'}}>Home</Link>
           <Link href="/privacy" style={{fontSize:13,color:'#9CA3AF',textDecoration:'none'}}>Privacy Policy</Link>
           <Link href="/sign-up" style={{fontSize:13,color:'#9CA3AF',textDecoration:'none'}}>Sign Up</Link>
-          <a href="mailto:teshoade2020@gmail.com" style={{fontSize:13,color:'#9CA3AF',textDecoration:'none'}}>Contact</a>
+          <a href="mailto:admin@amana.app" style={{fontSize:13,color:'#9CA3AF',textDecoration:'none'}}>Contact</a>
         </div>
         <p style={{fontSize:12,color:'#6B7280'}}>© {new Date().getFullYear()} Amana. All rights reserved.</p>
       </footer>

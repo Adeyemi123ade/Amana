@@ -13,7 +13,7 @@ Amana is designed to help business owners manage invoices, customers, appointmen
 
 By creating an account or using Amana, you agree to the practices described in this Privacy Policy. If you do not agree with this policy, you should discontinue use of the platform.
 
-If you have questions at any time, you can reach us at teshoade2020@gmail.com.`,
+If you have questions at any time, you can reach us at admin@amana.app.`,
   },
   {
     title: '1. Information We Collect',
@@ -101,7 +101,7 @@ Amana does not guarantee payment collection. You remain responsible for verifyin
 
 While we take reasonable steps to protect your information, no online service can guarantee absolute security. You are responsible for protecting your login credentials, using a strong password, and logging out from shared devices.
 
-If you believe your account has been compromised, please contact us immediately at teshoade2020@gmail.com.`,
+If you believe your account has been compromised, please contact us immediately at admin@amana.app.`,
   },
   {
     title: '7. Sharing of Information',
@@ -152,7 +152,7 @@ Upon account deletion, we will permanently remove your personal information, bus
 
 Please note that some data may be retained in encrypted backup archives for up to 90 days before permanent deletion. We cannot recover deleted account data after permanent deletion is complete.
 
-To request account deletion or raise a deletion query, contact us at teshoade2020@gmail.com.`,
+To request account deletion or raise a deletion query, contact us at admin@amana.app.`,
   },
   {
     title: '12. Your Rights',
@@ -174,7 +174,7 @@ Depending on your location, additional rights may apply under applicable privacy
     title: '13. Children\'s Privacy',
     body: `Amana is not intended for use by persons under the age of 18. We do not knowingly collect personal information from children.
 
-If you believe a minor has created an account on Amana, please contact us at teshoade2020@gmail.com and we will take prompt steps to remove that information.`,
+If you believe a minor has created an account on Amana, please contact us at admin@amana.app and we will take prompt steps to remove that information.`,
   },
   {
     title: '14. International Data Transfers',
@@ -194,7 +194,7 @@ We encourage you to review this policy periodically. The date at the top of this
     title: '16. Contact Us',
     body: `If you have questions about this Privacy Policy, concerns about how we handle your data, or requests to exercise your privacy rights, please contact us:
 
-Email: teshoade2020@gmail.com
+Email: admin@amana.app
 
 We aim to respond to all privacy-related enquiries within 5 business days.
 
@@ -242,7 +242,7 @@ export default function PrivacyPage() {
               {icon:'🚫',text:'We never sell your data'},
               {icon:'🔒',text:'Data encrypted at rest and in transit'},
               {icon:'👤',text:'You own your content and customer records'},
-              {icon:'📧',text:'Contact us anytime: teshoade2020@gmail.com'},
+              {icon:'📧',text:'Contact us anytime: admin@amana.app'},
             ].map(item => (
               <div key={item.text} style={{display:'flex',alignItems:'center',gap:8,fontSize:13,color:'#374151'}}>
                 <span>{item.icon}</span>{item.text}
@@ -265,8 +265,8 @@ export default function PrivacyPage() {
         <div style={{background:'#111827',borderRadius:16,padding:'28px 32px',textAlign:'center',marginTop:16}}>
           <p style={{fontSize:16,fontWeight:600,color:'white',marginBottom:6}}>Questions about your privacy?</p>
           <p style={{fontSize:14,color:'#9CA3AF',marginBottom:16}}>We respond to all privacy enquiries within 5 business days.</p>
-          <a href="mailto:teshoade2020@gmail.com" style={{display:'inline-block',background:'#7C3AED',color:'white',padding:'10px 24px',borderRadius:8,fontSize:14,fontWeight:600,textDecoration:'none'}}>
-            teshoade2020@gmail.com
+          <a href="mailto:admin@amana.app" style={{display:'inline-block',background:'#7C3AED',color:'white',padding:'10px 24px',borderRadius:8,fontSize:14,fontWeight:600,textDecoration:'none'}}>
+            admin@amana.app
           </a>
         </div>
       </div>
@@ -277,7 +277,7 @@ export default function PrivacyPage() {
           <Link href="/" style={{fontSize:13,color:'#9CA3AF',textDecoration:'none'}}>Home</Link>
           <Link href="/terms" style={{fontSize:13,color:'#9CA3AF',textDecoration:'none'}}>Terms of Service</Link>
           <Link href="/sign-up" style={{fontSize:13,color:'#9CA3AF',textDecoration:'none'}}>Sign Up</Link>
-          <a href="mailto:teshoade2020@gmail.com" style={{fontSize:13,color:'#9CA3AF',textDecoration:'none'}}>Contact</a>
+          <a href="mailto:admin@amana.app" style={{fontSize:13,color:'#9CA3AF',textDecoration:'none'}}>Contact</a>
         </div>
         <p style={{fontSize:12,color:'#6B7280'}}>© {new Date().getFullYear()} Amana. All rights reserved.</p>
       </footer>

@@ -239,11 +239,11 @@ export default function LandingPage() {
             </p>
 
             {/* CTAs */}
-            <div style={{ display: 'flex', gap: 10, flexWrap: 'nowrap' }}>
-              <Link href="/sign-up" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#7C3AED', color: 'white', fontSize: 16, fontWeight: 700, textDecoration: 'none', padding: '14px 24px', borderRadius: 12, boxShadow: '0 4px 28px rgba(124,58,237,0.5)', whiteSpace: 'nowrap' }}>
+            <div className="hero-btns" style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+              <Link href="/sign-up" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#7C3AED', color: 'white', fontSize: 16, fontWeight: 700, textDecoration: 'none', padding: '14px 24px', borderRadius: 12, boxShadow: '0 4px 28px rgba(124,58,237,0.5)' }}>
                 Create Free Account →
               </Link>
-              <Link href="/demo" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'transparent', color: 'white', fontSize: 14, fontWeight: 600, textDecoration: 'none', padding: '13px 16px', borderRadius: 12, border: '1.5px solid rgba(255,255,255,0.16)', whiteSpace: 'nowrap' }}>
+              <Link href="/demo" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'transparent', color: 'white', fontSize: 14, fontWeight: 600, textDecoration: 'none', padding: '13px 16px', borderRadius: 12, border: '1.5px solid rgba(255,255,255,0.16)' }}>
                 <span style={{ width: 30, height: 30, borderRadius: '50%', border: '1.5px solid rgba(255,255,255,0.3)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="white"><path d="M5 3l14 9-14 9V3z"/></svg>
                 </span>
@@ -545,7 +545,7 @@ export default function LandingPage() {
                 </div>
               ))}
               <div style={{ marginTop: 4 }}>
-                {[['Help Center','#'],['Business Support','#']].map(([l,h]) => (
+                {[['Help Center','#contact'],['Business Support','#contact']].map(([l,h]) => (
                   <p key={l} style={{ marginBottom: 6 }}>
                     <Link href={h} style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)', textDecoration: 'none', fontWeight: 500 }}>{l}</Link>
                   </p>
@@ -556,7 +556,7 @@ export default function LandingPage() {
             {/* Col 3 — Company */}
             <div>
               <p style={{ fontSize: 13, fontWeight: 800, marginBottom: 12, textTransform: 'uppercase', letterSpacing: 1.2, color: 'rgba(255,255,255,0.5)' }}>Company</p>
-              {[['Home','/'],['About','#'],['Terms & Conditions','/terms'],['Privacy Policy','/privacy'],['Contact','#contact']].map(([l,h]) => (
+              {[['Home','/'],['About','#features'],['Terms & Conditions','/terms'],['Privacy Policy','/privacy'],['Contact','#contact']].map(([l,h]) => (
                 <p key={l} style={{ marginBottom: 8 }}>
                   <Link href={h} style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)', textDecoration: 'none', fontWeight: 500 }}>{l}</Link>
                 </p>
@@ -594,14 +594,7 @@ export default function LandingPage() {
         .cta-grid { grid-template-columns: 1fr 1fr !important; }
         .cta-text { text-align: left !important; }
         .footer-grid { grid-template-columns: repeat(4,1fr) !important; }
-
-        @media (max-width: 768px) {
-          .desktop-nav { display: none !important; }
-          .mobile-header-right { display: flex !important; }
-          .cta-grid { grid-template-columns: 1fr !important; }
-          .cta-text { text-align: center !important; }
-          .cta-text a { display: inline-block !important; }
-        .footer-grid { grid-template-columns: repeat(4,1fr) !important; }
+        .hero-btns { flex-direction: row; }
 
         @media (max-width: 768px) {
           .desktop-nav { display: none !important; }
@@ -612,6 +605,8 @@ export default function LandingPage() {
           .footer-grid { grid-template-columns: 1fr !important; }
           .footer-brand-col { grid-column: 1 / -1; padding-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 8px; }
           .footer-sub-cols { display: grid !important; grid-template-columns: repeat(3,1fr) !important; gap: 16px; grid-column: 1 / -1; }
+          .hero-btns { flex-direction: column !important; align-items: flex-start !important; }
+          .cards-grid { grid-template-columns: repeat(2,1fr) !important; }
         }
 
         @media (max-width: 480px) {

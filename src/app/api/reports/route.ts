@@ -17,16 +17,47 @@ export async function GET(request: NextRequest) {
   if (!wsId) return NextResponse.json({ error: 'Missing workspace' }, { status: 400 })
 
   const supabase = getSupabase()
-  const { data: ws }           = await supabase.from('workspaces').select('*').eq('id', wsId).single()
-  const { data: invoices }     = await supabase.from('invoices').select('*, customers(name,email)').eq('workspace_id', wsId).order('created_at', { ascending: false })
-  const { data: payments }     = await supabase.from('payments').select('*').eq('workspace_id', wsId).order('created_at', { ascending: false })
-  const { data: customers }    = await supabase.from('customers').select('*').eq('workspace_id', wsId)
-  const { data: appointments } = await supabase.from('appointments').select('*, customers(name)').eq('workspace_id', wsId).order('start_time', { ascending: false })
+  const isAllWorkspaces = wsId === 'all'
 
-  const inv  = invoices || []
-  const pay  = payments || []
-  const cust = customers || []
-  const appt = appointments || []
+  // For admin full-platform reports, fetch ALL data. For tenant reports, filter by workspace.
+  let ws: any = null
+  let invoices: any[] = []
+  let payments: any[] = []
+  let customers: any[] = []
+  let appointments: any[] = []
+
+  if (isAllWorkspaces) {
+    // Platform-wide — no workspace filter
+    const [invRes, payRes, custRes, apptRes] = await Promise.all([
+      supabase.from('invoices').select('*, customers(name,email), workspaces(name)').order('created_at', { ascending: false }),
+      supabase.from('payments').select('*, workspaces(name)').order('created_at', { ascending: false }),
+      supabase.from('customers').select('*, workspaces(name)').order('created_at', { ascending: false }),
+      supabase.from('appointments').select('*, customers(name), workspaces(name)').order('start_time', { ascending: false }),
+    ])
+    invoices     = invRes.data || []
+    payments     = payRes.data || []
+    customers    = custRes.data || []
+    appointments = apptRes.data || []
+    ws = { name: 'Amana Platform', currency: 'NGN' }
+  } else {
+    const [wsRes, invRes, payRes, custRes, apptRes] = await Promise.all([
+      supabase.from('workspaces').select('*').eq('id', wsId).single(),
+      supabase.from('invoices').select('*, customers(name,email)').eq('workspace_id', wsId).order('created_at', { ascending: false }),
+      supabase.from('payments').select('*').eq('workspace_id', wsId).order('created_at', { ascending: false }),
+      supabase.from('customers').select('*').eq('workspace_id', wsId),
+      supabase.from('appointments').select('*, customers(name)').eq('workspace_id', wsId).order('start_time', { ascending: false }),
+    ])
+    ws           = wsRes.data
+    invoices     = invRes.data || []
+    payments     = payRes.data || []
+    customers    = custRes.data || []
+    appointments = apptRes.data || []
+  }
+
+  const inv  = invoices
+  const pay  = payments
+  const cust = customers
+  const appt = appointments
   const currency = ws?.currency || 'NGN'
   const fmt = (n: number) => new Intl.NumberFormat('en-NG', { style: 'currency', currency, minimumFractionDigits: 2 }).format(n)
   const now = new Date().toLocaleDateString('en-NG', { day: 'numeric', month: 'long', year: 'numeric' })

@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
         method: 'POST',
         headers: { Authorization: `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          from: 'Amana Help Desk <noreply@chichatapp.com>',
+          from: 'Amana Help Desk <admin@amana.app>',
           to: [email],
           subject: `You have been invited to join ${workspaceName} on Amana`,
           html: `

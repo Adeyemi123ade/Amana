@@ -22,10 +22,15 @@ export default function AdminProfilePage() {
     setSaving(true); setMsg('')
     const res = await fetch('/api/admin/profile', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ display_name: name, phone }),
+      body: JSON.stringify({ display_name: name.trim(), phone: phone.trim() }),
     })
     const data = await res.json()
-    setMsg(data.success ? '✓ Profile saved' : 'Error: ' + data.error)
+    if (data.success) {
+      setMsg('✓ Profile saved successfully')
+    } else {
+      setMsg('Error: ' + (data.error || 'Could not save. Please try again.'))
+      console.error('Profile save failed:', data)
+    }
     setSaving(false)
   }
 

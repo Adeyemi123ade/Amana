@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Amana Help Desk <noreply@chichatapp.com>',
+        from: 'Amana Help Desk <admin@amana.app>',
         to: [email],
         subject: 'Your Amana verification code',
         html,
