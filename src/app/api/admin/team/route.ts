@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
         method: 'POST',
         headers: { Authorization: 'Bearer ' + resendKey, 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          from: 'Amana Admin <admin@amana.app>',
+          from: 'Amana Admin <noreply@chichatapp.com>',
           to: [email],
           subject: 'You have been invited to join Amana as an Admin',
           html: '<div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;padding:24px"><h2>You have been invited as an Admin</h2><p>Invited by ' + user.email + ' as ' + (role || 'ADMIN') + '.</p><a href="' + inviteUrl + '" style="display:block;background:#0E1A6E;color:white;text-decoration:none;padding:14px 24px;border-radius:12px;font-weight:700;text-align:center;margin:24px 0">Accept Invitation</a><p style="font-size:12px;color:#94A3B8">Register with ' + email + ' to gain admin access.</p></div>',

@@ -20,7 +20,7 @@ async function sendEmail(to: string, subject: string, html: string): Promise<{ o
     method: 'POST',
     headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      from: 'Amana Help Desk <admin@amana.app>',
+      from: 'Amana Help Desk <noreply@chichatapp.com>',
       to: [to],
       subject,
       html,

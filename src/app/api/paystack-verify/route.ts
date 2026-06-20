@@ -152,7 +152,7 @@ export async function POST(request: NextRequest) {
         method: 'POST',
         headers: { Authorization: `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          from: 'Amana Help Desk <admin@amana.app>',
+          from: 'Amana Help Desk <noreply@chichatapp.com>',
           to: [customerEmail],
           subject: `Payment Confirmed — ${invoice.invoice_number}`,
           html: `<div style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto;padding:24px">

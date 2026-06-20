@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
       method: 'POST',
       headers: { Authorization: `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        from: 'Amana Help Desk <admin@amana.app>',
+        from: 'Amana Help Desk <noreply@chichatapp.com>',
         to: [userEmail],
         subject: subjectMap[action] || 'KYC Update — Amana',
         html: `<div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;padding:24px">${bodyMap[action]}<p style="color:#6B7280;font-size:12px;margin-top:24px">Amana Identity Verification Team</p></div>`,

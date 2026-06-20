@@ -82,7 +82,7 @@ export async function POST(req: NextRequest) {
       method: 'POST',
       headers: { Authorization: `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        from: 'Amana Help Desk <admin@amana.app>',
+        from: 'Amana Help Desk <noreply@chichatapp.com>',
         to: [cust.email],
         subject: `Your appointment with ${ws?.name || 'Business'} — ${appt.title}`,
         html,

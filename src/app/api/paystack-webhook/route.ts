@@ -33,7 +33,7 @@ async function sendConfirmationEmail(
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      from: 'Amana Help Desk <admin@amana.app>',
+      from: 'Amana Help Desk <noreply@chichatapp.com>',
       to: [customerEmail],
       subject: 'Payment Confirmed — ' + invoiceNumber,
       html: `
