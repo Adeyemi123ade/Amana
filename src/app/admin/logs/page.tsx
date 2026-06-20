@@ -2,8 +2,12 @@ import { getAdminSupabase } from '@/lib/admin-auth'
 
 export default async function AdminLogsPage() {
   const db = getAdminSupabase()
-  const { data: logs } = await db.from('activity_logs').select('*').order('created_at',{ascending:false}).limit(200)
-  const { data: adminLogs } = await db.from('admin_logs').select('*').order('created_at',{ascending:false}).limit(50)
+  const [logsResult, adminLogsResult] = await Promise.all([
+    db.from('activity_logs').select('*').order('created_at',{ascending:false}).limit(200).catch(()=>null),
+    db.from('admin_logs').select('*').order('created_at',{ascending:false}).limit(50).catch(()=>null),
+  ])
+  const logs = logsResult?.data || []
+  const adminLogs = adminLogsResult?.data || []
 
   return (
     <div>

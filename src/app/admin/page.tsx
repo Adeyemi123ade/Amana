@@ -12,7 +12,7 @@ export default async function AdminOverviewPage() {
     { count: totalAppt },
     { count: totalUsers },
     { count: totalSupport },
-    { data: recentActivity },
+    recentActivityResult,
     { data: recentKyc },
   ] = await Promise.all([
     db.from('workspaces').select('*', { count: 'exact', head: true }),
@@ -22,7 +22,7 @@ export default async function AdminOverviewPage() {
     db.from('appointments').select('*', { count: 'exact', head: true }),
     db.from('customers').select('*', { count: 'exact', head: true }),
     db.from('support_messages').select('*', { count: 'exact', head: true }).eq('status', 'OPEN'),
-    db.from('activity_logs').select('action,entity_type,created_at,metadata').order('created_at', { ascending: false }).limit(10),
+    db.from('activity_logs').select('action,entity_type,created_at,metadata').order('created_at', { ascending: false }).limit(10).catch(() => ({ data: null })),
     db.from('kyc_submissions').select('id,document_type,status,submitted_at,user_id').eq('status', 'PENDING').order('submitted_at', { ascending: false }).limit(5),
   ])
 
@@ -84,9 +84,9 @@ export default async function AdminOverviewPage() {
             <p style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>Recent Activity</p>
             <Link href="/admin/logs" style={{ fontSize: 12, color: '#7C3AED', textDecoration: 'none', fontWeight: 600 }}>View all →</Link>
           </div>
-          {(recentActivity || []).length === 0 ? (
+          {(recentActivityResult?.data || []).length === 0 ? (
             <div style={{ padding: '24px 20px', textAlign: 'center', color: '#94A3B8', fontSize: 13 }}>No recent activity</div>
-          ) : (recentActivity || []).map((a: any, i: number) => (
+          ) : (recentActivityResult?.data || []).map((a: any, i: number) => (
             <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 20px', borderBottom: '1px solid #F8FAFC' }}>
               <div>
                 <p style={{ fontSize: 12, fontWeight: 600, color: '#1E293B' }}>{a.action.replace(/_/g,' ')}</p>
