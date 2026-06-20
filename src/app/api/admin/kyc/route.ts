@@ -63,7 +63,25 @@ export async function POST(req: NextRequest) {
         from: 'Amana Help Desk <noreply@chichatapp.com>',
         to: [userEmail],
         subject: subjectMap[action] || 'KYC Update — Amana',
-        html: `<div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;padding:24px">${bodyMap[action]}<p style="color:#6B7280;font-size:12px;margin-top:24px">Amana Identity Verification Team</p></div>`,
+        html: `<div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;padding:24px"><table cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px;text-align:center;width:100%">
+  <tr><td style="text-align:center;padding-bottom:16px;">
+    <table cellpadding="0" cellspacing="0" border="0" style="display:inline-table;">
+      <tr><td style="background:#7C3AED;border-radius:10px;width:40px;height:40px;text-align:center;vertical-align:middle;padding:0;">
+        <table cellpadding="0" cellspacing="2" border="0" style="margin:0 auto;">
+          <tr>
+            <td style="background:white;width:10px;height:10px;border-radius:2px;"></td>
+            <td style="background:white;width:10px;height:10px;border-radius:2px;"></td>
+          </tr>
+          <tr>
+            <td style="background:white;width:10px;height:10px;border-radius:2px;"></td>
+            <td style="background:white;width:10px;height:10px;border-radius:2px;"></td>
+          </tr>
+        </table>
+      </td></tr>
+    </table>
+    <span style="font-size:18px;font-weight:800;color:#0E1A6E;vertical-align:middle;margin-left:10px;font-family:Arial,sans-serif;">Amana</span>
+  </td></tr>
+</table>${bodyMap[action]}<p style="color:#6B7280;font-size:12px;margin-top:24px">Amana Identity Verification Team</p></div>`,
       }),
     }).catch(console.error)
   }

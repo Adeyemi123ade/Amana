@@ -43,7 +43,20 @@ function invoiceReminderEmail(data: {
   return `
     <div style="font-family:Arial,sans-serif;max-width:500px;margin:0 auto;padding:24px">
       <div style="text-align:center;margin-bottom:20px">
-        <div style="display:inline-block;background:#7C3AED;width:32px;height:32px;border-radius:8px;margin-right:8px;vertical-align:middle"></div>
+        <table cellpadding="0" cellspacing="0" border="0" style="display:inline-table;vertical-align:middle;margin-right:10px;">
+  <tr><td style="background:#7C3AED;border-radius:10px;width:40px;height:40px;text-align:center;vertical-align:middle;padding:0;">
+    <table cellpadding="0" cellspacing="2" border="0" style="margin:0 auto;">
+      <tr>
+        <td style="background:white;width:10px;height:10px;border-radius:2px;"></td>
+        <td style="background:white;width:10px;height:10px;border-radius:2px;"></td>
+      </tr>
+      <tr>
+        <td style="background:white;width:10px;height:10px;border-radius:2px;"></td>
+        <td style="background:white;width:10px;height:10px;border-radius:2px;"></td>
+      </tr>
+    </table>
+  </td></tr>
+</table>
         <span style="font-size:18px;font-weight:800;color:#111827;vertical-align:middle">Amana</span>
       </div>
       <h2 style="font-size:20px;color:#111827;margin-bottom:8px">${urgency} — Invoice Payment Reminder</h2>
@@ -81,7 +94,20 @@ function appointmentReminderEmail(data: {
   return `
     <div style="font-family:Arial,sans-serif;max-width:500px;margin:0 auto;padding:24px">
       <div style="text-align:center;margin-bottom:20px">
-        <div style="display:inline-block;background:#7C3AED;width:32px;height:32px;border-radius:8px;margin-right:8px;vertical-align:middle"></div>
+        <table cellpadding="0" cellspacing="0" border="0" style="display:inline-table;vertical-align:middle;margin-right:10px;">
+  <tr><td style="background:#7C3AED;border-radius:10px;width:40px;height:40px;text-align:center;vertical-align:middle;padding:0;">
+    <table cellpadding="0" cellspacing="2" border="0" style="margin:0 auto;">
+      <tr>
+        <td style="background:white;width:10px;height:10px;border-radius:2px;"></td>
+        <td style="background:white;width:10px;height:10px;border-radius:2px;"></td>
+      </tr>
+      <tr>
+        <td style="background:white;width:10px;height:10px;border-radius:2px;"></td>
+        <td style="background:white;width:10px;height:10px;border-radius:2px;"></td>
+      </tr>
+    </table>
+  </td></tr>
+</table>
         <span style="font-size:18px;font-weight:800;color:#111827;vertical-align:middle">Amana</span>
       </div>
       <h2 style="font-size:20px;color:#111827;margin-bottom:8px">📅 Appointment Reminder</h2>

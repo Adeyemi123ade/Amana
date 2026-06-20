@@ -39,7 +39,20 @@ async function sendConfirmationEmail(
       html: `
         <div style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto;padding:24px;color:#111827">
           <div style="text-align:center;margin-bottom:28px">
-            <div style="display:inline-block;background:#7C3AED;width:36px;height:36px;border-radius:9px;vertical-align:middle;margin-right:8px"></div>
+            <table cellpadding="0" cellspacing="0" border="0" style="display:inline-table;vertical-align:middle;margin-right:10px;">
+  <tr><td style="background:#7C3AED;border-radius:10px;width:40px;height:40px;text-align:center;vertical-align:middle;padding:0;">
+    <table cellpadding="0" cellspacing="2" border="0" style="margin:0 auto;">
+      <tr>
+        <td style="background:white;width:10px;height:10px;border-radius:2px;"></td>
+        <td style="background:white;width:10px;height:10px;border-radius:2px;"></td>
+      </tr>
+      <tr>
+        <td style="background:white;width:10px;height:10px;border-radius:2px;"></td>
+        <td style="background:white;width:10px;height:10px;border-radius:2px;"></td>
+      </tr>
+    </table>
+  </td></tr>
+</table>
             <span style="font-size:20px;font-weight:800;color:#111827;vertical-align:middle">Amana</span>
           </div>
 
