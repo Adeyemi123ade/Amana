@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 
-const ADMIN_EMAILS = [
+const SUPER_ADMIN_EMAILS = [
   'admin@kajolacooperative.com',
   'admin@amana.app',
 ]
@@ -12,9 +12,31 @@ export function getAdminSupabase() {
   )
 }
 
-export function isAdminEmail(email: string | undefined) {
+// Quick check for hardcoded super admins only
+export function isAdminEmail(email: string | undefined): boolean {
   if (!email) return false
-  return ADMIN_EMAILS.includes(email.toLowerCase().trim())
+  return SUPER_ADMIN_EMAILS.includes(email.toLowerCase().trim())
+}
+
+export function isSuperAdmin(email: string | undefined): boolean {
+  return isAdminEmail(email)
+}
+
+// Check DB for invited admins (use in server components only)
+export async function isActiveAdmin(email: string): Promise<boolean> {
+  if (isAdminEmail(email)) return true
+  try {
+    const db = getAdminSupabase()
+    const { data } = await db
+      .from('platform_admins')
+      .select('id')
+      .eq('email', email.toLowerCase())
+      .eq('active', true)
+      .maybeSingle()
+    return !!data
+  } catch {
+    return false
+  }
 }
 
 export async function logAdminAction(
@@ -25,13 +47,17 @@ export async function logAdminAction(
   details: any = {},
   ip?: string
 ) {
-  const supabase = getAdminSupabase()
-  await supabase.from('admin_logs').insert({
-    admin_email: adminEmail,
-    action,
-    target_type: targetType,
-    target_id: targetId,
-    details,
-    ip_address: ip,
-  })
+  try {
+    const db = getAdminSupabase()
+    await db.from('admin_logs').insert({
+      admin_email: adminEmail,
+      action,
+      target_type: targetType,
+      target_id: targetId,
+      details,
+      ip_address: ip,
+    })
+  } catch (e) {
+    console.error('logAdminAction failed:', e)
+  }
 }

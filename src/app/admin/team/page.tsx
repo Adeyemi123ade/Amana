@@ -1,10 +1,13 @@
 'use client'
 import { useState, useEffect } from 'react'
 
+const SUPER_ADMIN_EMAILS = ['admin@kajolacooperative.com', 'admin@amana.app']
+
 export default function AdminTeamPage() {
   const [admins, setAdmins]         = useState<any[]>([])
   const [adminEmail, setAdminEmail] = useState('')
   const [adminName, setAdminName]   = useState('')
+  const [adminRole, setAdminRole]   = useState('')
   const [email, setEmail]           = useState('')
   const [name, setName]             = useState('')
   const [role, setRole]             = useState('ADMIN')
@@ -19,6 +22,7 @@ export default function AdminTeamPage() {
     fetch('/api/admin/profile').then(r => r.json()).then(d => {
       setAdminEmail(d.email || '')
       setAdminName(d.admin?.display_name || '')
+      setAdminRole(d.admin?.role || (SUPER_ADMIN_EMAILS.includes((d.email||'').toLowerCase()) ? 'SUPER_ADMIN' : 'ADMIN'))
     })
   }
   useEffect(() => { load() }, [])
@@ -111,7 +115,16 @@ export default function AdminTeamPage() {
         <p style={{ fontSize: 13, color: '#64748B' }}>Invite and manage who has access to the Amana Admin dashboard</p>
       </div>
 
-      {/* Invite card */}
+      {/* Access denied for non-super-admins */}
+      {adminRole && adminRole !== 'SUPER_ADMIN' && !SUPER_ADMIN_EMAILS.includes(adminEmail.toLowerCase()) && (
+        <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 12, padding: '16px 20px', marginBottom: 20 }}>
+          <p style={{ fontSize: 14, fontWeight: 700, color: '#DC2626', marginBottom: 4 }}>Access Restricted</p>
+          <p style={{ fontSize: 13, color: '#B91C1C' }}>Only the Super Admin can invite new admins.</p>
+        </div>
+      )}
+
+      {/* Invite card — super admin only */}
+      {(adminRole === 'SUPER_ADMIN' || SUPER_ADMIN_EMAILS.includes(adminEmail.toLowerCase())) && (
       <div style={{ background: 'white', borderRadius: 14, border: '1px solid #E2E8F0', padding: 24, marginBottom: 24 }}>
         <p style={{ fontSize: 14, fontWeight: 700, color: '#0F172A', marginBottom: 16 }}>Invite New Admin</p>
 
@@ -174,6 +187,8 @@ export default function AdminTeamPage() {
           </>
         )}
       </div>
+
+      )}
 
       {/* Admin list */}
       <div style={{ background: 'white', borderRadius: 14, border: '1px solid #E2E8F0', overflow: 'hidden' }}>

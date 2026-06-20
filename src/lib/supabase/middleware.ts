@@ -1,5 +1,57 @@
 import { createServerClient } from '@supabase/ssr'
+import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { type NextRequest, NextResponse } from 'next/server'
+
+// Hardcoded super admins — always have access regardless of DB state
+const SUPER_ADMIN_EMAILS = ['admin@kajolacooperative.com', 'admin@amana.app']
+
+// Check platform_admins table for invited/active admins
+async function checkPlatformAdmin(email: string): Promise<boolean> {
+  try {
+    const db = createServiceClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
+    const { data } = await db
+      .from('platform_admins')
+      .select('id, active')
+      .eq('email', email.toLowerCase())
+      .eq('active', true)
+      .maybeSingle()
+    return !!data
+  } catch {
+    return false
+  }
+}
+
+// Activate a pending invited admin on first sign-in
+async function activatePendingAdmin(email: string, userId: string): Promise<boolean> {
+  try {
+    const db = createServiceClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
+    // Check if there's a pending (active=false) invite for this email
+    const { data: pending } = await db
+      .from('platform_admins')
+      .select('id')
+      .eq('email', email.toLowerCase())
+      .eq('active', false)
+      .maybeSingle()
+
+    if (pending) {
+      // Activate — they accepted the invite by registering
+      await db
+        .from('platform_admins')
+        .update({ active: true, user_id: userId })
+        .eq('id', pending.id)
+      return true
+    }
+    return false
+  } catch {
+    return false
+  }
+}
 
 export const updateSession = async (request: NextRequest) => {
   let supabaseResponse = NextResponse.next({ request })
@@ -24,21 +76,30 @@ export const updateSession = async (request: NextRequest) => {
   const { data: { user } } = await supabase.auth.getUser()
   const { pathname } = request.nextUrl
 
-  const adminEmails = ['admin@kajolacooperative.com', 'admin@amana.app']
-  const isAdmin = user?.email ? adminEmails.includes(user.email.toLowerCase()) : false
+  const isSuperAdmin = user?.email
+    ? SUPER_ADMIN_EMAILS.includes(user.email.toLowerCase())
+    : false
 
   // ── ADMIN ROUTES ──────────────────────────────────────────────
-  // Not logged in → send to sign-in
   if (pathname.startsWith('/admin')) {
     if (!user) return NextResponse.redirect(new URL('/sign-in', request.url))
-    // Logged in but NOT an admin → send to their dashboard
-    if (!isAdmin) return NextResponse.redirect(new URL('/dashboard', request.url))
-    // Is admin — allow through
-    return supabaseResponse
+
+    // Super admins always allowed
+    if (isSuperAdmin) return supabaseResponse
+
+    // Check platform_admins table for invited admins
+    const isInvitedAdmin = await checkPlatformAdmin(user.email!)
+    if (isInvitedAdmin) return supabaseResponse
+
+    // Check if they have a pending invite — activate it (first sign-in after invite)
+    const activated = await activatePendingAdmin(user.email!, user.id)
+    if (activated) return supabaseResponse
+
+    // Not an admin at all → back to customer dashboard
+    return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
   // ── CUSTOMER ROUTES ───────────────────────────────────────────
-  // Not logged in → sign-in (for dashboard/onboarding)
   if (!user && pathname.startsWith('/dashboard')) {
     return NextResponse.redirect(new URL('/sign-in', request.url))
   }
@@ -46,25 +107,36 @@ export const updateSession = async (request: NextRequest) => {
     return NextResponse.redirect(new URL('/sign-up', request.url))
   }
 
-  // Logged in but email NOT verified → send to verify page
-  // (except if already on verify-email or API routes)
   if (user && user.user_metadata?.email_verified === false) {
     if (pathname.startsWith('/dashboard') || pathname.startsWith('/onboarding')) {
       return NextResponse.redirect(new URL('/verify-email', request.url))
     }
   }
 
-  // Logged in on sign-in/sign-up → dashboard (or admin for admin emails)
+  // Logged in on sign-in/sign-up → route correctly
   if (user && (pathname === '/sign-in' || pathname === '/sign-up')) {
-    // If email not verified, go to verify page
     if (user.user_metadata?.email_verified === false) {
       return NextResponse.redirect(new URL('/verify-email', request.url))
     }
-    // Admin emails go directly to admin dashboard
-    const adminEmails = ['admin@kajolacooperative.com', 'admin@amana.app']
-    if (user.email && adminEmails.includes(user.email.toLowerCase())) {
+
+    // Super admin → /admin
+    if (isSuperAdmin) {
       return NextResponse.redirect(new URL('/admin', request.url))
     }
+
+    // Check if they are an active invited admin
+    const isInvitedAdmin = await checkPlatformAdmin(user.email!)
+    if (isInvitedAdmin) {
+      return NextResponse.redirect(new URL('/admin', request.url))
+    }
+
+    // Check if pending invite — activate and redirect to admin
+    const activated = await activatePendingAdmin(user.email!, user.id)
+    if (activated) {
+      return NextResponse.redirect(new URL('/admin', request.url))
+    }
+
+    // Regular customer → dashboard
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 

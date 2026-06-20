@@ -16,14 +16,19 @@ const NAV = [
   { href: '/admin/profile',      label: 'My Profile',    icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
 ]
 
+const SUPER_ADMIN_EMAILS = ['admin@kajolacooperative.com', 'admin@amana.app']
+
 export default function AdminSidebar({
   email,
+  role,
   onSelect,
 }: {
   email: string
+  role?: string
   onSelect?: () => void
 }) {
   const path = usePathname()
+  const isSuperAdmin = role === 'SUPER_ADMIN' || SUPER_ADMIN_EMAILS.includes(email.toLowerCase())
 
   return (
     <aside style={{ width: '100%', background: '#0E1A6E', minHeight: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -42,7 +47,7 @@ export default function AdminSidebar({
 
       {/* Nav */}
       <nav style={{ flex: 1, padding: '10px 8px' }}>
-        {NAV.map(item => {
+        {NAV.filter(item => item.href !== '/admin/team' || isSuperAdmin).map(item => {
           const active = path === item.href || (item.href !== '/admin' && path.startsWith(item.href))
           return (
             <Link key={item.href} href={item.href} onClick={onSelect}

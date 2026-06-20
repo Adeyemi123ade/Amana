@@ -5,9 +5,11 @@ import AdminHeader from './AdminHeader'
 
 export default function AdminClientLayout({
   email,
+  role,
   children,
 }: {
   email: string
+  role: string
   children: React.ReactNode
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -51,6 +53,7 @@ export default function AdminClientLayout({
             }}>
               <AdminSidebar
                 email={email}
+                role={role}
                 onSelect={() => isMobile && setSidebarOpen(false)}
               />
             </div>
