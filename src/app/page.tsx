@@ -97,6 +97,59 @@ const FAQS = [
   { q: 'Why should I choose Amana?', a: 'Because it brings customers, appointments, invoices, payments, and reminders together in one simple platform.' },
 ]
 
+
+function ContactForm() {
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [message, setMessage] = useState('')
+  const [sending, setSending] = useState(false)
+  const [sent, setSent] = useState(false)
+  const [err, setErr] = useState('')
+
+  const submit = async () => {
+    if (!name.trim() || !email.trim() || !message.trim()) { setErr('Please fill in all fields'); return }
+    setSending(true); setErr('')
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, message, subject: 'Website enquiry' }),
+      })
+      const data = await res.json()
+      if (data.success) { setSent(true); setName(''); setEmail(''); setMessage('') }
+      else setErr(data.error || 'Something went wrong. Please try again.')
+    } catch { setErr('Could not connect. Please try again.') }
+    finally { setSending(false) }
+  }
+
+  if (sent) return (
+    <div style={{ background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 14, padding: '32px 20px', textAlign: 'center' }}>
+      <div style={{ fontSize: 40, marginBottom: 12 }}>✅</div>
+      <p style={{ fontSize: 16, fontWeight: 700, color: '#16A34A', marginBottom: 4 }}>Message sent!</p>
+      <p style={{ fontSize: 13, color: '#15803D' }}>We will get back to you soon.</p>
+    </div>
+  )
+
+  return (
+    <div style={{ background: '#F9FAFB', borderRadius: 14, padding: '20px', border: '1px solid #E5E7EB', textAlign: 'left', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
+        <div>
+          <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: '#374151', marginBottom: 5 }}>Name</label>
+          <input value={name} onChange={e => setName(e.target.value)} placeholder="Your name" style={{ width: '100%', height: 40, padding: '0 12px', borderRadius: 8, border: '1px solid #E5E7EB', fontSize: 13, outline: 'none', boxSizing: 'border-box' as const }} />
+        </div>
+        <div>
+          <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: '#374151', marginBottom: 5 }}>Email</label>
+          <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" style={{ width: '100%', height: 40, padding: '0 12px', borderRadius: 8, border: '1px solid #E5E7EB', fontSize: 13, outline: 'none', boxSizing: 'border-box' as const }} />
+        </div>
+      </div>
+      <textarea value={message} onChange={e => setMessage(e.target.value)} placeholder="How can we help?" rows={3} style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #E5E7EB', fontSize: 13, outline: 'none', boxSizing: 'border-box' as const, resize: 'none', fontFamily: 'inherit', marginBottom: 10 }} />
+      {err && <p style={{ fontSize: 12, color: '#DC2626', marginBottom: 8 }}>{err}</p>}
+      <button onClick={submit} disabled={sending} style={{ width: '100%', height: 42, background: '#7C3AED', color: 'white', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', opacity: sending ? 0.7 : 1 }}>
+        {sending ? 'Sending...' : 'Send Message'}
+      </button>
+    </div>
+  )
+}
+
 export default function LandingPage() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [openFaq, setOpenFaq] = useState<number | null>(null)
@@ -440,7 +493,7 @@ export default function LandingPage() {
               </div>
             </div>
             <textarea placeholder="How can we help?" rows={3} style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #E5E7EB', fontSize: 13, outline: 'none', boxSizing: 'border-box', resize: 'none', fontFamily: 'inherit', marginBottom: 10 }} />
-            <button style={{ width: '100%', height: 42, background: '#7C3AED', color: 'white', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>Send Message</button>
+
           </div>
         </div>
       </section>

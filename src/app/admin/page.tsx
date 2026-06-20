@@ -20,7 +20,7 @@ export default async function AdminOverviewPage() {
     db.from('invoices').select('*', { count: 'exact', head: true }),
     db.from('payments').select('*', { count: 'exact', head: true }),
     db.from('appointments').select('*', { count: 'exact', head: true }),
-    db.from('profiles').select('*', { count: 'exact', head: true }).throwOnError().catch(() => db.from('workspaces').select('*', { count: 'exact', head: true })),
+    db.from('customers').select('*', { count: 'exact', head: true }),
     db.from('support_messages').select('*', { count: 'exact', head: true }).eq('status', 'OPEN'),
     db.from('activity_logs').select('action,entity_type,created_at,metadata').order('created_at', { ascending: false }).limit(10),
     db.from('kyc_submissions').select('id,document_type,status,submitted_at,user_id').eq('status', 'PENDING').order('submitted_at', { ascending: false }).limit(5),
@@ -37,7 +37,7 @@ export default async function AdminOverviewPage() {
     { label: 'Appointments',       value: totalAppt ?? 0,     color: '#EC4899', link: '/admin/businesses' },
     { label: 'Open Support',       value: totalSupport ?? 0,  color: '#EF4444', link: '/admin/support' },
     { label: 'Total Revenue',      value: '₦' + (totalRevenue).toLocaleString(), color: '#16A34A', link: '/admin/payments' },
-    { label: 'Platform Users',     value: totalUsers ?? 0,    color: '#0EA5E9', link: '/admin/users' },
+    { label: 'Total Customers',     value: totalUsers ?? 0,   color: '#0EA5E9', link: '/admin/users' },
   ]
 
   return (

@@ -103,6 +103,7 @@ function appointmentReminderEmail(data: {
 }
 
 export async function POST(request: NextRequest) {
+  try {
   // No secret required for manual Run Now button — it is a user-triggered action.
   // The cron secret was causing 401 errors due to env var mismatch.
   // Scheduled cron jobs will still call this endpoint and work fine.
@@ -230,4 +231,8 @@ export async function POST(request: NextRequest) {
     results,
     ran_at: new Date().toISOString(),
   })
+  } catch (err: any) {
+    console.error("API error:", err)
+    return NextResponse.json({ error: err.message || "Server error" }, { status: 500 })
+  }
 }

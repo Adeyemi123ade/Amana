@@ -20,6 +20,7 @@ function nextDueDate(current: string, frequency: string): string {
 }
 
 export async function POST(request: NextRequest) {
+  try {
   const secret = request.headers.get('x-cron-secret')
   if (process.env.CRON_SECRET && secret !== process.env.CRON_SECRET) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -92,4 +93,8 @@ export async function POST(request: NextRequest) {
   }
 
   return NextResponse.json({ success: true, generated, ran_at: new Date().toISOString() })
+  } catch (err: any) {
+    console.error("API error:", err)
+    return NextResponse.json({ error: err.message || "Server error" }, { status: 500 })
+  }
 }

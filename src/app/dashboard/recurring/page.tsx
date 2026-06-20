@@ -34,7 +34,7 @@ export default function RecurringPage() {
       setWorkspace(ws)
       if (!ws) return
       const [{ data: rr }, { data: cc }] = await Promise.all([
-        supabase.from('recurring_invoices').select('*, customers(name,email)').eq('workspace_id', ws.id).order('created_at', { ascending: false }),
+        supabase.from('recurring_invoices').select('*').eq('workspace_id', ws.id).order('created_at', { ascending: false }),
         supabase.from('customers').select('id,name').eq('workspace_id', ws.id).order('name'),
       ])
       setRules(rr || [])
