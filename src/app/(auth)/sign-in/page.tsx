@@ -29,7 +29,13 @@ export default function SignInPage() {
       if (error) { setServerError(error.message.includes('Invalid') ? 'That password does not match your account.' : 'Something went wrong. Please try again.'); return }
       // Middleware handles all routing after sign-in:
       // admin emails → /admin, customers → /dashboard
-      window.location.href = '/'
+      const email = (await supabase.auth.getUser()).data.user?.email?.toLowerCase() || ''
+      const ADMIN_EMAILS = ['admin@amana.app', 'admin@kajolacooperative.com']
+      if (ADMIN_EMAILS.includes(email)) {
+        window.location.href = '/admin'
+      } else {
+        window.location.href = '/dashboard'
+      }
     } catch { setServerError('Something went wrong. Please try again.') }
     finally { setIsLoading(false) }
   }
