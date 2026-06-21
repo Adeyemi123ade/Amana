@@ -115,14 +115,22 @@ export default function RecurringPage() {
           {rules.map(rule => (
             <div key={rule.id} style={{ background:'var(--card)', borderRadius:14, border:'1px solid var(--border)', padding:'16px 20px', display:'flex', alignItems:'center', justifyContent:'space-between', gap:12 }}>
               <div style={{ flex:1, minWidth:0 }}>
-                <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:4 }}>
-                  <p style={{ fontSize:14, fontWeight:600, color:'var(--text)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{rule.title}</p>
+                {/* Customer name — shown first and prominently */}
+                <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:6 }}>
+                  <div style={{ width:28, height:28, borderRadius:'50%', background:'var(--accent-light)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:12, fontWeight:700, color:'var(--accent)', flexShrink:0 }}>
+                    {(rule.customers?.name || '?')[0].toUpperCase()}
+                  </div>
+                  <p style={{ fontSize:13, fontWeight:700, color:'var(--accent)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+                    {rule.customers?.name || 'Unknown Customer'}
+                  </p>
                   <span style={{ fontSize:10, fontWeight:700, color: rule.active ? '#22C55E' : '#9CA3AF', background: rule.active ? '#F0FDF4' : 'var(--bg-secondary)', padding:'2px 7px', borderRadius:10, flexShrink:0 }}>
                     {rule.active ? 'ACTIVE' : 'PAUSED'}
                   </span>
                 </div>
+                {/* Service title */}
+                <p style={{ fontSize:14, fontWeight:600, color:'var(--text)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', marginBottom:3 }}>{rule.title}</p>
                 <p style={{ fontSize:12, color:'var(--text-muted)' }}>
-                  {rule.customers?.name} · {FREQ_LABELS[rule.frequency]} · Next: {new Date(rule.next_due).toLocaleDateString('en-NG', { day:'numeric', month:'short', year:'numeric' })}
+                  {FREQ_LABELS[rule.frequency]} · Next: {new Date(rule.next_due).toLocaleDateString('en-NG', { day:'numeric', month:'short', year:'numeric' })}
                 </p>
               </div>
               <div style={{ textAlign:'right', flexShrink:0 }}>
