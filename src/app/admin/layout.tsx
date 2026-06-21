@@ -13,12 +13,19 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (!user?.email) redirect('/sign-in')
 
   // Get this admin's role from platform_admins
+  // Wrapped in try/catch — if table does not exist yet, super admins still get through
   const db = getAdminSupabase()
-  const { data: adminRow } = await db
-    .from('platform_admins')
-    .select('role, display_name, active')
-    .eq('email', user.email.toLowerCase())
-    .maybeSingle()
+  let adminRow: any = null
+  try {
+    const { data } = await db
+      .from('platform_admins')
+      .select('role, display_name, active')
+      .eq('email', user.email.toLowerCase())
+      .maybeSingle()
+    adminRow = data
+  } catch {
+    // Table may not exist yet — super admins bypass this check below
+  }
 
   const isSuperAdmin = SUPER_ADMIN_EMAILS.includes(user.email.toLowerCase())
 
