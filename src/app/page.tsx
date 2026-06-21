@@ -115,7 +115,12 @@ function ContactForm() {
         body: JSON.stringify({ name, email, message, subject: 'Website enquiry' }),
       })
       const data = await res.json()
-      if (data.success) { setSent(true); setName(''); setEmail(''); setMessage('') }
+      if (data.success) {
+        setSent(true)
+        setName(''); setEmail(''); setMessage('')
+        // Reset back to form after 10 seconds
+        setTimeout(() => setSent(false), 10000)
+      }
       else setErr(data.error || 'Something went wrong. Please try again.')
     } catch { setErr('Could not connect. Please try again.') }
     finally { setSending(false) }
@@ -125,7 +130,8 @@ function ContactForm() {
     <div style={{ background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 14, padding: '32px 20px', textAlign: 'center' }}>
       <div style={{ fontSize: 40, marginBottom: 12 }}>✅</div>
       <p style={{ fontSize: 16, fontWeight: 700, color: '#16A34A', marginBottom: 4 }}>Message sent!</p>
-      <p style={{ fontSize: 13, color: '#15803D' }}>We will get back to you soon.</p>
+      <p style={{ fontSize: 13, color: '#15803D' }}>We will get back to you soon. A copy has been sent to your email.</p>
+      <p style={{ fontSize: 11, color: '#86EFAC', marginTop: 8 }}>This form will reset in 10 seconds</p>
     </div>
   )
 
