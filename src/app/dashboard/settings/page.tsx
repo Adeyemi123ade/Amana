@@ -229,15 +229,7 @@ export default function SettingsPage() {
         Back to Settings
       </button>
       <p style={{fontSize:18,fontWeight:700,color:'var(--text)',marginBottom:4}}>Identity Verification</p>
-      <p style={{fontSize:13,color:'var(--text-muted)',marginBottom:12}}>Verify your business identity to unlock full platform features and build customer trust.</p>
-      {/* UAT notice — remove before public launch */}
-      <div style={{background:'#FFFBEB',border:'1px solid #FDE68A',borderRadius:10,padding:'10px 14px',marginBottom:20,display:'flex',alignItems:'flex-start',gap:10}}>
-        <span style={{fontSize:16,flexShrink:0}}>🧪</span>
-        <div>
-          <p style={{fontSize:13,fontWeight:600,color:'#92400E',marginBottom:2}}>Testing Mode — This step is optional</p>
-          <p style={{fontSize:12,color:'#B45309',lineHeight:1.5}}>You do not need a real government ID to test this feature. You can skip verification entirely or submit with any sample data.</p>
-        </div>
-      </div>
+      <p style={{fontSize:13,color:'var(--text-muted)',marginBottom:20}}>Verify your business identity to unlock full platform features and build customer trust.</p>
       <MsgBox/>
       <div style={{background:'var(--card)',borderRadius:14,border:'1px solid var(--border)',padding:20,marginBottom:14}}>
         <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:16}}>
@@ -446,7 +438,7 @@ export default function SettingsPage() {
     { title:'Business Settings', items:[
       {key:'business',label:'Business Profile',sub:workspace?.name||'Update your business details',icon:'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4'},
       {key:'notifications',label:'Notifications',sub:'Manage your alerts',icon:'M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9'},
-      {key:'kyc',label:'Identity Verification',sub:'Optional during testing — skip if needed',icon:'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z'},
+      {key:'kyc',label:'Identity Verification',sub:'Verify your business identity',icon:'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z'},
       {key:'team',label:'Team Members',sub:'Invite and manage your team',icon:'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z'},
       {key:'appearance',label:'Appearance & Theme',sub:`Current: ${THEMES.find(t=>t.id===themeId)?.name||'Professional Light'}`,icon:'M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01'},
     ]},

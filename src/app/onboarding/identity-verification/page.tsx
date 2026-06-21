@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient as createSupabase } from '@/lib/supabase/client'
 
@@ -24,15 +24,25 @@ const DOC_NUMBER_PLACEHOLDER: Record<DocType, string> = {
   DRIVER_LICENSE: 'e.g. ABC123456789',
 }
 
-const inp: React.CSSProperties = {
-  width: '100%', height: 46, padding: '0 14px', borderRadius: 10,
-  border: '1.5px solid #E5E7EB', fontSize: 15, color: '#111827',
-  outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit',
+const DOC_NUMBER_PATTERN: Record<DocType, RegExp> = {
+  NIN: /^\d{11}$/,
+  PASSPORT: /^[A-Z]{1,2}\d{6,8}$/i,
+  DRIVER_LICENSE: /^[A-Z0-9]{6,20}$/i,
 }
+
+const DOC_NUMBER_HINT: Record<DocType, string> = {
+  NIN: '11 digits',
+  PASSPORT: '1-2 letters followed by 6-8 digits',
+  DRIVER_LICENSE: '6-20 alphanumeric characters',
+}
+
+const inp: React.CSSProperties = { width: '100%', height: 46, padding: '0 14px', borderRadius: 10, border: '1.5px solid #E5E7EB', fontSize: 15, color: '#111827', outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit' }
 
 export default function IdentityVerificationPage() {
   const router = useRouter()
   const supabase = createSupabase()
+  const cameraRef = useRef<HTMLVideoElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
 
   const [docType, setDocType] = useState<DocType>('NIN')
   const [docNumber, setDocNumber] = useState('')
@@ -43,45 +53,93 @@ export default function IdentityVerificationPage() {
   const [frontPreview, setFrontPreview] = useState('')
   const [backFile, setBackFile] = useState<File | null>(null)
   const [backPreview, setBackPreview] = useState('')
-  const [selfieFile, setSelfieFile] = useState<File | null>(null)
+  const [selfieBlob, setSelfieBlob] = useState<Blob | null>(null)
   const [selfiePreview, setSelfiePreview] = useState('')
+  const [cameraActive, setCameraActive] = useState(false)
+  const [cameraStream, setCameraStream] = useState<MediaStream | null>(null)
 
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
 
-  // Relaxed validation — just requires something is entered
+  // ── Step 1: Validate doc number ────────────────────────
   const validateNumber = () => {
     const val = docNumber.trim()
-    if (!val) {
-      setDocNumberError('Please enter your ' + DOC_NUMBER_LABELS[docType])
+    if (!val) { setDocNumberError('Please enter your ' + DOC_NUMBER_LABELS[docType]); return false }
+    if (!DOC_NUMBER_PATTERN[docType].test(val)) {
+      setDocNumberError(`Invalid format. ${DOC_NUMBER_HINT[docType]}`)
       return false
     }
     setDocNumberError('')
     return true
   }
 
-  const pickFile = (
-    setter: (f: File) => void,
-    previewSetter: (s: string) => void
-  ) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    if (file.size > 5 * 1024 * 1024) { setError('File must be under 5MB'); return }
-    setter(file)
-    previewSetter(URL.createObjectURL(file))
+  const goToUpload = () => { if (validateNumber()) setStep('upload') }
+
+  // ── File picker ────────────────────────────────────────
+  const pickFile = (setter: (f: File) => void, previewSetter: (s: string) => void) =>
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0]
+      if (!file) return
+      if (file.size > 5 * 1024 * 1024) { setError('File must be under 5MB'); return }
+      setter(file)
+      previewSetter(URL.createObjectURL(file))
+      setError('')
+    }
+
+  // ── Camera ─────────────────────────────────────────────
+  const startCamera = async () => {
     setError('')
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
+        audio: false,
+      })
+      setCameraStream(stream)
+      setCameraActive(true)
+      setTimeout(() => {
+        if (cameraRef.current) {
+          cameraRef.current.srcObject = stream
+          cameraRef.current.play()
+        }
+      }, 100)
+    } catch {
+      setError('Could not access camera. Please allow camera permission and try again, or upload a selfie photo instead.')
+    }
   }
 
+  const stopCamera = () => {
+    cameraStream?.getTracks().forEach(t => t.stop())
+    setCameraStream(null)
+    setCameraActive(false)
+  }
+
+  const captureSelfie = () => {
+    if (!cameraRef.current || !canvasRef.current) return
+    const video = cameraRef.current
+    const canvas = canvasRef.current
+    canvas.width = video.videoWidth
+    canvas.height = video.videoHeight
+    canvas.getContext('2d')?.drawImage(video, 0, 0)
+    canvas.toBlob(blob => {
+      if (blob) {
+        setSelfieBlob(blob)
+        setSelfiePreview(URL.createObjectURL(blob))
+        stopCamera()
+      }
+    }, 'image/jpeg', 0.9)
+  }
+
+  // ── Submit ─────────────────────────────────────────────
   const handleSubmit = async () => {
     if (!frontFile) { setError('Please upload the front of your document'); return }
-    if (!selfieFile) { setError('Please upload a selfie or photo'); return }
+    if (!selfieBlob && !selfiePreview) { setError('Please take a selfie or upload a photo'); return }
     setIsLoading(true)
     setError('')
     try {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) throw new Error('Not authenticated')
 
-      const upload = async (file: File, path: string) => {
+      const upload = async (file: File | Blob, path: string) => {
         const { error } = await supabase.storage.from('kyc-documents').upload(path, file, { upsert: true })
         if (error) throw error
         return supabase.storage.from('kyc-documents').getPublicUrl(path).data.publicUrl
@@ -90,7 +148,8 @@ export default function IdentityVerificationPage() {
       const ts = Date.now()
       const frontUrl = await upload(frontFile, `${user.id}/front-${ts}`)
       const backUrl = backFile ? await upload(backFile, `${user.id}/back-${ts}`) : null
-      const selfieUrl = await upload(selfieFile, `${user.id}/selfie-${ts}`)
+      const selfieFile = selfieBlob ? new File([selfieBlob], 'selfie.jpg', { type: 'image/jpeg' }) : null
+      const selfieUrl = selfieFile ? await upload(selfieFile, `${user.id}/selfie-${ts}`) : null
 
       await supabase.from('kyc_submissions').upsert({
         user_id: user.id,
@@ -104,22 +163,17 @@ export default function IdentityVerificationPage() {
       })
 
       setStep('done')
-    } catch {
+    } catch (e: any) {
       setError('Could not upload your documents. Please try again.')
     } finally {
       setIsLoading(false)
     }
   }
 
-  const card: React.CSSProperties = {
-    background: 'white', borderRadius: 16, padding: '20px 20px',
-    border: '1px solid #F3F4F6', marginBottom: 12,
-  }
-  const lbl: React.CSSProperties = {
-    display: 'block', fontSize: 12, fontWeight: 700, color: '#374151',
-    marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.4,
-  }
+  const card: React.CSSProperties = { background: 'white', borderRadius: 16, padding: '20px 20px', border: '1px solid #F3F4F6', marginBottom: 12 }
+  const lbl: React.CSSProperties = { display: 'block', fontSize: 12, fontWeight: 700, color: '#374151', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.4 }
 
+  // ── DONE ──────────────────────────────────────────────
   if (step === 'done') return (
     <div style={{ minHeight: '100vh', background: '#F9FAFB', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, fontFamily: 'system-ui,sans-serif' }}>
       <div style={{ maxWidth: 460, width: '100%', background: 'white', borderRadius: 20, padding: '40px 28px', boxShadow: '0 2px 24px rgba(0,0,0,0.08)', textAlign: 'center' }}>
@@ -142,16 +196,7 @@ export default function IdentityVerificationPage() {
     <div style={{ minHeight: '100vh', background: '#F9FAFB', fontFamily: 'system-ui,sans-serif', padding: '32px 16px' }}>
       <div style={{ maxWidth: 520, margin: '0 auto' }}>
 
-        {/* UAT notice */}
-        <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 10, padding: '10px 14px', marginBottom: 20, display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-          <span style={{ fontSize: 16, flexShrink: 0 }}>🧪</span>
-          <div>
-            <p style={{ fontSize: 13, fontWeight: 600, color: '#92400E', marginBottom: 2 }}>Testing Mode — This step is optional</p>
-            <p style={{ fontSize: 12, color: '#B45309', lineHeight: 1.5 }}>No real ID required. You can use any sample text and upload any image to test this flow.</p>
-          </div>
-        </div>
-
-        {/* Progress header */}
+        {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24 }}>
           <button onClick={() => step === 'number' ? router.push('/dashboard/settings') : setStep(step === 'upload' ? 'number' : 'upload')}
             style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B7280', padding: 0, display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
@@ -198,9 +243,10 @@ export default function IdentityVerificationPage() {
                 placeholder={DOC_NUMBER_PLACEHOLDER[docType]}
                 value={docNumber}
                 onChange={e => { setDocNumber(e.target.value); setDocNumberError('') }}
-                onKeyDown={e => e.key === 'Enter' && validateNumber() && setStep('upload')}
+                onKeyDown={e => e.key === 'Enter' && goToUpload()}
               />
               {docNumberError && <p style={{ fontSize: 12, color: '#EF4444', marginTop: 5 }}>{docNumberError}</p>}
+              <p style={{ fontSize: 11, color: '#9CA3AF', marginTop: 5 }}>Format: {DOC_NUMBER_HINT[docType]}</p>
             </div>
 
             <div style={{ display: 'flex', gap: 10 }}>
@@ -208,7 +254,7 @@ export default function IdentityVerificationPage() {
                 style={{ flex: 1, height: 48, background: 'none', border: '1px solid #E5E7EB', borderRadius: 12, fontSize: 14, fontWeight: 500, color: '#6B7280', cursor: 'pointer' }}>
                 Cancel
               </button>
-              <button onClick={() => { if (validateNumber()) setStep('upload') }}
+              <button onClick={goToUpload}
                 style={{ flex: 2, height: 48, background: '#7C3AED', color: 'white', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
                 Continue →
               </button>
@@ -220,16 +266,16 @@ export default function IdentityVerificationPage() {
         {step === 'upload' && (
           <div>
             <h2 style={{ fontSize: 22, fontWeight: 800, color: '#111827', marginBottom: 6 }}>Upload Your Document</h2>
-            <p style={{ fontSize: 14, color: '#6B7280', marginBottom: 24 }}>Upload a photo of your {DOC_LABELS[docType]}. Any image will work for testing.</p>
+            <p style={{ fontSize: 14, color: '#6B7280', marginBottom: 24 }}>Upload a clear photo of your {DOC_LABELS[docType]}.</p>
 
             {[
-              { label: 'Front of Document *', file: frontFile, preview: frontPreview, setter: (f: File) => setFrontFile(f), previewSetter: (s: string) => setFrontPreview(s), required: true },
-              { label: 'Back of Document', file: backFile, preview: backPreview, setter: (f: File) => setBackFile(f), previewSetter: (s: string) => setBackPreview(s), required: false },
-            ].map(({ label, file, preview, setter, previewSetter, required }) => (
+              { label: 'Front of Document *', file: frontFile, preview: frontPreview, onChange: pickFile(f => setFrontFile(f), s => setFrontPreview(s)), required: true },
+              { label: 'Back of Document', file: backFile, preview: backPreview, onChange: pickFile(f => setBackFile(f), s => setBackPreview(s)), required: false },
+            ].map(({ label, file, preview, onChange, required }) => (
               <div key={label} style={card}>
                 <label style={lbl}>{label}</label>
                 <label style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: `2px dashed ${file ? '#22C55E' : '#E5E7EB'}`, borderRadius: 10, padding: 20, cursor: 'pointer', background: file ? '#F0FDF4' : '#F9FAFB', minHeight: 100 }}>
-                  <input type="file" accept="image/*,.pdf" style={{ display: 'none' }} onChange={pickFile(setter, previewSetter)} />
+                  <input type="file" accept="image/*,.pdf" style={{ display: 'none' }} onChange={onChange} />
                   {preview ? (
                     <img src={preview} alt="preview" style={{ maxHeight: 120, borderRadius: 6, objectFit: 'contain' }} />
                   ) : (
@@ -256,49 +302,67 @@ export default function IdentityVerificationPage() {
           </div>
         )}
 
-        {/* ── STEP 3: Selfie upload (no camera required) ── */}
+        {/* ── STEP 3: Selfie via camera ── */}
         {step === 'selfie' && (
           <div>
-            <h2 style={{ fontSize: 22, fontWeight: 800, color: '#111827', marginBottom: 6 }}>Upload a Selfie</h2>
-            <p style={{ fontSize: 14, color: '#6B7280', marginBottom: 20 }}>Upload a photo of yourself. Any clear photo works for testing.</p>
+            <h2 style={{ fontSize: 22, fontWeight: 800, color: '#111827', marginBottom: 6 }}>Take a Selfie</h2>
+            <p style={{ fontSize: 14, color: '#6B7280', marginBottom: 20 }}>Take a live photo of yourself holding your document. This confirms your identity.</p>
 
             <div style={card}>
-              <label style={lbl}>Selfie Photo *</label>
-              <label style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: `2px dashed ${selfieFile ? '#22C55E' : '#E5E7EB'}`, borderRadius: 10, padding: 24, cursor: 'pointer', background: selfieFile ? '#F0FDF4' : '#F9FAFB', minHeight: 140 }}>
-                <input type="file" accept="image/*" capture="user" style={{ display: 'none' }}
-                  onChange={e => {
-                    const f = e.target.files?.[0]
-                    if (!f) return
-                    if (f.size > 5 * 1024 * 1024) { setError('File must be under 5MB'); return }
-                    setSelfieFile(f)
-                    setSelfiePreview(URL.createObjectURL(f))
-                    setError('')
-                  }} />
-                {selfiePreview ? (
-                  <div style={{ textAlign: 'center' }}>
-                    <img src={selfiePreview} alt="selfie" style={{ maxHeight: 200, borderRadius: 10, objectFit: 'cover', marginBottom: 10 }} />
-                    <p style={{ fontSize: 12, color: '#7C3AED', textDecoration: 'underline' }}>Tap to change photo</p>
+              {selfiePreview ? (
+                <div style={{ textAlign: 'center' }}>
+                  <img src={selfiePreview} alt="selfie" style={{ width: '100%', maxHeight: 280, objectFit: 'cover', borderRadius: 10, marginBottom: 12 }} />
+                  <button onClick={() => { setSelfieBlob(null); setSelfiePreview('') }}
+                    style={{ fontSize: 13, color: '#7C3AED', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>
+                    Retake photo
+                  </button>
+                </div>
+              ) : cameraActive ? (
+                <div style={{ textAlign: 'center' }}>
+                  <video ref={cameraRef} style={{ width: '100%', borderRadius: 10, marginBottom: 12, background: '#000', maxHeight: 280 }} autoPlay muted playsInline />
+                  <canvas ref={canvasRef} style={{ display: 'none' }} />
+                  <div style={{ display: 'flex', gap: 10 }}>
+                    <button onClick={stopCamera}
+                      style={{ flex: 1, height: 44, background: 'none', border: '1px solid #E5E7EB', borderRadius: 10, fontSize: 13, fontWeight: 500, color: '#6B7280', cursor: 'pointer' }}>
+                      Cancel
+                    </button>
+                    <button onClick={captureSelfie}
+                      style={{ flex: 2, height: 44, background: '#7C3AED', color: 'white', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
+                      📸 Capture
+                    </button>
                   </div>
-                ) : (
-                  <>
-                    <div style={{ fontSize: 40, marginBottom: 10 }}>🤳</div>
-                    <p style={{ fontSize: 14, color: '#374151', fontWeight: 500, marginBottom: 4 }}>Tap to upload or take a photo</p>
-                    <p style={{ fontSize: 12, color: '#9CA3AF' }}>JPG or PNG · Max 5MB</p>
-                  </>
-                )}
-              </label>
+                </div>
+              ) : (
+                <div style={{ textAlign: 'center', padding: '16px 0' }}>
+                  <div style={{ fontSize: 48, marginBottom: 12 }}>🤳</div>
+                  <p style={{ fontSize: 14, color: '#374151', fontWeight: 500, marginBottom: 6 }}>Open your camera to take a selfie</p>
+                  <p style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 20, lineHeight: 1.5 }}>Hold your ID document next to your face</p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    <button onClick={startCamera}
+                      style={{ height: 46, background: '#7C3AED', color: 'white', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
+                      📷 Open Camera
+                    </button>
+                    <label style={{ display: 'block', textAlign: 'center', padding: '12px', border: '1px solid #E5E7EB', borderRadius: 10, fontSize: 13, color: '#6B7280', cursor: 'pointer' }}>
+                      <input type="file" accept="image/*" capture="user" style={{ display: 'none' }}
+                        onChange={e => {
+                          const f = e.target.files?.[0]
+                          if (f) { setSelfieBlob(f); setSelfiePreview(URL.createObjectURL(f)) }
+                        }} />
+                      Or upload a photo instead
+                    </label>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div style={{ display: 'flex', gap: 10 }}>
-              <button onClick={() => setStep('upload')}
+              <button onClick={() => { stopCamera(); setStep('upload') }}
                 style={{ flex: 1, height: 48, background: 'none', border: '1px solid #E5E7EB', borderRadius: 12, fontSize: 14, fontWeight: 500, color: '#6B7280', cursor: 'pointer' }}>
                 Back
               </button>
-              <button onClick={handleSubmit} disabled={isLoading || !selfieFile}
-                style={{ flex: 2, height: 48, background: '#7C3AED', color: 'white', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: isLoading ? 'not-allowed' : 'pointer', opacity: !selfieFile ? 0.5 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                {isLoading
-                  ? <><span style={{ width: 16, height: 16, border: '2px solid white', borderTopColor: 'transparent', borderRadius: '50%', display: 'inline-block', animation: 'spin .7s linear infinite' }} />Submitting...</>
-                  : 'Submit Verification'}
+              <button onClick={handleSubmit} disabled={isLoading || (!selfieBlob && !selfiePreview)}
+                style={{ flex: 2, height: 48, background: '#7C3AED', color: 'white', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: isLoading ? 'not-allowed' : 'pointer', opacity: (!selfieBlob && !selfiePreview) ? 0.5 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                {isLoading ? <><span style={{ width: 16, height: 16, border: '2px solid white', borderTopColor: 'transparent', borderRadius: '50%', display: 'inline-block', animation: 'spin .7s linear infinite' }} />Submitting...</> : 'Submit Verification'}
               </button>
             </div>
           </div>
