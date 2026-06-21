@@ -481,20 +481,8 @@ export default function LandingPage() {
       <section id="contact" style={{ background: '#FFFFFF', padding: '52px 20px' }}>
         <div style={{ maxWidth: 520, margin: '0 auto', textAlign: 'center' }}>
           <h2 style={{ fontSize: 'clamp(20px,3vw,30px)', fontWeight: 800, color: '#111827', marginBottom: 6 }}>Get in touch</h2>
-          <div style={{ background: 'white', borderRadius: 14, padding: '20px', border: 'none', textAlign: 'left', boxShadow: '0 4px 24px rgba(0,0,0,0.15)' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
-              <div>
-                <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: '#374151', marginBottom: 5 }}>Name</label>
-                <input placeholder="Your name" style={{ width: '100%', height: 40, padding: '0 12px', borderRadius: 8, border: '1px solid #E5E7EB', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
-              </div>
-              <div>
-                <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: '#374151', marginBottom: 5 }}>Email</label>
-                <input type="email" placeholder="you@example.com" style={{ width: '100%', height: 40, padding: '0 12px', borderRadius: 8, border: '1px solid #E5E7EB', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
-              </div>
-            </div>
-            <textarea placeholder="How can we help?" rows={3} style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #E5E7EB', fontSize: 13, outline: 'none', boxSizing: 'border-box', resize: 'none', fontFamily: 'inherit', marginBottom: 10 }} />
-
-          </div>
+          <p style={{ fontSize: 14, color: '#6B7280', marginBottom: 20 }}>Have a question? We would love to hear from you.</p>
+          <ContactForm />
         </div>
       </section>
 
