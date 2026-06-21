@@ -13,12 +13,6 @@ export default function AdminHeader({
   const router = useRouter()
   const supabase = createClient()
   const [dark, setDark] = useState(false)
-
-  // Read localStorage only after mount — never during SSR
-  useEffect(() => {
-    setDark(localStorage.getItem('amana-admin-theme') === 'dark')
-  }, [])
-
   const [notifOpen, setNotifOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
   const [notifications, setNotifications] = useState<any[]>([])
@@ -40,10 +34,9 @@ export default function AdminHeader({
     loadNotifs()
   }, [])
 
-  // Apply dark mode and persist preference
+  // Apply dark mode
   useEffect(() => {
     document.documentElement.setAttribute('data-admin-theme', dark ? 'dark' : 'light')
-    localStorage.setItem('amana-admin-theme', dark ? 'dark' : 'light')
   }, [dark])
 
   // Close panels when clicking outside

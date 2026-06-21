@@ -4,46 +4,41 @@ import Link from 'next/link'
 export default async function AdminOverviewPage() {
   const db = getAdminSupabase()
 
-  // All queries individually protected — a missing table won't crash the whole page
   const [
-    bizResult,
-    kycResult,
-    invResult,
-    payResult,
-    apptResult,
-    custResult,
-    supportResult,
-    activityResult,
-    recentKycResult,
-    paidPayResult,
+    { count: totalBiz },
+    { count: pendingKyc },
+    { count: totalInv },
+    { count: totalPay },
+    { count: totalAppt },
+    { count: totalUsers },
+    { count: totalSupport },
+    recentActivityResult,
+    { data: recentKyc },
   ] = await Promise.all([
-    db.from('workspaces').select('*', { count: 'exact', head: true }).catch(() => ({ count: 0 })),
-    db.from('kyc_submissions').select('*', { count: 'exact', head: true }).eq('status', 'PENDING').catch(() => ({ count: 0 })),
-    db.from('invoices').select('*', { count: 'exact', head: true }).catch(() => ({ count: 0 })),
-    db.from('payments').select('*', { count: 'exact', head: true }).catch(() => ({ count: 0 })),
-    db.from('appointments').select('*', { count: 'exact', head: true }).catch(() => ({ count: 0 })),
-    db.from('customers').select('*', { count: 'exact', head: true }).catch(() => ({ count: 0 })),
-    db.from('support_messages').select('*', { count: 'exact', head: true }).eq('status', 'OPEN').catch(() => ({ count: 0 })),
-    db.from('activity_logs').select('action,entity_type,created_at,metadata').order('created_at', { ascending: false }).limit(10).catch(() => ({ data: [] })),
-    db.from('kyc_submissions').select('id,document_type,status,submitted_at,user_id').eq('status', 'PENDING').order('submitted_at', { ascending: false }).limit(5).catch(() => ({ data: [] })),
-    db.from('payments').select('amount').eq('status', 'SUCCESS').catch(() => ({ data: [] })),
+    db.from('workspaces').select('*', { count: 'exact', head: true }),
+    db.from('kyc_submissions').select('*', { count: 'exact', head: true }).eq('status', 'PENDING'),
+    db.from('invoices').select('*', { count: 'exact', head: true }),
+    db.from('payments').select('*', { count: 'exact', head: true }),
+    db.from('appointments').select('*', { count: 'exact', head: true }),
+    db.from('customers').select('*', { count: 'exact', head: true }),
+    db.from('support_messages').select('*', { count: 'exact', head: true }).eq('status', 'OPEN'),
+    db.from('activity_logs').select('action,entity_type,created_at,metadata').order('created_at', { ascending: false }).limit(10).catch(() => ({ data: null })),
+    db.from('kyc_submissions').select('id,document_type,status,submitted_at,user_id').eq('status', 'PENDING').order('submitted_at', { ascending: false }).limit(5),
   ])
 
-  const totalRevenue = (paidPayResult.data || []).reduce((s: number, p: any) => s + Number(p.amount), 0)
+  const { data: paidPayments } = await db.from('payments').select('amount').eq('status', 'SUCCESS')
+  const totalRevenue = (paidPayments || []).reduce((s, p) => s + Number(p.amount), 0)
 
   const stats = [
-    { label: 'Total Businesses', value: bizResult.count ?? 0,     color: '#3B82F6', link: '/admin/businesses' },
-    { label: 'Pending KYC',      value: kycResult.count ?? 0,     color: '#F59E0B', link: '/admin/kyc' },
-    { label: 'Total Invoices',   value: invResult.count ?? 0,     color: '#7C3AED', link: '/admin/invoices' },
-    { label: 'Total Payments',   value: payResult.count ?? 0,     color: '#22C55E', link: '/admin/payments' },
-    { label: 'Appointments',     value: apptResult.count ?? 0,    color: '#EC4899', link: '/admin/businesses' },
-    { label: 'Open Support',     value: supportResult.count ?? 0, color: '#EF4444', link: '/admin/support' },
-    { label: 'Total Revenue',    value: '₦' + totalRevenue.toLocaleString(), color: '#16A34A', link: '/admin/payments' },
-    { label: 'Total Customers',  value: custResult.count ?? 0,    color: '#0EA5E9', link: '/admin/users' },
+    { label: 'Total Businesses',   value: totalBiz ?? 0,      color: '#3B82F6', link: '/admin/businesses' },
+    { label: 'Pending KYC',        value: pendingKyc ?? 0,    color: '#F59E0B', link: '/admin/kyc' },
+    { label: 'Total Invoices',     value: totalInv ?? 0,      color: '#7C3AED', link: '/admin/invoices' },
+    { label: 'Total Payments',     value: totalPay ?? 0,      color: '#22C55E', link: '/admin/payments' },
+    { label: 'Appointments',       value: totalAppt ?? 0,     color: '#EC4899', link: '/admin/businesses' },
+    { label: 'Open Support',       value: totalSupport ?? 0,  color: '#EF4444', link: '/admin/support' },
+    { label: 'Total Revenue',      value: '₦' + (totalRevenue).toLocaleString(), color: '#16A34A', link: '/admin/payments' },
+    { label: 'Total Customers',     value: totalUsers ?? 0,   color: '#0EA5E9', link: '/admin/users' },
   ]
-
-  const recentKyc = recentKycResult.data || []
-  const recentActivity = activityResult.data || []
 
   return (
     <div>
@@ -69,9 +64,9 @@ export default async function AdminOverviewPage() {
             <p style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>Pending KYC Reviews</p>
             <Link href="/admin/kyc" style={{ fontSize: 12, color: '#7C3AED', textDecoration: 'none', fontWeight: 600 }}>View all →</Link>
           </div>
-          {recentKyc.length === 0 ? (
+          {(recentKyc || []).length === 0 ? (
             <div style={{ padding: '24px 20px', textAlign: 'center', color: '#94A3B8', fontSize: 13 }}>No pending submissions</div>
-          ) : recentKyc.map((k: any) => (
+          ) : (recentKyc || []).map((k: any) => (
             <Link key={k.id} href={`/admin/kyc?id=${k.id}`}
               style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 20px', borderBottom: '1px solid #F8FAFC', textDecoration: 'none' }}>
               <div>
@@ -89,12 +84,12 @@ export default async function AdminOverviewPage() {
             <p style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>Recent Activity</p>
             <Link href="/admin/logs" style={{ fontSize: 12, color: '#7C3AED', textDecoration: 'none', fontWeight: 600 }}>View all →</Link>
           </div>
-          {recentActivity.length === 0 ? (
+          {(recentActivityResult?.data || []).length === 0 ? (
             <div style={{ padding: '24px 20px', textAlign: 'center', color: '#94A3B8', fontSize: 13 }}>No recent activity</div>
-          ) : recentActivity.map((a: any, i: number) => (
+          ) : (recentActivityResult?.data || []).map((a: any, i: number) => (
             <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 20px', borderBottom: '1px solid #F8FAFC' }}>
               <div>
-                <p style={{ fontSize: 12, fontWeight: 600, color: '#1E293B' }}>{a.action.replace(/_/g, ' ')}</p>
+                <p style={{ fontSize: 12, fontWeight: 600, color: '#1E293B' }}>{a.action.replace(/_/g,' ')}</p>
                 <p style={{ fontSize: 11, color: '#94A3B8' }}>{a.entity_type}</p>
               </div>
               <p style={{ fontSize: 11, color: '#94A3B8' }}>{new Date(a.created_at).toLocaleDateString('en-NG', { day: 'numeric', month: 'short' })}</p>

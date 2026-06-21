@@ -12,43 +12,12 @@ export async function GET(req: NextRequest) {
   const status = req.nextUrl.searchParams.get('status') || 'PENDING'
   const db = getAdminSupabase()
 
-  const { data: subs } = await db
-    .from('kyc_submissions')
-    .select('*')
-    .eq('status', status)
-    .order('submitted_at', { ascending: false })
+  const { data: subs } = await db.from('kyc_submissions').select('*').eq('status', status).order('submitted_at', { ascending: false })
 
-  if (!subs || subs.length === 0) {
-    return NextResponse.json({ submissions: [] })
-  }
-
-  // Batch fetch all user emails in one call instead of N individual calls
-  const userIds = [...new Set(subs.map((s: any) => s.user_id).filter(Boolean))]
-
-  const emailMap: Record<string, string> = {}
-  try {
-    // Fetch users in parallel batches of 10 to stay within rate limits
-    const BATCH = 10
-    for (let i = 0; i < userIds.length; i += BATCH) {
-      const batch = userIds.slice(i, i + BATCH)
-      const results = await Promise.all(
-        batch.map((uid: string) =>
-          db.auth.admin.getUserById(uid).catch(() => ({ data: { user: null } }))
-        )
-      )
-      results.forEach((r: any, idx: number) => {
-        if (r.data?.user?.email) {
-          emailMap[batch[idx]] = r.data.user.email
-        }
-      })
-    }
-  } catch {
-    // Non-fatal — submissions still show, just without emails
-  }
-
-  const enriched = subs.map((s: any) => ({
-    ...s,
-    user_email: emailMap[s.user_id] || '—',
+  // Attach user emails
+  const enriched = await Promise.all((subs || []).map(async (s: any) => {
+    const { data: { user } } = await db.auth.admin.getUserById(s.user_id).catch(() => ({ data: { user: null } }))
+    return { ...s, user_email: user?.email || '—' }
   }))
 
   return NextResponse.json({ submissions: enriched })
