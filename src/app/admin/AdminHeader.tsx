@@ -12,12 +12,13 @@ export default function AdminHeader({
 }) {
   const router = useRouter()
   const supabase = createClient()
-  const [dark, setDark] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('amana-admin-theme') === 'dark'
-    }
-    return false
-  })
+  const [dark, setDark] = useState(false)
+
+  // Read localStorage only after mount — never during SSR
+  useEffect(() => {
+    setDark(localStorage.getItem('amana-admin-theme') === 'dark')
+  }, [])
+
   const [notifOpen, setNotifOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
   const [notifications, setNotifications] = useState<any[]>([])
