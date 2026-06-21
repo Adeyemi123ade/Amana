@@ -35,8 +35,8 @@ export default function AdminSidebar({
       {/* Logo — hidden on mobile (shown in header) */}
       <div style={{ padding: '16px 14px 12px', borderBottom: '1px solid rgba(255,255,255,0.1)' }} className="sidebar-logo-area">
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div style={{ width: 28, height: 28, background: '#7C3AED', borderRadius: 7, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z" fill="white"/></svg>
+          <div style={{ width: 36, height: 36, background: '#7C3AED', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="7" height="7" rx="1.5" fill="white"/><rect x="11" y="2" width="7" height="7" rx="1.5" fill="white"/><rect x="2" y="11" width="7" height="7" rx="1.5" fill="white"/><rect x="11" y="11" width="7" height="7" rx="1.5" fill="white"/></svg>
           </div>
           <div>
             <span style={{ color: 'white', fontWeight: 800, fontSize: 14 }}>Amana</span>

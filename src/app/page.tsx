@@ -131,7 +131,7 @@ function ContactForm() {
       <div style={{ fontSize: 40, marginBottom: 12 }}>✅</div>
       <p style={{ fontSize: 16, fontWeight: 700, color: '#16A34A', marginBottom: 4 }}>Message sent!</p>
       <p style={{ fontSize: 13, color: '#15803D' }}>We will get back to you soon. A copy has been sent to your email.</p>
-      <p style={{ fontSize: 11, color: '#86EFAC', marginTop: 8 }}>This form will reset in 10 seconds</p>
+
     </div>
   )
 
