@@ -18,7 +18,7 @@ export default function ReportsPage() {
   useEffect(() => {
     const load = async () => {
       const { data: { user } } = await supabase.auth.getUser()
-      const { data: ws } = await supabase.from('workspaces').select('*').eq('created_by', user?.id).single()
+      const { data: ws } = await supabase.from('workspaces').select('*').eq('created_by', user?.id).maybeSingle()
       setWorkspace(ws)
       if (ws) {
         const [{ data: inv }, { data: pay }, { data: cust }] = await Promise.all([

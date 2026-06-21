@@ -36,7 +36,7 @@ export default function RemindersPage() {
       try {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { setLoadError('Please sign in to access reminders.'); setLoading(false); return }
-      const { data: ws, error: wsErr } = await supabase.from('workspaces').select('id').eq('created_by', user.id).single()
+      const { data: ws, error: wsErr } = await supabase.from('workspaces').select('id').eq('created_by', user.id).maybeSingle()
       if (wsErr || !ws) { setLoadError('Could not load your workspace. Please refresh the page.'); setLoading(false); return }
       setWsId(ws.id)
 

@@ -17,7 +17,7 @@ export default function CustomerNotes({ customerId, initialNotes }: { customerId
     setError('')
     const { data, error: err } = await supabase
       .from('customer_notes')
-      .insert({ customer_id: customerId, content: text.trim() })
+      .insert({ customer_id: customerId, note: text.trim() })
       .select()
       .single()
     if (err) {
@@ -62,7 +62,7 @@ export default function CustomerNotes({ customerId, initialNotes }: { customerId
       ) : notes.map(note => (
         <div key={note.id} style={{ padding: '10px 0', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10 }}>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <p style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.6, marginBottom: 4 }}>{note.content}</p>
+            <p style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.6, marginBottom: 4 }}>{note.note}</p>
             <p style={{ fontSize: 11, color: 'var(--text-muted)' }}>
               {new Date(note.created_at).toLocaleDateString('en-NG', { month: 'short', day: 'numeric', year: 'numeric' })}
             </p>

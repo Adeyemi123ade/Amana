@@ -31,7 +31,7 @@ export default function InvoicesPage() {
   useEffect(() => {
     const load = async () => {
       const { data: { user } } = await supabase.auth.getUser()
-      const { data: ws } = await supabase.from('workspaces').select('id,currency').eq('created_by', user?.id).single()
+      const { data: ws } = await supabase.from('workspaces').select('id,currency').eq('created_by', user?.id).maybeSingle()
       setWorkspace(ws)
       if (ws) await fetchInvoices(ws.id, 0, '', 'All')
     }

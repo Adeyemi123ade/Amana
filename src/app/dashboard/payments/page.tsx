@@ -18,7 +18,7 @@ export default function PaymentsPage() {
   useEffect(() => {
     const load = async () => {
       const { data: { user } } = await supabase.auth.getUser()
-      const { data: ws } = await supabase.from('workspaces').select('id,currency').eq('created_by', user?.id).single()
+      const { data: ws } = await supabase.from('workspaces').select('id,currency').eq('created_by', user?.id).maybeSingle()
       setWorkspace(ws)
       if (ws) await fetch_(ws.id, 0, '')
     }
