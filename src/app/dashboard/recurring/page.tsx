@@ -35,9 +35,15 @@ export default function RecurringPage() {
       if (!ws) return
       const [{ data: rr }, { data: cc }] = await Promise.all([
         supabase.from('recurring_invoices').select('*').eq('workspace_id', ws.id).order('created_at', { ascending: false }),
-        supabase.from('customers').select('id,name').eq('workspace_id', ws.id).order('name'),
+        supabase.from('customers').select('id,name,email').eq('workspace_id', ws.id).order('name'),
       ])
-      setRules(rr || [])
+      // Merge customer names into rules — Supabase joins unreliable on this schema
+      const custMap = Object.fromEntries((cc || []).map((c: any) => [c.id, c]))
+      const rulesWithCustomers = (rr || []).map((r: any) => ({
+        ...r,
+        customers: custMap[r.customer_id] || null,
+      }))
+      setRules(rulesWithCustomers)
       setCustomers(cc || [])
       setLoading(false)
     }
