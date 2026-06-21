@@ -365,3 +365,13 @@ body {
 .no-transition, .no-transition * {
   transition: none !important;
 }
+
+/* Admin hamburger — only visible on mobile */
+.mobile-hamburger {
+  display: none !important;
+}
+@media (max-width: 899px) {
+  .mobile-hamburger {
+    display: flex !important;
+  }
+}

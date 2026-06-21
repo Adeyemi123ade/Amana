@@ -109,19 +109,20 @@ export default function AdminHeader({
   return (
     <>
       <header style={hd}>
-        {/* Left: hamburger + logo */}
+        {/* Left: hamburger (mobile only) + logo */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <button onClick={onMenuClick}
+            className="mobile-hamburger"
             style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex', flexDirection: 'column', gap: 4 }}>
             {[0,1,2].map(i => (
               <span key={i} style={{ width: 20, height: 2, background: dark ? 'rgba(255,255,255,0.7)' : '#334155', borderRadius: 2, display: 'block' }}/>
             ))}
           </button>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <div style={{ width: 28, height: 28, background: '#7C3AED', borderRadius: 7, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z" fill="white"/></svg>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ width: 36, height: 36, background: '#7C3AED', borderRadius: 9, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z" fill="white"/></svg>
             </div>
-            <span style={{ fontWeight: 800, fontSize: 15, color: dark ? 'white' : '#0F172A' }}>Amana</span>
+            <span style={{ fontWeight: 800, fontSize: 20, color: dark ? 'white' : '#0F172A', letterSpacing: '-0.3px' }}>Amana</span>
           </div>
         </div>
 
