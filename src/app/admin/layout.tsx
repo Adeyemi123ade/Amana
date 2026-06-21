@@ -1,9 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { getAdminSupabase } from '@/lib/admin-auth'
+import { getAdminSupabase, SUPER_ADMIN_EMAILS } from '@/lib/admin-auth'
 import AdminClientLayout from './AdminClientLayout'
-
-const SUPER_ADMIN_EMAILS = ['admin@kajolacooperative.com', 'admin@amana.app']
 
 export const metadata = { title: 'Amana Admin' }
 
@@ -12,8 +10,6 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const { data: { user } } = await supabase.auth.getUser()
   if (!user?.email) redirect('/sign-in')
 
-  // Get this admin's role from platform_admins
-  // Wrapped in try/catch — if table does not exist yet, super admins still get through
   const db = getAdminSupabase()
   let adminRow: any = null
   try {

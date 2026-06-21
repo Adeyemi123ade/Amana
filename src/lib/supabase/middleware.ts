@@ -1,9 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { type NextRequest, NextResponse } from 'next/server'
-
-// Hardcoded super admins — always have access regardless of DB state
-const SUPER_ADMIN_EMAILS = ['admin@kajolacooperative.com', 'admin@amana.app']
+import { SUPER_ADMIN_EMAILS } from '@/lib/admin-auth'
 
 // Check platform_admins table for invited/active admins
 async function checkPlatformAdmin(email: string): Promise<boolean> {
@@ -31,7 +29,6 @@ async function activatePendingAdmin(email: string, userId: string): Promise<bool
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     )
-    // Check if there's a pending (active=false) invite for this email
     const { data: pending } = await db
       .from('platform_admins')
       .select('id')
@@ -40,7 +37,6 @@ async function activatePendingAdmin(email: string, userId: string): Promise<bool
       .maybeSingle()
 
     if (pending) {
-      // Activate — they accepted the invite by registering
       await db
         .from('platform_admins')
         .update({ active: true, user_id: userId })
@@ -84,7 +80,7 @@ export const updateSession = async (request: NextRequest) => {
   if (pathname.startsWith('/admin')) {
     if (!user) return NextResponse.redirect(new URL('/sign-in', request.url))
 
-    // Super admins always allowed
+    // Super admins always allowed — skip DB call
     if (isSuperAdmin) return supabaseResponse
 
     // Check platform_admins table for invited admins
@@ -119,24 +115,20 @@ export const updateSession = async (request: NextRequest) => {
       return NextResponse.redirect(new URL('/verify-email', request.url))
     }
 
-    // Super admin → /admin
     if (isSuperAdmin) {
       return NextResponse.redirect(new URL('/admin', request.url))
     }
 
-    // Check if they are an active invited admin
     const isInvitedAdmin = await checkPlatformAdmin(user.email!)
     if (isInvitedAdmin) {
       return NextResponse.redirect(new URL('/admin', request.url))
     }
 
-    // Check if pending invite — activate and redirect to admin
     const activated = await activatePendingAdmin(user.email!, user.id)
     if (activated) {
       return NextResponse.redirect(new URL('/admin', request.url))
     }
 
-    // Regular customer → dashboard
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 

@@ -1,8 +1,10 @@
 import { createClient } from '@supabase/supabase-js'
 
-const SUPER_ADMIN_EMAILS = [
-  'admin@kajolacooperative.com',
+// Single source of truth for super admin emails.
+// Import this constant everywhere — never hardcode elsewhere.
+export const SUPER_ADMIN_EMAILS = [
   'admin@amana.app',
+  'admin@kajolacooperative.com',
 ]
 
 export function getAdminSupabase() {
@@ -12,7 +14,6 @@ export function getAdminSupabase() {
   )
 }
 
-// Quick check for hardcoded super admins only
 export function isAdminEmail(email: string | undefined): boolean {
   if (!email) return false
   return SUPER_ADMIN_EMAILS.includes(email.toLowerCase().trim())
