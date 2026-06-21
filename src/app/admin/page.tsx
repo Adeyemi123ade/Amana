@@ -15,15 +15,15 @@ export default async function AdminOverviewPage() {
     recentActivityResult,
     { data: recentKyc },
   ] = await Promise.all([
-    db.from('workspaces').select('*', { count: 'exact', head: true }),
-    db.from('kyc_submissions').select('*', { count: 'exact', head: true }).eq('status', 'PENDING'),
-    db.from('invoices').select('*', { count: 'exact', head: true }),
-    db.from('payments').select('*', { count: 'exact', head: true }),
-    db.from('appointments').select('*', { count: 'exact', head: true }),
-    db.from('customers').select('*', { count: 'exact', head: true }),
-    db.from('support_messages').select('*', { count: 'exact', head: true }).eq('status', 'OPEN'),
+    db.from('workspaces').select('*', { count: 'exact', head: true }).catch(() => ({ count: 0 })),
+    db.from('kyc_submissions').select('*', { count: 'exact', head: true }).eq('status', 'PENDING').catch(() => ({ count: 0 })),
+    db.from('invoices').select('*', { count: 'exact', head: true }).catch(() => ({ count: 0 })),
+    db.from('payments').select('*', { count: 'exact', head: true }).catch(() => ({ count: 0 })),
+    db.from('appointments').select('*', { count: 'exact', head: true }).catch(() => ({ count: 0 })),
+    db.from('customers').select('*', { count: 'exact', head: true }).catch(() => ({ count: 0 })),
+    db.from('support_messages').select('*', { count: 'exact', head: true }).eq('status', 'OPEN').catch(() => ({ count: 0 })),
     db.from('activity_logs').select('action,entity_type,created_at,metadata').order('created_at', { ascending: false }).limit(10).catch(() => ({ data: null })),
-    db.from('kyc_submissions').select('id,document_type,status,submitted_at,user_id').eq('status', 'PENDING').order('submitted_at', { ascending: false }).limit(5),
+    db.from('kyc_submissions').select('id,document_type,status,submitted_at,user_id').eq('status', 'PENDING').order('submitted_at', { ascending: false }).limit(5).catch(() => ({ data: [] })),
   ])
 
   const { data: paidPayments } = await db.from('payments').select('amount').eq('status', 'SUCCESS')
