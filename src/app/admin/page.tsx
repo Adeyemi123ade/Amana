@@ -58,23 +58,23 @@ export default async function AdminOverviewPage() {
   return (
     <div>
       <div style={{ marginBottom: 24 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 800, color: '#0F172A', marginBottom: 4 }}>Platform Overview</h1>
-        <p style={{ fontSize: 13, color: '#64748B' }}>Real-time view of all activity across the Amana platform</p>
+        <h1 style={{ fontSize: 22, fontWeight: 800, color: 'var(--admin-text, #0F172A)', marginBottom: 4 }}>Platform Overview</h1>
+        <p style={{ fontSize: 13, color: 'var(--admin-text-muted, #64748B)' }}>Real-time view of all activity across the Amana platform</p>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, marginBottom: 28 }}>
         {stats.map(s => (
-          <Link key={s.label} href={s.link} style={{ textDecoration: 'none', background: 'white', borderRadius: 12, padding: '18px 20px', border: '1px solid #E2E8F0', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', display: 'block' }}>
-            <p style={{ fontSize: 11, fontWeight: 600, color: '#64748B', textTransform: 'uppercase', letterSpacing: .5, marginBottom: 8 }}>{s.label}</p>
+          <Link key={s.label} href={s.link} style={{ textDecoration: 'none', background: 'var(--admin-card, white)', borderRadius: 12, padding: '18px 20px', border: '1px solid var(--admin-card-border, #E2E8F0)', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', display: 'block' }}>
+            <p style={{ fontSize: 11, fontWeight: 600, color: 'var(--admin-text-muted, #64748B)', textTransform: 'uppercase', letterSpacing: .5, marginBottom: 8 }}>{s.label}</p>
             <p style={{ fontSize: 26, fontWeight: 800, color: s.color }}>{s.value}</p>
           </Link>
         ))}
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
-        <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E2E8F0', overflow: 'hidden' }}>
+        <div style={{ background: 'var(--admin-card, white)', borderRadius: 12, border: '1px solid var(--admin-card-border, #E2E8F0)', overflow: 'hidden' }}>
           <div style={{ padding: '14px 20px', borderBottom: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <p style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>Pending KYC Reviews</p>
+            <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--admin-text, #0F172A)' }}>Pending KYC Reviews</p>
             <Link href="/admin/kyc" style={{ fontSize: 12, color: '#7C3AED', textDecoration: 'none', fontWeight: 600 }}>View all →</Link>
           </div>
           {recentKyc.length === 0 ? (
@@ -90,9 +90,9 @@ export default async function AdminOverviewPage() {
           ))}
         </div>
 
-        <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E2E8F0', overflow: 'hidden' }}>
+        <div style={{ background: 'var(--admin-card, white)', borderRadius: 12, border: '1px solid var(--admin-card-border, #E2E8F0)', overflow: 'hidden' }}>
           <div style={{ padding: '14px 20px', borderBottom: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <p style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>Recent Activity</p>
+            <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--admin-text, #0F172A)' }}>Recent Activity</p>
             <Link href="/admin/logs" style={{ fontSize: 12, color: '#7C3AED', textDecoration: 'none', fontWeight: 600 }}>View all →</Link>
           </div>
           {recentActivity.length === 0 ? (

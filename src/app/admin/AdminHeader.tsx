@@ -100,8 +100,8 @@ export default function AdminHeader({
 
   const hd: React.CSSProperties = {
     position: 'sticky', top: 0, zIndex: 100,
-    background: dark ? '#0F172A' : '#FFFFFF',
-    borderBottom: `1px solid ${dark ? 'rgba(255,255,255,0.08)' : '#E2E8F0'}`,
+    background: 'var(--admin-header, #FFFFFF)',
+    borderBottom: '1px solid var(--admin-header-border, #E2E8F0)',
     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
     padding: '0 16px', height: 56, flexShrink: 0,
   }
@@ -115,7 +115,7 @@ export default function AdminHeader({
             className="mobile-hamburger"
             style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex', flexDirection: 'column', gap: 4 }}>
             {[0,1,2].map(i => (
-              <span key={i} style={{ width: 20, height: 2, background: dark ? 'rgba(255,255,255,0.7)' : '#334155', borderRadius: 2, display: 'block' }}/>
+              <span key={i} style={{ width: 20, height: 2, background: 'var(--admin-text, #334155)', borderRadius: 2, display: 'block' }}/>
             ))}
           </button>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -127,7 +127,7 @@ export default function AdminHeader({
                 <rect x="11" y="11" width="7" height="7" rx="1.5" fill="white"/>
               </svg>
             </div>
-            <span style={{ fontWeight: 800, fontSize: 20, color: dark ? 'white' : '#0F172A', letterSpacing: '-0.3px' }}>Amana</span>
+            <span style={{ fontWeight: 800, fontSize: 20, color: 'var(--admin-text, #0F172A)', letterSpacing: '-0.3px' }}>Amana</span>
           </div>
         </div>
 
