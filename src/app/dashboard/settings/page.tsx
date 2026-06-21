@@ -106,8 +106,7 @@ export default function SettingsPage() {
 
   const signOut = async () => {
     await supabase.auth.signOut()
-    router.push('/sign-in')
-    router.refresh()
+    window.location.href = '/sign-in'
   }
 
   const MsgBox = () => !message ? null : (

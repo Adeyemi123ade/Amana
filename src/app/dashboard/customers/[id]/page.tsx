@@ -8,7 +8,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
   const { id } = await params
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  const { data: workspace } = await supabase.from('workspaces').select('id,currency').eq('created_by', user?.id).single()
+  const { data: workspace } = await supabase.from('workspaces').select('id,currency').eq('created_by', user?.id).maybeSingle()
   const { data: customer } = await supabase.from('customers').select('*').eq('id', id).single()
   const { data: invoices } = await supabase.from('invoices').select('*').eq('customer_id', id).order('created_at', { ascending: false })
   const { data: appointments } = await supabase.from('appointments').select('*').eq('customer_id', id).order('start_time', { ascending: false })
