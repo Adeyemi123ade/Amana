@@ -46,6 +46,12 @@ function VerifyContent() {
         if (data.success) {
           setDetails(data)
           setStatus('success')
+          // Auto-redirect to invoice page after 3 seconds so customer sees PAID status
+          if (invoiceId) {
+            setTimeout(() => {
+              window.location.replace('/invoice/' + invoiceId + '?paid=true')
+            }, 3000)
+          }
         } else {
           // Check if this is an abandoned/cancelled payment (not a real failure)
           // Paystack returns specific messages for these cases
@@ -97,13 +103,18 @@ function VerifyContent() {
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="2.5" strokeLinecap="round"><path d="M20 6L9 17l-5-5"/></svg>
         </div>
         <h2 style={{ fontSize: 22, fontWeight: 800, color: '#111827', marginBottom: 8 }}>Payment Confirmed!</h2>
-        <p style={{ fontSize: 14, color: '#6B7280', marginBottom: 28 }}>Your payment has been received and the invoice has been updated.</p>
-        <div style={{ background: '#F9FAFB', borderRadius: 12, padding: '16px 20px', textAlign: 'left', marginBottom: 28 }}>
+        <p style={{ fontSize: 14, color: '#6B7280', marginBottom: 4 }}>Your payment has been received successfully.</p>
+        {invoiceId && (
+          <p style={{ fontSize: 13, color: '#7C3AED', fontWeight: 600, marginBottom: 24 }}>
+            Taking you back to your receipt in 3 seconds...
+          </p>
+        )}
+        <div style={{ background: '#F9FAFB', borderRadius: 12, padding: '16px 20px', textAlign: 'left', marginBottom: 24 }}>
           {[
             ['Invoice', details?.invoiceNumber || '—'],
-            ['Reference', reference.slice(0, 20) + (reference.length > 20 ? '...' : '')],
+            ['Reference', reference.slice(0, 24) + (reference.length > 24 ? '...' : '')],
             ['Amount', details?.amount ? `${details.currency || 'NGN'} ${Number(details.amount).toLocaleString()}` : '—'],
-            ['Status', 'PAID'],
+            ['Status', 'PAID ✓'],
           ].map(([l, v]) => (
             <div key={l} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid #F3F4F6' }}>
               <span style={{ fontSize: 13, color: '#6B7280' }}>{l}</span>
@@ -113,13 +124,13 @@ function VerifyContent() {
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
           {invoiceId && (
-            <Link href={`/invoice/${invoiceId}`}
-              style={{ flex: 1, display: 'block', background: 'white', border: '1px solid #E5E7EB', color: '#374151', textDecoration: 'none', padding: '13px 16px', borderRadius: 10, fontSize: 14, fontWeight: 600, textAlign: 'center' }}>
-              View Invoice
+            <Link href={`/invoice/${invoiceId}?paid=true`}
+              style={{ flex: 1, display: 'block', background: 'linear-gradient(135deg,#22C55E,#16A34A)', color: 'white', textDecoration: 'none', padding: '13px 16px', borderRadius: 10, fontSize: 14, fontWeight: 700, textAlign: 'center' }}>
+              View Receipt Now
             </Link>
           )}
           <Link href="/dashboard"
-            style={{ flex: 1, display: 'block', background: 'linear-gradient(135deg,#7C3AED,#6D28D9)', color: 'white', textDecoration: 'none', padding: '13px 16px', borderRadius: 10, fontSize: 14, fontWeight: 700, textAlign: 'center' }}>
+            style={{ flex: 1, display: 'block', background: 'white', border: '1px solid #E5E7EB', color: '#374151', textDecoration: 'none', padding: '13px 16px', borderRadius: 10, fontSize: 14, fontWeight: 600, textAlign: 'center' }}>
             Go to Dashboard
           </Link>
         </div>

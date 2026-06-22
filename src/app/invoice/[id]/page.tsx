@@ -34,8 +34,16 @@ export default function PublicInvoicePage({ params }: { params: Promise<{ id: st
       setLoading(false)
 
       // ── AUTO-VERIFY on return from Paystack ──────────────
-      // Paystack redirects back with ?verify=REF or ?reference=REF
       const urlParams = new URLSearchParams(window.location.search)
+
+      // If coming from verify page after confirmed payment, show PAID immediately
+      if (urlParams.get('paid') === 'true') {
+        setPaid(true)
+        window.history.replaceState({}, '', `/invoice/${id}`)
+        setLoading(false)
+        return
+      }
+
       const verifyRef = urlParams.get('verify') || urlParams.get('reference') || urlParams.get('trxref')
       if (verifyRef && inv.status !== 'PAID') {
         setVerifying(true)
