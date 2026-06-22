@@ -49,7 +49,7 @@ function VerifyContent() {
           // Auto-redirect to invoice page after 3 seconds so customer sees PAID status
           if (invoiceId) {
             setTimeout(() => {
-              window.location.replace('/invoice/' + invoiceId + '?paid=true')
+              window.location.replace('/invoice/' + invoiceId)
             }, 3000)
           }
         } else {
@@ -124,7 +124,7 @@ function VerifyContent() {
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
           {invoiceId && (
-            <Link href={`/invoice/${invoiceId}?paid=true`}
+            <Link href={`/invoice/${invoiceId}`}
               style={{ flex: 1, display: 'block', background: 'linear-gradient(135deg,#22C55E,#16A34A)', color: 'white', textDecoration: 'none', padding: '13px 16px', borderRadius: 10, fontSize: 14, fontWeight: 700, textAlign: 'center' }}>
               View Receipt Now
             </Link>
