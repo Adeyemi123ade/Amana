@@ -418,3 +418,84 @@ body {
 [data-admin-theme="dark"] main {
   background: var(--admin-main) !important;
 }
+
+/* ── ADMIN PAGES — dark mode for all content pages ── */
+[data-admin-theme="dark"] h1,
+[data-admin-theme="dark"] h2,
+[data-admin-theme="dark"] p {
+  color: inherit;
+}
+
+/* Cards and containers on all admin pages */
+[data-admin-theme="dark"] .admin-page-card {
+  background: var(--admin-card) !important;
+  border-color: var(--admin-card-border) !important;
+  color: var(--admin-text) !important;
+}
+
+/* Table headers */
+[data-admin-theme="dark"] .admin-table-header {
+  background: var(--admin-bg) !important;
+  border-color: var(--admin-card-border) !important;
+}
+
+/* Headings on admin pages */
+[data-admin-theme="dark"] [style*="color:#0F172A"],
+[data-admin-theme="dark"] [style*="color: #0F172A"],
+[data-admin-theme="dark"] [style*="color:#1E293B"],
+[data-admin-theme="dark"] [style*="color: #1E293B"],
+[data-admin-theme="dark"] [style*="color:#374151"],
+[data-admin-theme="dark"] [style*="color: #374151"] {
+  color: var(--admin-text) !important;
+}
+
+[data-admin-theme="dark"] [style*="color:#64748B"],
+[data-admin-theme="dark"] [style*="color: #64748B"],
+[data-admin-theme="dark"] [style*="color:#94A3B8"],
+[data-admin-theme="dark"] [style*="color: #94A3B8"] {
+  color: var(--admin-text-muted) !important;
+}
+
+[data-admin-theme="dark"] [style*="background:white"],
+[data-admin-theme="dark"] [style*="background: white"],
+[data-admin-theme="dark"] [style*="background:#FFFFFF"],
+[data-admin-theme="dark"] [style*="background: #FFFFFF"] {
+  background: var(--admin-card) !important;
+}
+
+[data-admin-theme="dark"] [style*="background:#F8FAFC"],
+[data-admin-theme="dark"] [style*="background: #F8FAFC"],
+[data-admin-theme="dark"] [style*="background:#F1F5F9"],
+[data-admin-theme="dark"] [style*="background: #F1F5F9"] {
+  background: var(--admin-bg) !important;
+}
+
+[data-admin-theme="dark"] [style*="border:'1px solid #E2E8F0'"],
+[data-admin-theme="dark"] [style*="border: '1px solid #E2E8F0'"],
+[data-admin-theme="dark"] [style*="borderColor:#E2E8F0"],
+[data-admin-theme="dark"] [style*="borderBottom:'2px solid #E2E8F0'"] {
+  border-color: var(--admin-card-border) !important;
+}
+
+/* Customer dashboard — modals and form inputs in dark mode */
+[data-theme="dark"] input,
+[data-theme="dark"] textarea,
+[data-theme="dark"] select {
+  background: var(--bg-secondary) !important;
+  color: var(--text) !important;
+  border-color: var(--border-light) !important;
+}
+
+[data-theme="dark"] [style*="background:'white'"],
+[data-theme="dark"] [style*="background: white"],
+[data-theme="dark"] [style*="background:#FFFFFF"],
+[data-theme="dark"] [style*="background: #FFFFFF"] {
+  background: var(--card) !important;
+}
+
+[data-theme="dark"] [style*="color:'#111827'"],
+[data-theme="dark"] [style*="color: #111827"],
+[data-theme="dark"] [style*="color:#374151"],
+[data-theme="dark"] [style*="color: #374151"] {
+  color: var(--text) !important;
+}

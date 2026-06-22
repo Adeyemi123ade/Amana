@@ -2,7 +2,13 @@ import { getAdminSupabase } from '@/lib/admin-auth'
 
 export default async function AdminUsersPage() {
   const db = getAdminSupabase()
-  const { data: { users } } = await db.auth.admin.listUsers({ page:1, perPage:100 })
+  let users: any[] = []
+  try {
+    const { data } = await db.auth.admin.listUsers({ page: 1, perPage: 100 })
+    users = data?.users || []
+  } catch {
+    // Service role may not be configured — show empty state instead of crashing
+  }
 
   return (
     <div>

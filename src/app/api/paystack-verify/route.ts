@@ -11,10 +11,12 @@ function getSupabase() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { reference, invoiceId } = await request.json()
+    const body = await request.json()
+    const reference = body.reference
+    let invoiceId = body.invoiceId || null
 
-    if (!reference || !invoiceId) {
-      return NextResponse.json({ error: 'Missing reference or invoiceId' }, { status: 400 })
+    if (!reference) {
+      return NextResponse.json({ error: 'Missing payment reference' }, { status: 400 })
     }
 
     const secretKey = process.env.PAYSTACK_SECRET_KEY
@@ -39,6 +41,27 @@ export async function POST(request: NextRequest) {
         message: 'Payment already recorded',
         alreadyProcessed: true,
       })
+    }
+
+    // ── LOOK UP invoiceId FROM paystack_reference COLUMN if not provided ──
+    // This handles the case where Paystack callback to /payment/verify
+    // does not include invoiceId in the URL — we find the invoice by reference
+    if (!invoiceId) {
+      const { data: invByRef } = await supabase
+        .from('invoices')
+        .select('id')
+        .eq('paystack_reference', reference)
+        .maybeSingle()
+      if (invByRef) {
+        invoiceId = invByRef.id
+      }
+    }
+
+    // If still no invoiceId, the reference might not match any stored invoice
+    // This can happen if paystack_reference was not stored at init time
+    // We still proceed — the invoice update below will just be skipped
+    if (!invoiceId) {
+      console.warn('paystack-verify: no invoiceId found for reference', reference)
     }
 
     // ── VERIFY WITH PAYSTACK ──────────────────────────────
@@ -68,16 +91,25 @@ export async function POST(request: NextRequest) {
     const paidAt = txData.paid_at || new Date().toISOString()
 
     // ── FETCH INVOICE to get workspace_id ────────────────
-    const { data: invoice, error: invFetchError } = await supabase
-      .from('invoices')
-      .select('id, workspace_id, status, total_amount, invoice_number')
-      .eq('id', invoiceId)
-      .single()
+    let invoice: any = null
+    if (invoiceId) {
+      const { data: invData } = await supabase
+        .from('invoices')
+        .select('id, workspace_id, status, total_amount, invoice_number')
+        .eq('id', invoiceId)
+        .maybeSingle()
+      invoice = invData
+    }
 
-    if (invFetchError || !invoice) {
+    // If no invoice found, payment was received but can't be matched to an invoice
+    // Webhook will handle it via metadata.invoice_id — still return success so UI doesn't alarm customer
+    if (!invoice) {
+      console.warn('paystack-verify: invoice not found for invoiceId', invoiceId, 'reference', reference)
       return NextResponse.json({
-        error: 'Invoice not found. Payment was received but could not be matched.',
-      }, { status: 404 })
+        success: true,
+        message: 'Payment received. Our system will update your invoice shortly.',
+        pendingMatch: true,
+      })
     }
 
     // ── BLOCK DOUBLE PAYMENT ──────────────────────────────

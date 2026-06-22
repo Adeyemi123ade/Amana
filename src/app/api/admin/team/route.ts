@@ -58,9 +58,37 @@ export async function DELETE(req: NextRequest) {
     const { email } = await req.json()
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
+    if (!user?.email) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
+
     const db = getAdminSupabase()
-    await db.from('platform_admins').delete().eq('email', email).neq('email', user?.email || '')
-    await logAdminAction(user?.email || 'admin', 'ADMIN_REMOVED', 'platform_admin', email)
+
+    // Only SUPER_ADMINs can delete admins
+    const { data: requester } = await db
+      .from('platform_admins')
+      .select('role')
+      .eq('email', user.email.toLowerCase())
+      .maybeSingle()
+
+    const SUPER_ADMIN_EMAILS = ['admin@amana.app', 'admin@kajolacooperative.com']
+    const isSuperAdmin = SUPER_ADMIN_EMAILS.includes(user.email.toLowerCase()) ||
+      requester?.role === 'SUPER_ADMIN'
+
+    if (!isSuperAdmin) {
+      return NextResponse.json({ error: 'Only Super Admins can remove team members' }, { status: 403 })
+    }
+
+    // Prevent removing hardcoded super admins
+    if (SUPER_ADMIN_EMAILS.includes(email.toLowerCase())) {
+      return NextResponse.json({ error: 'Cannot remove a Super Admin account' }, { status: 403 })
+    }
+
+    // Prevent self-deletion
+    if (email.toLowerCase() === user.email.toLowerCase()) {
+      return NextResponse.json({ error: 'You cannot remove yourself' }, { status: 400 })
+    }
+
+    await db.from('platform_admins').delete().eq('email', email.toLowerCase())
+    await logAdminAction(user.email, 'ADMIN_REMOVED', 'platform_admin', email)
     return NextResponse.json({ success: true })
   } catch (err: any) {
     return NextResponse.json({ error: err.message || 'Server error' }, { status: 500 })

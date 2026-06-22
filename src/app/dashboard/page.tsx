@@ -40,20 +40,38 @@ export default async function DashboardPage() {
     { data: customers },
     { data: appointments },
     { data: payments },
+    { data: invoiceCustomers },
+    { data: apptCustomers },
   ] = await Promise.all([
-    supabase.from('invoices').select('*, customers(name)').eq('workspace_id', wid).order('created_at', { ascending: false }).limit(20),
+    supabase.from('invoices').select('*').eq('workspace_id', wid).order('created_at', { ascending: false }).limit(20),
     supabase.from('customers').select('id').eq('workspace_id', wid),
-    supabase.from('appointments').select('*, customers(name)').eq('workspace_id', wid).gte('start_time', new Date().toISOString().split('T')[0]).order('start_time', { ascending: true }).limit(10),
+    supabase.from('appointments').select('*').eq('workspace_id', wid).gte('start_time', new Date().toISOString().split('T')[0]).order('start_time', { ascending: true }).limit(10),
     supabase.from('payments').select('*').eq('workspace_id', wid).order('created_at', { ascending: false }).limit(5),
+    supabase.from('customers').select('id,name').eq('workspace_id', wid),
+    supabase.from('customers').select('id,name').eq('workspace_id', wid),
   ])
 
+  // Build customer lookup maps — no Supabase joins (unreliable on this schema)
+  const custMap: Record<string, string> = {}
+  for (const c of (invoiceCustomers || [])) custMap[c.id] = c.name
+  const apptCustMap: Record<string, string> = {}
+  for (const c of (apptCustomers || [])) apptCustMap[c.id] = c.name
+
+  // Merge customer names into invoices and appointments
+  const invoicesWithCustomers = (invoices || []).map((inv: any) => ({
+    ...inv, customers: { name: custMap[inv.customer_id] || null }
+  }))
+  const appointmentsWithCustomers = (appointments || []).map((appt: any) => ({
+    ...appt, customers: { name: apptCustMap[appt.customer_id] || null }
+  }))
+
   const totalRevenue = (payments || []).reduce((s, p) => s + Number(p.amount), 0)
-  const unpaid = (invoices || []).filter(i => ['UNPAID','OVERDUE'].includes(i.status))
+  const unpaid = (invoicesWithCustomers || []).filter(i => ['UNPAID','OVERDUE'].includes(i.status))
   const unpaidAmt = unpaid.reduce((s, i) => s + Number(i.total_amount), 0)
   const today = new Date().toDateString()
-  const todayAppts = (appointments || []).filter(a => new Date(a.start_time).toDateString() === today)
-  const overdue = (invoices || []).filter(i => i.status === 'OVERDUE')
-  const recentInvoices = (invoices || []).slice(0, 5)
+  const todayAppts = (appointmentsWithCustomers || []).filter(a => new Date(a.start_time).toDateString() === today)
+  const overdue = (invoicesWithCustomers || []).filter(i => i.status === 'OVERDUE')
+  const recentInvoices = (invoicesWithCustomers || []).slice(0, 5)
   const recentPayments = (payments || []).slice(0, 3)
 
   const statusBadge = (status: string) => {
@@ -172,7 +190,7 @@ export default async function DashboardPage() {
           </div>
           <div style={{display:'flex', gap:8, alignItems:'center'}}>
             <div style={{flex:1, background:'var(--bg-secondary)', borderRadius:8, padding:'10px 12px', border:'1px solid var(--border)', overflow:'hidden'}}>
-              <p style={{fontSize:12, color:'var(--accent)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', fontFamily:'monospace'}}>{'https://amana-two.vercel.app/book/' + workspace.slug}</p>
+              <p style={{fontSize:12, color:'var(--accent)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', fontFamily:'monospace'}}>{(process.env.NEXT_PUBLIC_APP_URL || 'https://amana-two.vercel.app') + '/book/' + workspace.slug}</p>
             </div>
             <Link href={'/book/' + workspace.slug} target="_blank"
               style={{fontSize:12, fontWeight:600, color:'var(--accent)', textDecoration:'none', padding:'8px 14px', border:'1px solid var(--accent)', borderRadius:8, flexShrink:0, whiteSpace:'nowrap'}}>
