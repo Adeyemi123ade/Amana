@@ -49,7 +49,15 @@ export default function PublicInvoicePage({ params }: { params: Promise<{ id: st
           if (data.success) {
             setPaid(true)
           } else {
-            setPayError(data.message || 'We could not confirm your payment. If you were charged, please contact the business with reference: ' + verifyRef)
+            // Check if payment was abandoned (customer clicked back) vs a real failure
+            const msg = (data.message || data.error || '').toLowerCase()
+            const isAbandoned = msg.includes('abandon') || msg.includes('cancel') ||
+              msg.includes('not success') || msg.includes('verification failed')
+            if (isAbandoned) {
+              setPayError('Payment was not completed. You have not been charged. Please select a payment method below to try again.')
+            } else {
+              setPayError(data.message || 'We could not confirm your payment. If you were charged, please contact the business with reference: ' + verifyRef)
+            }
           }
         } catch {
           setPayError('Could not verify payment. If you were charged, contact the business with reference: ' + verifyRef)
