@@ -78,9 +78,18 @@ export async function POST(request: NextRequest) {
     const paystackData = await paystackRes.json()
 
     if (!paystackRes.ok || !paystackData.status || paystackData.data?.status !== 'success') {
+      const txStatus = paystackData.data?.status || 'unknown'
+      // These Paystack statuses mean the customer left/cancelled — not a real failure
+      const isAbandoned = ['abandoned', 'cancelled', 'pending', 'failed'].includes(txStatus) ||
+        !paystackRes.ok === false
+
       return NextResponse.json({
         success: false,
-        message: paystackData.message || 'Payment verification failed. Please contact support.',
+        abandoned: isAbandoned,
+        txStatus,
+        message: isAbandoned
+          ? 'Payment was not completed.'
+          : (paystackData.message || 'Payment verification failed. Please contact support.'),
       }, { status: 400 })
     }
 

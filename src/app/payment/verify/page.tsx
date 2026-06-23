@@ -53,21 +53,22 @@ function VerifyContent() {
             }, 3000)
           }
         } else {
-          // Check if this is an abandoned/cancelled payment (not a real failure)
-          // Paystack returns specific messages for these cases
+          // Use the explicit abandoned flag from the API
+          // Also check message text as fallback
           const msg = (data.message || data.error || '').toLowerCase()
-          const isAbandoned =
+          const isAbandoned = data.abandoned === true ||
+            msg.includes('not completed') ||
             msg.includes('abandon') ||
-            msg.includes('cancel') ||
-            msg.includes('not success') ||
-            msg.includes('verification failed') ||
-            msg.includes('could not be verified') ||
-            data.alreadyProcessed === false
+            msg.includes('cancel')
 
-          if (isAbandoned && invoiceId) {
+          if (isAbandoned) {
             setStatus('abandoned')
-          } else if (isAbandoned) {
-            setStatus('abandoned')
+            // Auto-redirect back to invoice after 3 seconds — no action needed from customer
+            if (invoiceId) {
+              setTimeout(() => {
+                window.location.replace('/invoice/' + invoiceId)
+              }, 3000)
+            }
           } else {
             setStatus('failed')
             setError(data.message || data.error || 'Payment could not be verified.')
@@ -147,13 +148,21 @@ function VerifyContent() {
         <p style={{ fontSize: 14, color: '#6B7280', marginBottom: 8, lineHeight: 1.65 }}>
           It looks like you left the payment page before completing your transaction.
         </p>
-        <p style={{ fontSize: 14, color: '#6B7280', marginBottom: 28, lineHeight: 1.65 }}>
-          <strong>You have not been charged.</strong> You can go back to the invoice and try again with any payment method.
+        <p style={{ fontSize: 14, color: '#6B7280', marginBottom: 4, lineHeight: 1.65 }}>
+          <strong>You have not been charged.</strong>
+        </p>
+        {invoiceId && (
+          <p style={{ fontSize: 13, color: '#7C3AED', fontWeight: 600, marginBottom: 20 }}>
+            Taking you back to the invoice in 3 seconds...
+          </p>
+        )}
+        <p style={{ fontSize: 14, color: '#6B7280', marginBottom: 20, lineHeight: 1.65 }}>
+          You can select a different payment method and try again.
         </p>
         {invoiceId ? (
           <Link href={`/invoice/${invoiceId}`}
             style={{ display: 'block', width: '100%', background: 'linear-gradient(135deg,#7C3AED,#6D28D9)', color: 'white', textDecoration: 'none', padding: '15px 20px', borderRadius: 12, fontSize: 15, fontWeight: 700, textAlign: 'center', boxSizing: 'border-box' }}>
-            ← Back to Invoice — Try Again
+            ← Back to Invoice — Try Again Now
           </Link>
         ) : (
           <a href="javascript:history.back()"
