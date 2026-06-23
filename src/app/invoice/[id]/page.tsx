@@ -41,6 +41,8 @@ export default function PublicInvoicePage({ params }: { params: Promise<{ id: st
       }
       const verifyRef = urlParams.get('verify') || urlParams.get('reference') || urlParams.get('trxref')
       if (verifyRef && inv.status !== 'PAID') {
+        // First check with Paystack if the transaction actually succeeded
+        // before showing any spinner — this prevents the stuck "Redirecting" state
         setVerifying(true)
         try {
           const res = await fetch('/api/paystack-verify', {
@@ -52,22 +54,22 @@ export default function PublicInvoicePage({ params }: { params: Promise<{ id: st
           if (data.success) {
             setPaid(true)
           } else {
-            // Check if payment was abandoned (customer clicked back) vs a real failure
-            const msg = (data.message || data.error || '').toLowerCase()
-            const isAbandoned = msg.includes('abandon') || msg.includes('cancel') ||
-              msg.includes('not success') || msg.includes('verification failed')
-            if (isAbandoned) {
-              setPayError('Payment was not completed. You have not been charged. Please select a payment method below to try again.')
-            } else {
-              setPayError(data.message || 'We could not confirm your payment. If you were charged, please contact the business with reference: ' + verifyRef)
+            // Abandoned or failed — just show the pay button again, no error message
+            // The customer already knows they cancelled — no need to alarm them
+            const isAbandoned = data.abandoned === true ||
+              (data.message || '').toLowerCase().includes('not completed') ||
+              (data.message || '').toLowerCase().includes('abandon') ||
+              (data.message || '').toLowerCase().includes('cancel')
+            if (!isAbandoned) {
+              // Only show an error for genuine failures, not cancellations
+              setPayError('We could not confirm your payment. If you were charged, contact the business with reference: ' + verifyRef)
             }
+            // For abandoned: silently reset — pay button reappears, no error shown
           }
         } catch {
-          setPayError('Could not verify payment. If you were charged, contact the business with reference: ' + verifyRef)
+          // Network error — silently reset, pay button reappears
         } finally {
           setVerifying(false)
-          // Clean the URL
-          window.history.replaceState({}, '', `/invoice/${id}`)
         }
       }
     }
