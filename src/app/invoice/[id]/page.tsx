@@ -76,6 +76,22 @@ export default function PublicInvoicePage({ params }: { params: Promise<{ id: st
     load()
   }, [id])
 
+  // Reset paying state if browser restores page from back-forward cache
+  useEffect(() => {
+    const resetOnReturn = () => {
+      setPaying(false)
+      setVerifying(false)
+    }
+    // pageshow fires when page is restored from bfcache (persisted=true)
+    window.addEventListener('pageshow', resetOnReturn)
+    // visibilitychange fires when user tabs back
+    document.addEventListener('visibilitychange', resetOnReturn)
+    return () => {
+      window.removeEventListener('pageshow', resetOnReturn)
+      document.removeEventListener('visibilitychange', resetOnReturn)
+    }
+  }, [])
+
   const handlePay = async () => {
     setPaying(true)
     setPayError('')
