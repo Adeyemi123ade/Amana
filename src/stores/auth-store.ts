@@ -23,9 +23,12 @@ export const useAuthStore = create<AuthState>()(
       setLoading: (isLoading) => set({ isLoading }),
       clearAuth: () => set({ user: null, workspace: null }),
     }),
-    {
-      name: 'ros-auth',
-      partialize: (state) => ({ user: state.user, workspace: state.workspace }),
+{
+  name: 'amana-auth',
+  partialize: (state) => ({ user: state.user, workspace: state.workspace }),
+  onRehydrateStorage: () => () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('ros-auth')
     }
-  )
-)
+  },
+}

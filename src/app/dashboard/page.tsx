@@ -11,12 +11,10 @@ export default async function DashboardPage() {
   const { data: workspace, error: wsError } = await supabase
     .from('workspaces').select('*').eq('created_by', user.id).maybeSingle()
 
-  // No workspace at all — new user needs to complete onboarding
   if (!wsError && !workspace) {
     redirect('/onboarding/business-information')
   }
 
-  // DB error fetching workspace — show friendly message, do NOT redirect to onboarding
   if (wsError || !workspace) {
     return (
       <div style={{display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', minHeight:400, textAlign:'center', padding:32}}>
@@ -35,19 +33,34 @@ export default async function DashboardPage() {
   const currency = workspace.currency || 'NGN'
   const wid = workspace.id
 
+  const now = new Date()
+  const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
+  const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString()
+  const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59).toISOString()
+
   const [
     { data: invoices },
     { data: customers },
     { data: appointments },
     { data: payments },
+    { data: thisMonthPay },
+    { data: lastMonthPay },
   ] = await Promise.all([
     supabase.from('invoices').select('*, customers(name)').eq('workspace_id', wid).order('created_at', { ascending: false }).limit(20),
     supabase.from('customers').select('id').eq('workspace_id', wid),
     supabase.from('appointments').select('*, customers(name)').eq('workspace_id', wid).gte('start_time', new Date().toISOString().split('T')[0]).order('start_time', { ascending: true }).limit(10),
     supabase.from('payments').select('*').eq('workspace_id', wid).order('created_at', { ascending: false }).limit(5),
+    supabase.from('payments').select('amount').eq('workspace_id', wid).eq('status', 'SUCCESS').gte('created_at', startOfThisMonth),
+    supabase.from('payments').select('amount').eq('workspace_id', wid).eq('status', 'SUCCESS').gte('created_at', startOfLastMonth).lte('created_at', endOfLastMonth),
   ])
 
+  const thisMonthRevenue = (thisMonthPay || []).reduce((s, p) => s + Number(p.amount), 0)
+  const lastMonthRevenue = (lastMonthPay || []).reduce((s, p) => s + Number(p.amount), 0)
   const totalRevenue = (payments || []).reduce((s, p) => s + Number(p.amount), 0)
+  const revenueGrowth = lastMonthRevenue === 0
+    ? null
+    : ((thisMonthRevenue - lastMonthRevenue) / lastMonthRevenue * 100).toFixed(1)
+
   const unpaid = (invoices || []).filter(i => ['UNPAID','OVERDUE'].includes(i.status))
   const unpaidAmt = unpaid.reduce((s, i) => s + Number(i.total_amount), 0)
   const today = new Date().toDateString()
@@ -55,6 +68,16 @@ export default async function DashboardPage() {
   const overdue = (invoices || []).filter(i => i.status === 'OVERDUE')
   const recentInvoices = (invoices || []).slice(0, 5)
   const recentPayments = (payments || []).slice(0, 3)
+
+  const revenueSubtext = totalRevenue === 0
+    ? 'No payments yet'
+    : revenueGrowth === null
+      ? 'No comparison data yet'
+      : `${parseFloat(revenueGrowth) >= 0 ? '+' : ''}${revenueGrowth}% vs last month`
+
+  const revenueSubColor = revenueGrowth !== null && parseFloat(revenueGrowth) < 0
+    ? 'var(--danger)'
+    : 'var(--success)'
 
   const statusBadge = (status: string) => {
     const map: Record<string,[string,string]> = {
@@ -84,8 +107,8 @@ export default async function DashboardPage() {
   return (
     <div style={{display:'flex', flexDirection:'column', gap:18}}>
       <div className="stat-grid">
-        {card('Total Revenue', totalRevenue > 0 ? formatCurrency(totalRevenue,currency) : '—', totalRevenue > 0 ? '+12.5% this month' : 'No payments yet', 'var(--success)')}
-        {card('Unpaid Invoices', unpaidAmt > 0 ? formatCurrency(unpaidAmt,currency) : '—', unpaid.length > 0 ? `${unpaid.length} invoices pending` : 'All invoices paid', 'var(--text-muted)', unpaidAmt > 0 ? 'var(--danger)' : 'var(--text)')}
+        {card('Total Revenue', totalRevenue > 0 ? formatCurrency(totalRevenue, currency) : '—', revenueSubtext, revenueSubColor)}
+        {card('Unpaid Invoices', unpaidAmt > 0 ? formatCurrency(unpaidAmt, currency) : '—', unpaid.length > 0 ? `${unpaid.length} invoices pending` : 'All invoices paid', 'var(--text-muted)', unpaidAmt > 0 ? 'var(--danger)' : 'var(--text)')}
         {card("Today's Appointments", String(todayAppts.length), todayAppts.length > 0 ? `${todayAppts.filter(a=>a.status==='CONFIRMED').length} confirmed` : 'No appointments today', 'var(--text-muted)')}
         {card('Customers', String((customers||[]).length), (customers||[]).length > 0 ? `${(customers||[]).length} total` : 'No customers yet', 'var(--accent)')}
       </div>
@@ -163,7 +186,6 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* Public Booking Link */}
       {workspace.slug && (
         <div style={{background:'var(--card)', borderRadius:14, padding:'18px 20px', border:'1px solid var(--border)', marginTop:16}}>
           <div style={{marginBottom:10}}>

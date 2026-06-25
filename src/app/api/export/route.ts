@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { createClient as createServerClient } from '@/lib/supabase/server'
 
-function getSupabase() {
+function getServiceSupabase() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
 }
 
@@ -21,13 +22,35 @@ function toCSV(rows: Record<string, any>[], columns: string[]): string {
 }
 
 export async function GET(request: NextRequest) {
+  // ── AUTH CHECK ────────────────────────────────────────────────
+  const serverClient = await createServerClient()
+  const { data: { user } } = await serverClient.auth.getUser()
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   const { searchParams } = new URL(request.url)
-  const type = searchParams.get('type')      // customers | invoices | payments
+  const type = searchParams.get('type')
   const wsId = searchParams.get('workspace')
 
-  if (!wsId || !type) return NextResponse.json({ error: 'Missing workspace or type' }, { status: 400 })
+  if (!wsId || !type) {
+    return NextResponse.json({ error: 'Missing workspace or type' }, { status: 400 })
+  }
 
-  const supabase = getSupabase()
+  // ── OWNERSHIP CHECK ───────────────────────────────────────────
+  const supabase = getServiceSupabase()
+  const { data: wsCheck } = await supabase
+    .from('workspaces')
+    .select('id')
+    .eq('id', wsId)
+    .eq('created_by', user.id)
+    .maybeSingle()
+
+  if (!wsCheck) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
+
+  // ── DATA FETCH ────────────────────────────────────────────────
   let csv = ''
   let filename = ''
 
@@ -88,7 +111,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid type' }, { status: 400 })
   }
 
-  return new NextResponse('\uFEFF' + csv, {  // BOM for Excel UTF-8
+  return new NextResponse('\uFEFF' + csv, {
     headers: {
       'Content-Type': 'text/csv; charset=utf-8',
       'Content-Disposition': `attachment; filename="${filename}"`,

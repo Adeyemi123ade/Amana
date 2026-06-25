@@ -1,7 +1,7 @@
 export type KycStatus = 'PENDING' | 'APPROVED' | 'REJECTED'
 export type InvoiceStatus = 'DRAFT' | 'UNPAID' | 'PAID' | 'OVERDUE' | 'CANCELLED'
 export type AppointmentStatus = 'PENDING' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED' | 'NO_SHOW'
-export type WorkspaceRole = 'OWNER' | 'ADMIN' | 'MEMBER'
+export type WorkspaceRole = 'OWNER' | 'ADMIN' | 'STAFF' | 'VIEWER'
 export type NotificationChannel = 'EMAIL' | 'WHATSAPP' | 'IN_APP' | 'PUSH'
 export type AutomationType =
   | 'INVOICE_REMINDER'

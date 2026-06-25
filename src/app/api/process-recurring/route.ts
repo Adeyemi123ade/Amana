@@ -21,80 +21,68 @@ function nextDueDate(current: string, frequency: string): string {
 
 export async function POST(request: NextRequest) {
   try {
-  const secret = request.headers.get('x-cron-secret')
-  if (process.env.CRON_SECRET && secret !== process.env.CRON_SECRET) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
+    const secret = request.headers.get('x-cron-secret')
+    if (process.env.CRON_SECRET && secret !== process.env.CRON_SECRET) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
 
-  const supabase = getSupabase()
-  const today = new Date().toISOString().split('T')[0]
-  let generated = 0
+    const supabase = getSupabase()
+    const today = new Date().toISOString().split('T')[0]
+    let generated = 0
 
-  // Find all active recurring rules due today or earlier
-  const { data: rules } = await supabase
-    .from('recurring_invoices')
-    .select('*, customers(*), workspaces(*)')
-    .eq('active', true)
-    .lte('next_due', today)
+    const { data: rules } = await supabase
+      .from('recurring_invoices')
+      .select('*, customers(*), workspaces(*)')
+      .eq('active', true)
+      .lte('next_due', today)
 
-  for (const rule of rules || []) {
-    // Build invoice number
-    const { data: lastInv } = await supabase
-      .from('invoices')
-      .select('invoice_number')
-      .eq('workspace_id', rule.workspace_id)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .single()
+    for (const rule of rules || []) {
+      // FIX: use DB function for safe, race-free invoice number generation
+      const { data: nextNum } = await supabase
+        .rpc('next_invoice_number', { p_workspace_id: rule.workspace_id })
+      const invoiceNumber = nextNum || ('INV-' + Date.now())
 
-    const lastNum = lastInv?.invoice_number
-      ? parseInt(lastInv.invoice_number.replace(/\D/g, '')) || 1000
-      : 1000
-    const invoiceNumber = 'INV-' + String(lastNum + 1).padStart(4, '0')
+      const dueDate = new Date(rule.next_due)
+      dueDate.setDate(dueDate.getDate() + 14)
 
-    const dueDate = new Date(rule.next_due)
-    dueDate.setDate(dueDate.getDate() + 14) // 14 days to pay
-
-    // Create the invoice
-    const { error: invErr } = await supabase.from('invoices').insert({
-      workspace_id: rule.workspace_id,
-      customer_id: rule.customer_id,
-      invoice_number: invoiceNumber,
-      items: rule.items,
-      total_amount: rule.total_amount,
-      tax_rate: rule.tax_rate || 0,
-      subtotal: rule.total_amount,
-      issue_date: today,
-      due_date: dueDate.toISOString().split('T')[0],
-      status: 'UNPAID',
-      notes: rule.notes || null,
-      payment_method: null,
-    })
-
-    if (!invErr) {
-      // Update next_due on the recurring rule
-      await supabase.from('recurring_invoices').update({
-        next_due: nextDueDate(rule.next_due, rule.frequency),
-        last_generated: today,
-      }).eq('id', rule.id)
-
-      // Notify business owner
-      await supabase.from('notifications').insert({
+      const { error: invErr } = await supabase.from('invoices').insert({
         workspace_id: rule.workspace_id,
-        title: 'Recurring Invoice Generated',
-        description: `${invoiceNumber} for ${rule.customers?.name} — ${rule.title}`,
-        type: 'invoice',
-        read: false,
-        link: '/dashboard/invoices',
+        customer_id: rule.customer_id,
+        invoice_number: invoiceNumber,
+        items: rule.items,
+        total_amount: rule.total_amount,
+        tax_rate: rule.tax_rate || 0,
+        subtotal: rule.total_amount,
+        issue_date: today,
+        due_date: dueDate.toISOString().split('T')[0],
+        status: 'UNPAID',
+        notes: rule.notes || null,
+        payment_method: null,
       })
 
-      generated++
-    }
-  }
+      if (!invErr) {
+        await supabase.from('recurring_invoices').update({
+          next_due: nextDueDate(rule.next_due, rule.frequency),
+          last_generated: today,
+        }).eq('id', rule.id)
 
-  return NextResponse.json({ success: true, generated, ran_at: new Date().toISOString() })
-} catch (err: any) {
-    console.error("API error:", err)
-    return NextResponse.json({ error: err.message || "Server error" }, { status: 500 })
+        await supabase.from('notifications').insert({
+          workspace_id: rule.workspace_id,
+          title: 'Recurring Invoice Generated',
+          description: `${invoiceNumber} for ${rule.customers?.name} — ${rule.title}`,
+          type: 'invoice',
+          read: false,
+          link: '/dashboard/invoices',
+        })
+
+        generated++
+      }
+    }
+
+    return NextResponse.json({ success: true, generated, ran_at: new Date().toISOString() })
+
+  } catch (err: any) {
+    console.error('API error:', err)
+    return NextResponse.json({ error: err.message || 'Server error' }, { status: 500 })
   }
 }

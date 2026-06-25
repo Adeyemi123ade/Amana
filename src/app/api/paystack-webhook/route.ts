@@ -33,37 +33,18 @@ async function sendConfirmationEmail(
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      from: 'Amana Help Desk <noreply@chichatapp.com>',
+      from: 'Amana <noreply@chichatapp.com>',
       to: [customerEmail],
       subject: 'Payment Confirmed — ' + invoiceNumber,
       html: `
         <div style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto;padding:24px;color:#111827">
           <div style="text-align:center;margin-bottom:28px">
-            <table cellpadding="0" cellspacing="0" border="0" style="display:inline-table;vertical-align:middle;margin-right:10px;">
-  <tr><td style="background:#7C3AED;border-radius:10px;width:40px;height:40px;text-align:center;vertical-align:middle;padding:0;">
-    <table cellpadding="0" cellspacing="2" border="0" style="margin:0 auto;">
-      <tr>
-        <td style="background:white;width:10px;height:10px;border-radius:2px;"></td>
-        <td style="background:white;width:10px;height:10px;border-radius:2px;"></td>
-      </tr>
-      <tr>
-        <td style="background:white;width:10px;height:10px;border-radius:2px;"></td>
-        <td style="background:white;width:10px;height:10px;border-radius:2px;"></td>
-      </tr>
-    </table>
-  </td></tr>
-</table>
-            <span style="font-size:20px;font-weight:800;color:#111827;vertical-align:middle">Amana</span>
+            <span style="font-size:20px;font-weight:800;color:#111827">Amana</span>
           </div>
-
           <div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:14px;padding:24px;text-align:center;margin-bottom:24px">
-            <div style="width:56px;height:56px;background:#22C55E;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
-              <span style="color:white;font-size:28px">✓</span>
-            </div>
             <h2 style="font-size:20px;font-weight:800;color:#15803D;margin-bottom:4px">Payment Confirmed</h2>
             <p style="color:#16A34A;font-size:14px">Your payment was received successfully</p>
           </div>
-
           <h3 style="font-size:15px;font-weight:700;color:#111827;margin-bottom:12px">Payment Details</h3>
           <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:24px">
             <tr style="border-bottom:1px solid #F3F4F6">
@@ -83,7 +64,6 @@ async function sendConfirmationEmail(
               <td style="padding:10px 0;font-weight:500;color:#374151;text-align:right;font-size:12px">${reference}</td>
             </tr>
           </table>
-
           <p style="font-size:13px;color:#6B7280;text-align:center;line-height:1.6">
             Thank you, ${customerName}. Please keep this email as your payment receipt.
           </p>
@@ -105,7 +85,6 @@ export async function POST(request: NextRequest) {
     const signature = request.headers.get('x-paystack-signature')
     const secretKey = process.env.PAYSTACK_SECRET_KEY
 
-    // REQUIREMENT 9: Log every incoming webhook event
     const preLog = await supabase.from('webhook_logs').insert({
       event: 'incoming',
       status: 'received',
@@ -120,7 +99,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ received: true })
     }
 
-    // REQUIREMENT 3: Verify webhook signature
     if (!signature) {
       await supabase.from('webhook_logs').update({
         status: 'failed', error: 'Missing x-paystack-signature header',
@@ -153,22 +131,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ received: true, processed: false })
     }
 
-    const txData    = event.data
+    const txData = event.data
     const reference = txData.reference
-    const amountPaid  = txData.amount / 100
-    const currency    = txData.currency || 'NGN'
+    const amountPaid = txData.amount / 100
+    const currency = txData.currency || 'NGN'
     const customerEmail = txData.customer?.email || null
-    const customerName  = txData.metadata?.customer_name || txData.customer?.first_name || 'Customer'
-    const paidAt      = txData.paid_at || new Date().toISOString()
-    const channel     = txData.channel || 'unknown'
+    const customerName = txData.metadata?.customer_name || txData.customer?.first_name || 'Customer'
+    const paidAt = txData.paid_at || new Date().toISOString()
+    const channel = txData.channel || 'unknown'
 
-    // REQUIREMENT 9: Update log with reference
     await supabase.from('webhook_logs').update({
       reference,
       invoice_id: txData.metadata?.invoice_id || null,
     }).eq('id', logId)
 
-    // IDEMPOTENCY: Do not process the same reference twice
+    // Idempotency check
     const { data: existingPayment } = await supabase
       .from('payments').select('id').eq('paystack_ref', reference).maybeSingle()
 
@@ -180,9 +157,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ received: true, processed: false, reason: 'Already processed' })
     }
 
-    // REQUIREMENT 4: Find invoice by metadata.invoice_id first, then fall back to paystack_reference
+    // Find invoice by metadata.invoice_id first
     let invoice: any = null
-
     const metaInvoiceId = txData.metadata?.invoice_id
     if (metaInvoiceId) {
       const { data } = await supabase
@@ -193,12 +169,12 @@ export async function POST(request: NextRequest) {
       invoice = data
     }
 
-    // Fallback: look up by the reference stored during initialization
+    // FIX: fallback uses paystack_ref (single consistent column name)
     if (!invoice) {
       const { data } = await supabase
         .from('invoices')
         .select('id, workspace_id, status, invoice_number, customers(name,email)')
-        .eq('paystack_reference', reference)
+        .eq('paystack_ref', reference)
         .maybeSingle()
       invoice = data
     }
@@ -220,7 +196,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ received: true, processed: false, reason: 'Already paid' })
     }
 
-    // REQUIREMENT 5 + 6: Update invoice status + store all payment details
     await supabase.from('invoices').update({
       status: 'PAID',
       paid_at: paidAt,
@@ -228,21 +203,19 @@ export async function POST(request: NextRequest) {
       paystack_ref: reference,
     }).eq('id', invoice.id)
 
-    // REQUIREMENT 6: Write full payment record
     await supabase.from('payments').insert({
-      workspace_id:   invoice.workspace_id,
-      invoice_id:     invoice.id,
-      amount:         amountPaid,
+      workspace_id: invoice.workspace_id,
+      invoice_id: invoice.id,
+      amount: amountPaid,
       currency,
-      method:         'Paystack',
+      method: 'Paystack',
       payment_channel: channel,
-      paystack_ref:   reference,
+      paystack_ref: reference,
       customer_email: customerEmail,
-      paid_at:        paidAt,
-      status:         'SUCCESS',
+      paid_at: paidAt,
+      status: 'SUCCESS',
     })
 
-    // Notification for business owner
     await supabase.from('notifications').insert({
       workspace_id: invoice.workspace_id,
       title: 'Payment Received',
@@ -252,7 +225,6 @@ export async function POST(request: NextRequest) {
       link: '/dashboard/invoices/' + invoice.id,
     })
 
-    // REQUIREMENT 8: Send payment confirmation email to customer
     const emailAddr = customerEmail || invoice.customers?.email
     if (emailAddr) {
       await sendConfirmationEmail(
@@ -267,7 +239,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // REQUIREMENT 9: Mark log as processed
     await supabase.from('webhook_logs').update({
       status: 'processed',
       invoice_id: invoice.id,

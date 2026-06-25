@@ -49,12 +49,14 @@ export async function POST(request: NextRequest) {
     }
 
     const amount = Math.round(rawAmount * 100)
-    const currencyMap: Record<string, string> = { NGN:'NGN', GHS:'GHS', ZAR:'ZAR', USD:'USD', KES:'KES' }
+    const currencyMap: Record<string, string> = { NGN: 'NGN', GHS: 'GHS', ZAR: 'ZAR', USD: 'USD', KES: 'KES' }
     const currency = currencyMap[workspace?.currency || ''] || 'NGN'
 
-    // REQUIREMENT 1: Generate reference and store it against the invoice BEFORE charging
+    // Generate reference and store it against the invoice BEFORE charging
     const ref = 'AMN-' + invoice.invoice_number + '-' + Date.now()
-    await supabase.from('invoices').update({ paystack_reference: ref }).eq('id', invoiceId)
+
+    // FIX: use paystack_ref (single consistent column name)
+    await supabase.from('invoices').update({ paystack_ref: ref }).eq('id', invoiceId)
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://amana-two.vercel.app'
     const callbackUrl = appUrl + '/payment/verify?invoiceId=' + invoiceId
