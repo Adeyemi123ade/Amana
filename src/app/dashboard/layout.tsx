@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+`import type { ReactNode } from 'react'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { Topbar } from '@/components/layout/Topbar'
 import { ThemeProvider } from '@/lib/theme/ThemeProvider'

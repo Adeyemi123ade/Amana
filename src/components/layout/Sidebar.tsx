@@ -18,6 +18,23 @@ const NAV = [
   { href:'/dashboard/settings', label:'Settings', icon:'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z' },
 ]
 
+// ── Correct Amana logo — matches landing page exactly ──
+function AmanaLogo({ size = 34 }: { size?: number }) {
+  return (
+    <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+      <div style={{ width:size, height:size, background:'#7C3AED', borderRadius:8, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+        <svg width={size * 0.5} height={size * 0.5} viewBox="0 0 20 20" fill="none">
+          <rect x="2" y="2" width="7" height="7" rx="1.5" fill="white"/>
+          <rect x="11" y="2" width="7" height="7" rx="1.5" fill="white"/>
+          <rect x="2" y="11" width="7" height="7" rx="1.5" fill="white"/>
+          <rect x="11" y="11" width="7" height="7" rx="1.5" fill="white"/>
+        </svg>
+      </div>
+      <span style={{ color:'white', fontWeight:800, fontSize: size === 30 ? 15 : 17, letterSpacing:-0.5 }}>Amana</span>
+    </div>
+  )
+}
+
 interface SidebarProps { user: User }
 
 export function Sidebar({ user }: SidebarProps) {
@@ -29,7 +46,6 @@ export function Sidebar({ user }: SidebarProps) {
 
   const fullName = user.user_metadata?.full_name || user.email || 'User'
   const email = user.email || ''
-  // Business name shows as primary identity — personal name as secondary
   const businessName = user.user_metadata?.business_name || fullName
   const initials = fullName.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
 
@@ -46,11 +62,8 @@ export function Sidebar({ user }: SidebarProps) {
   const NavContent = ({ onNav }: { onNav?: () => void }) => (
     <div style={{ display:'flex', flexDirection:'column', height:'100%', overflow:'hidden' }}>
       {/* Logo */}
-      <div style={{ display:'flex', alignItems:'center', gap:10, padding:'18px 16px 16px', borderBottom:'1px solid rgba(255,255,255,0.08)', flexShrink:0 }}>
-        <div style={{ width:34, height:34, background:'#7C3AED', borderRadius:8, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z" fill="white"/></svg>
-        </div>
-        <span style={{ color:'white', fontWeight:800, fontSize:17, letterSpacing:-0.5 }}>Amana</span>
+      <div style={{ padding:'18px 16px 16px', borderBottom:'1px solid rgba(255,255,255,0.08)', flexShrink:0 }}>
+        <AmanaLogo size={34} />
       </div>
 
       {/* Nav */}
@@ -92,12 +105,12 @@ export function Sidebar({ user }: SidebarProps) {
 
   return (
     <>
-      {/* Desktop sidebar — CSS class handles visibility */}
+      {/* Desktop sidebar */}
       <aside className="dashboard-sidebar">
         <NavContent />
       </aside>
 
-      {/* Hamburger — CSS class shows on tablet/mobile */}
+      {/* Hamburger — mobile only */}
       <button
         className="mobile-hamburger"
         onClick={() => setOpen(true)}
@@ -108,14 +121,14 @@ export function Sidebar({ user }: SidebarProps) {
         </svg>
       </button>
 
-      {/* Mobile drawer overlay */}
+      {/* Mobile drawer */}
       <div className={`mobile-drawer-overlay${open ? ' open' : ''}`} onClick={() => setOpen(false)}>
         <div
           style={{ width:264, background:'#111827', height:'100%', display:'flex', flexDirection:'column', boxShadow:'4px 0 24px rgba(0,0,0,0.4)' }}
           onClick={e => e.stopPropagation()}
         >
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'14px 14px 4px' }}>
-            <span style={{ color:'white', fontWeight:800, fontSize:16 }}>Amana</span>
+            <AmanaLogo size={30} />
             <button onClick={() => setOpen(false)} style={{ background:'none', border:'none', cursor:'pointer', color:'#9CA3AF', padding:4 }}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                 <path d="M6 18L18 6M6 6l12 12"/>
