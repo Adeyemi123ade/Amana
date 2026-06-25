@@ -27,17 +27,55 @@ export default function PaymentsPage() {
 
   const fetch_ = async (wsId: string, p: number, q: string) => {
     setLoading(true)
+
+    // Fetch payments without join
     let query = supabase
       .from('payments')
-      .select('*, invoices(invoice_number, customers(name))', { count: 'exact' })
+      .select('*', { count: 'exact' })
       .eq('workspace_id', wsId)
       .order('created_at', { ascending: false })
       .range(p * PAGE_SIZE, (p + 1) * PAGE_SIZE - 1)
 
     if (q.trim()) query = query.ilike('customer_email', `%${q.trim()}%`)
 
-    const { data, count } = await query
-    setPayments(data || [])
+    const { data: pays, count } = await query
+    const payList = pays || []
+
+    // Separately fetch invoice numbers for the invoice_ids on these payments
+    const invoiceIds = [...new Set(payList.map((p: any) => p.invoice_id).filter(Boolean))]
+    let invMap: Record<string, any> = {}
+    if (invoiceIds.length > 0) {
+      const { data: invs } = await supabase
+        .from('invoices')
+        .select('id, invoice_number, customer_id')
+        .in('id', invoiceIds)
+
+      // Fetch customer names for those invoices
+      const custIds = [...new Set((invs || []).map((i: any) => i.customer_id).filter(Boolean))]
+      let custMap: Record<string, string> = {}
+      if (custIds.length > 0) {
+        const { data: custs } = await supabase
+          .from('customers')
+          .select('id, name')
+          .in('id', custIds)
+        ;(custs || []).forEach((c: any) => { custMap[c.id] = c.name })
+      }
+
+      ;(invs || []).forEach((inv: any) => {
+        invMap[inv.id] = {
+          invoice_number: inv.invoice_number,
+          customers: { name: custMap[inv.customer_id] || null }
+        }
+      })
+    }
+
+    // Merge invoice data into payments
+    const merged = payList.map((p: any) => ({
+      ...p,
+      invoices: p.invoice_id ? invMap[p.invoice_id] || null : null,
+    }))
+
+    setPayments(merged)
     setTotal(count || 0)
     setLoading(false)
   }

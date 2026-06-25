@@ -27,31 +27,61 @@ export async function GET(request: NextRequest) {
   let appointments: any[] = []
 
   if (isAllWorkspaces) {
-    // Platform-wide — no workspace filter
-    const [invRes, payRes, custRes, apptRes] = await Promise.all([
-      supabase.from('invoices').select('*, customers(name,email), workspaces(name)').order('created_at', { ascending: false }),
-      supabase.from('payments').select('*, workspaces(name)').order('created_at', { ascending: false }),
-      supabase.from('customers').select('*, workspaces(name)').order('created_at', { ascending: false }),
-      supabase.from('appointments').select('*, customers(name), workspaces(name)').order('start_time', { ascending: false }),
+    // Platform-wide — separate queries, merge in JS (no Supabase joins — unreliable on this schema)
+    const [invRes, payRes, custRes, apptRes, wsRes] = await Promise.all([
+      supabase.from('invoices').select('*').order('created_at', { ascending: false }),
+      supabase.from('payments').select('*').order('created_at', { ascending: false }),
+      supabase.from('customers').select('*').order('created_at', { ascending: false }),
+      supabase.from('appointments').select('*').order('start_time', { ascending: false }),
+      supabase.from('workspaces').select('id, name, currency'),
     ])
-    invoices     = invRes.data || []
-    payments     = payRes.data || []
-    customers    = custRes.data || []
-    appointments = apptRes.data || []
+    const rawInv   = invRes.data || []
+    payments       = payRes.data || []
+    customers      = custRes.data || []
+    const rawAppts = apptRes.data || []
+
+    // Build lookup maps
+    const wsMap: Record<string, string> = {}
+    for (const w of (wsRes.data || [])) wsMap[w.id] = w.name
+    const custMap: Record<string, any> = {}
+    for (const c of customers) custMap[c.id] = c
+
+    // Merge names in
+    invoices = rawInv.map((i: any) => ({
+      ...i,
+      customers: custMap[i.customer_id] ? { name: custMap[i.customer_id].name, email: custMap[i.customer_id].email } : null,
+      workspaces: { name: wsMap[i.workspace_id] || '—' }
+    }))
+    appointments = rawAppts.map((a: any) => ({
+      ...a,
+      customers: custMap[a.customer_id] ? { name: custMap[a.customer_id].name } : null,
+      workspaces: { name: wsMap[a.workspace_id] || '—' }
+    }))
     ws = { name: 'Amana Platform', currency: 'NGN' }
   } else {
+    // Single workspace — separate queries, merge in JS
     const [wsRes, invRes, payRes, custRes, apptRes] = await Promise.all([
       supabase.from('workspaces').select('*').eq('id', wsId).single(),
-      supabase.from('invoices').select('*, customers(name,email)').eq('workspace_id', wsId).order('created_at', { ascending: false }),
+      supabase.from('invoices').select('*').eq('workspace_id', wsId).order('created_at', { ascending: false }),
       supabase.from('payments').select('*').eq('workspace_id', wsId).order('created_at', { ascending: false }),
       supabase.from('customers').select('*').eq('workspace_id', wsId),
-      supabase.from('appointments').select('*, customers(name)').eq('workspace_id', wsId).order('start_time', { ascending: false }),
+      supabase.from('appointments').select('*').eq('workspace_id', wsId).order('start_time', { ascending: false }),
     ])
-    ws           = wsRes.data
-    invoices     = invRes.data || []
-    payments     = payRes.data || []
-    customers    = custRes.data || []
-    appointments = apptRes.data || []
+    ws       = wsRes.data
+    payments = payRes.data || []
+    customers = custRes.data || []
+
+    const custMap: Record<string, any> = {}
+    for (const c of customers) custMap[c.id] = c
+
+    invoices = (invRes.data || []).map((i: any) => ({
+      ...i,
+      customers: custMap[i.customer_id] ? { name: custMap[i.customer_id].name, email: custMap[i.customer_id].email } : null,
+    }))
+    appointments = (apptRes.data || []).map((a: any) => ({
+      ...a,
+      customers: custMap[a.customer_id] ? { name: custMap[a.customer_id].name } : null,
+    }))
   }
 
   const inv  = invoices
