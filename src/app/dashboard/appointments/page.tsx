@@ -139,10 +139,6 @@ export default function AppointmentsPage() {
           <div style={{fontSize:52,marginBottom:16}}>📅</div>
           <p style={{fontSize:18,fontWeight:700,color:'var(--text)',marginBottom:8}}>No appointments yet</p>
           <p style={{fontSize:14,color:'var(--text-muted)',marginBottom:24}}>Create your first appointment to get started</p>
-          <button onClick={() => router.push('/dashboard/appointments/new')}
-            style={{background:'var(--accent)',color:'white',padding:'12px 28px',borderRadius:10,fontSize:14,fontWeight:600,border:'none',cursor:'pointer'}}>
-            New Appointment
-          </button>
         </div>
       ) : (
         <>
