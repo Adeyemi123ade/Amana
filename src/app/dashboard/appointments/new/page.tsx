@@ -61,7 +61,7 @@ export default function NewAppointmentPage() {
       setCustomers(custs || [])
       // Pre-select customer from URL param
       const param = new URLSearchParams(window.location.search).get('customer')
-      if (param) { setCustId(param); setCustMode('existing') }
+      if (param) { setCustId(param) }
       setLoading(false)
     }
     load()
