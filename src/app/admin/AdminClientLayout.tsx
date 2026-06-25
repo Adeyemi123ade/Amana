@@ -57,7 +57,7 @@ export default function AdminClientLayout({
         )}
 
         <main style={{
-          flex: 1, padding: 20, overflowY: 'auto', minWidth: 0,
+          flex: 1, padding: 20, overflowY: 'auto', overflowX: 'hidden', minWidth: 0,
           background: 'var(--admin-main, #F1F5F9)',
           color: 'var(--admin-text, #0F172A)',
         }}>
