@@ -6,7 +6,6 @@ import { createClient } from '@/lib/supabase/client'
 import { useTheme } from '@/lib/theme/ThemeProvider'
 import { THEMES, type ThemeId } from '@/lib/theme/themes'
 
-// Create client ONCE outside component - permanent fix
 const supabase = createClient()
 
 type Section = null | 'business' | 'profile' | 'password' | 'notifications' | 'team' | 'appearance' | 'kyc'
@@ -27,6 +26,7 @@ export default function SettingsPage() {
   const [savingBiz, setSavingBiz] = useState(false)
   const [savingProfile, setSavingProfile] = useState(false)
   const [savingPwd, setSavingPwd] = useState(false)
+  const [savingNotifs, setSavingNotifs] = useState(false)
 
   const [biz, setBiz] = useState({ name:'', type:'', email:'', phone:'', address:'', website:'', instagram:'', bankName:'', accountNumber:'', accountName:'' })
   const [profile, setProfile] = useState({ fullName:'', email:'', phone:'', country:'' })
@@ -46,6 +46,7 @@ export default function SettingsPage() {
         setWorkspace(ws)
         workspaceRef.current = ws
         setBiz({ name:ws.name||'', type:ws.business_type||'', email:ws.business_email||'', phone:ws.whatsapp_number||'', address:ws.business_address||'', website:ws.website||'', instagram:ws.instagram||'', bankName:ws.bank_name||'', accountNumber:ws.account_number||'', accountName:ws.account_name||'' })
+        if (ws.notification_prefs) setNotifs(ws.notification_prefs)
       }
       setLoading(false)
     }
@@ -74,11 +75,7 @@ export default function SettingsPage() {
     }).eq('id', ws.id)
     setSavingBiz(false)
     if (error) { fail('We could not save your business profile. Please try again.') }
-    else {
-      ok('Business profile saved successfully')
-      // Refresh the dashboard so the new name appears immediately
-      router.refresh()
-    }
+    else { ok('Business profile saved successfully'); router.refresh() }
   }
 
   const saveProfile = async () => {
@@ -102,6 +99,19 @@ export default function SettingsPage() {
     setSavingPwd(false)
     if (error) { setPwdErr('We could not update your password. Please try again.') }
     else { ok('Password changed successfully'); setPwd({ newPwd:'', confirm:'' }) }
+  }
+
+  const saveNotifs = async () => {
+    const ws = workspaceRef.current || workspace
+    if (!ws) { fail('Workspace not loaded'); return }
+    setSavingNotifs(true)
+    const { error } = await supabase
+      .from('workspaces')
+      .update({ notification_prefs: notifs })
+      .eq('id', ws.id)
+    setSavingNotifs(false)
+    if (error) fail('Could not save notification preferences')
+    else ok('Notification preferences saved')
   }
 
   const signOut = async () => {
@@ -305,9 +315,10 @@ export default function SettingsPage() {
           </div>
         ))}
         <div style={{padding:'14px 18px',borderTop:'1px solid #F3F4F6',display:'flex',gap:10}}>
-          <button onClick={() => ok('Notification preferences saved')}
-            style={{height:44,padding:'0 24px',background:'#7C3AED',color:'white',border:'none',borderRadius:10,fontSize:14,fontWeight:600,cursor:'pointer'}}>
-            Save Preferences
+          <button onClick={saveNotifs} disabled={savingNotifs}
+            style={{height:44,padding:'0 24px',background:'#7C3AED',color:'white',border:'none',borderRadius:10,fontSize:14,fontWeight:600,cursor:savingNotifs?'not-allowed':'pointer',opacity:savingNotifs?0.7:1,display:'inline-flex',alignItems:'center',gap:8}}>
+            {savingNotifs && <span style={{width:14,height:14,border:'2px solid white',borderTopColor:'transparent',borderRadius:'50%',display:'inline-block',animation:'spin 0.8s linear infinite'}}/>}
+            {savingNotifs ? 'Saving...' : 'Save Preferences'}
           </button>
           <button onClick={back}
             style={{height:44,padding:'0 20px',background:'none',border:'1px solid #E5E7EB',borderRadius:10,fontSize:14,fontWeight:500,color:'#6B7280',cursor:'pointer'}}>
@@ -363,7 +374,6 @@ export default function SettingsPage() {
       </div>
       <div style={{background:'white',borderRadius:14,border:'1px solid #E5E7EB',padding:18}}>
         <p style={{fontSize:13,fontWeight:600,color:'#111827',marginBottom:10}}>Current Team</p>
-        {/* Owner row */}
         <div style={{display:'flex',alignItems:'center',gap:10,padding:'10px 0',borderBottom:'1px solid #F3F4F6'}}>
           <div style={{width:36,height:36,borderRadius:'50%',background:'#EDE9FE',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:700,color:'#7C3AED',flexShrink:0}}>
             {(workspace?.name||user?.email||'U')[0].toUpperCase()}
@@ -374,7 +384,6 @@ export default function SettingsPage() {
           </div>
           <span style={{fontSize:11,fontWeight:700,color:'#7C3AED',background:'#EDE9FE',padding:'3px 10px',borderRadius:20,flexShrink:0}}>Owner</span>
         </div>
-        {/* Role legend */}
         <div style={{marginTop:14,padding:12,background:'#F9FAFB',borderRadius:10}}>
           <p style={{fontSize:11,fontWeight:700,color:'#374151',marginBottom:8,textTransform:'uppercase',letterSpacing:0.4}}>Role Permissions</p>
           {[
@@ -433,7 +442,6 @@ export default function SettingsPage() {
     </div>
   )
 
-  // Main list
   const groups = [
     { title:'Business Settings', items:[
       {key:'business',label:'Business Profile',sub:workspace?.name||'Update your business details',icon:'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4'},
@@ -451,7 +459,6 @@ export default function SettingsPage() {
   return (
     <div style={{maxWidth:520}}>
       <h1 style={{fontSize:22,fontWeight:700,color:'#111827',marginBottom:20}}>Settings</h1>
-
       {groups.map(group => (
         <div key={group.title} style={{background:'white',borderRadius:14,border:'1px solid #E5E7EB',overflow:'hidden',marginBottom:12}}>
           <div style={{padding:'12px 18px',borderBottom:'1px solid #F3F4F6',background:'#F9FAFB'}}>
@@ -474,7 +481,6 @@ export default function SettingsPage() {
           ))}
         </div>
       ))}
-
       <div style={{background:'white',borderRadius:14,border:'1px solid #E5E7EB',overflow:'hidden'}}>
         <button onClick={signOut} style={{width:'100%',display:'flex',alignItems:'center',gap:12,padding:'14px 18px',background:'none',border:'none',cursor:'pointer'}}>
           <div style={{width:34,height:34,borderRadius:9,background:'#FEF2F2',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
