@@ -56,22 +56,22 @@ export default async function AdminOverviewPage() {
   ]
 
   return (
-    <div style={{ maxWidth: '100%', overflowX: 'hidden' }}>
+    <div>
       <div style={{ marginBottom: 24 }}>
         <h1 style={{ fontSize: 22, fontWeight: 800, color: 'var(--admin-text, #0F172A)', marginBottom: 4 }}>Platform Overview</h1>
         <p style={{ fontSize: 13, color: 'var(--admin-text-muted, #64748B)' }}>Real-time view of all activity across the Amana platform</p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12, marginBottom: 28 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, marginBottom: 28 }}>
         {stats.map(s => (
-          <Link key={s.label} href={s.link} style={{ textDecoration: 'none', background: 'var(--admin-card, white)', borderRadius: 12, padding: '16px 18px', border: '1px solid var(--admin-card-border, #E2E8F0)', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', display: 'block' }}>
+          <Link key={s.label} href={s.link} style={{ textDecoration: 'none', background: 'var(--admin-card, white)', borderRadius: 12, padding: '18px 20px', border: '1px solid var(--admin-card-border, #E2E8F0)', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', display: 'block' }}>
             <p style={{ fontSize: 11, fontWeight: 600, color: 'var(--admin-text-muted, #64748B)', textTransform: 'uppercase', letterSpacing: .5, marginBottom: 8 }}>{s.label}</p>
-            <p style={{ fontSize: 24, fontWeight: 800, color: s.color }}>{s.value}</p>
+            <p style={{ fontSize: 26, fontWeight: 800, color: s.color }}>{s.value}</p>
           </Link>
         ))}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
         <div style={{ background: 'var(--admin-card, white)', borderRadius: 12, border: '1px solid var(--admin-card-border, #E2E8F0)', overflow: 'hidden' }}>
           <div style={{ padding: '14px 20px', borderBottom: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--admin-text, #0F172A)' }}>Pending KYC Reviews</p>

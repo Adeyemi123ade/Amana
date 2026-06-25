@@ -1,0 +1,1 @@
+﻿{"crons":[{"path":"/api/run-reminders","schedule":"0 5 * * *"},{"path":"/api/process-recurring","schedule":"0 5 * * *"},{"path":"/api/mark-overdue","schedule":"0 0 * * *"}]}
