@@ -44,14 +44,15 @@ export async function POST(req: NextRequest) {
 
     let result
     if (existing) {
-      result = await db
-        .from('platform_admins')
-        .update({
-          display_name: display_name ?? undefined,
-          phone: phone ?? undefined,
-          logo_url: logo_url ?? undefined,
-        })
-        .eq('email', user.email.toLowerCase())
+      const updateData: any = {}
+if (display_name !== undefined) updateData.display_name = display_name
+if (phone !== undefined) updateData.phone = phone
+if (logo_url !== undefined) updateData.logo_url = logo_url
+
+result = await db
+  .from('platform_admins')
+  .update(updateData)
+  .eq('email', user.email.toLowerCase())
     } else {
       result = await db
         .from('platform_admins')
