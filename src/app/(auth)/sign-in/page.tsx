@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
@@ -13,24 +13,43 @@ const label: React.CSSProperties = {display:'block', fontSize:13, fontWeight:500
 const err: React.CSSProperties = {fontSize:11, color:'#EF4444', marginTop:4}
 const supabase = createClient()
 
+const ADMIN_EMAILS = ['admin@amana.app', 'admin@kajolacooperative.com']
+
 export default function SignInPage() {
   const router = useRouter()
-
   const [showPwd, setShowPwd] = useState(false)
   const [serverError, setServerError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [checking, setChecking] = useState(true)
 
   const { register, handleSubmit, formState: { errors } } = useForm<SignInFormData>({ resolver: zodResolver(signInSchema) })
+
+  // Check if already logged in — if so, redirect immediately
+  // This fixes the mobile Back button issue where pressing Back
+  // shows sign-in page even though user is still logged in
+  useEffect(() => {
+    const check = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user?.email) {
+        const email = user.email.toLowerCase()
+        if (ADMIN_EMAILS.includes(email)) {
+          window.location.replace('/admin')
+        } else {
+          window.location.replace('/dashboard')
+        }
+        return
+      }
+      setChecking(false)
+    }
+    check()
+  }, [])
 
   const onSubmit = async (data: SignInFormData) => {
     setIsLoading(true); setServerError('')
     try {
       const { error } = await supabase.auth.signInWithPassword({ email: data.email, password: data.password })
       if (error) { setServerError(error.message.includes('Invalid') ? 'That password does not match your account.' : 'Something went wrong. Please try again.'); return }
-      // Middleware handles all routing after sign-in:
-      // admin emails → /admin, customers → /dashboard
       const email = (await supabase.auth.getUser()).data.user?.email?.toLowerCase() || ''
-      const ADMIN_EMAILS = ['admin@amana.app', 'admin@kajolacooperative.com']
       if (ADMIN_EMAILS.includes(email)) {
         window.location.href = '/admin'
       } else {
@@ -44,9 +63,16 @@ export default function SignInPage() {
     await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: `${window.location.origin}/auth/callback` } })
   }
 
+  // Show spinner while checking session — prevents flash of sign-in form
+  if (checking) return (
+    <div style={{display:'flex', alignItems:'center', justifyContent:'center', minHeight:200}}>
+      <div style={{width:24, height:24, border:'3px solid #7C3AED', borderTopColor:'transparent', borderRadius:'50%', animation:'spin .8s linear infinite'}}/>
+      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+    </div>
+  )
+
   return (
     <div>
-      {/* Back button — goes to landing page */}
       <div style={{marginBottom:20}}>
         <a href="/" style={{display:'inline-flex', alignItems:'center', gap:6, color:'#6B7280', textDecoration:'none', fontSize:13, fontWeight:500}}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
@@ -83,7 +109,7 @@ export default function SignInPage() {
             <label htmlFor="remember" style={{fontSize:13, color:'#6B7280'}}>Remember me</label>
           </div>
           <button type="submit" disabled={isLoading} style={{width:'100%', height:48, background:'#7C3AED', color:'white', border:'none', borderRadius:12, fontSize:15, fontWeight:600, cursor:'pointer', opacity:isLoading?0.7:1, display:'flex', alignItems:'center', justifyContent:'center', gap:8}}>
-            {isLoading && <span style={{width:16, height:16, border:'2px solid white', borderTopColor:'transparent', borderRadius:'50%', display:'inline-block'}} />}
+            {isLoading && <span style={{width:16, height:16, border:'2px solid white', borderTopColor:'transparent', borderRadius:'50%', display:'inline-block', animation:'spin .7s linear infinite'}} />}
             Sign In
           </button>
         </div>
@@ -107,7 +133,7 @@ export default function SignInPage() {
       </div>
 
       <p style={{textAlign:'center', fontSize:13, color:'#6B7280', marginTop:16}}>
-        Don't have an account?{' '}
+        Don&apos;t have an account?{' '}
         <Link href="/sign-up" style={{color:'#7C3AED', fontWeight:500, textDecoration:'none'}}>Sign up</Link>
       </p>
 
@@ -115,6 +141,7 @@ export default function SignInPage() {
         <Link href="/terms" style={{fontSize:11, color:'#9CA3AF', textDecoration:'none'}}>Terms of Service</Link>
         <Link href="/privacy" style={{fontSize:11, color:'#9CA3AF', textDecoration:'none'}}>Privacy Policy</Link>
       </div>
+      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
     </div>
   )
 }

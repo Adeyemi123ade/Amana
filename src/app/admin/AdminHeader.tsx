@@ -29,7 +29,8 @@ export default function AdminHeader({
   useEffect(() => {
     fetch('/api/admin/profile').then(r => r.json()).then(d => {
       setAdminName(d.admin?.display_name || '')
-      setAdminImg(d.admin?.logo_url || '')
+      const url = d.admin?.logo_url
+      setAdminImg(url ? `${url}?t=${Date.now()}` : '')
     }).catch(() => {})
     loadNotifs()
   }, [])
@@ -76,7 +77,8 @@ export default function AdminHeader({
     try {
       const { data: { user } } = await supabase.auth.getUser()
       const ext = file.name.split('.').pop()
-      const path = `admin-avatars/${user?.id}-${Date.now()}.${ext}`
+      // Fixed path — no timestamp — always overwrites same file
+      const path = `admin-avatars/${user?.id}.${ext}`
       const { error: upErr } = await supabase.storage
         .from('workspace-assets')
         .upload(path, file, { upsert: true })
@@ -84,13 +86,14 @@ export default function AdminHeader({
         const { data: { publicUrl } } = supabase.storage
           .from('workspace-assets')
           .getPublicUrl(path)
-        const finalUrl = `${publicUrl}?t=${Date.now()}`
+        // Save clean URL to DB — no cache param
         await fetch('/api/admin/profile', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ logo_url: finalUrl }),
+          body: JSON.stringify({ logo_url: publicUrl }),
         })
-        setAdminImg(finalUrl)
+        // Display with cache-busting param so browser loads new image immediately
+        setAdminImg(`${publicUrl}?t=${Date.now()}`)
         setUploadSuccess(true)
         setTimeout(() => setUploadSuccess(false), 3000)
       }
@@ -102,10 +105,10 @@ export default function AdminHeader({
     }
   }
 
-  // FIX 1: Use replace() so Back button cannot return to admin after sign out
   const signOut = async () => {
     setProfileOpen(false)
     await supabase.auth.signOut()
+    // replace() removes admin from browser history so Back cannot return to it
     window.location.replace('/sign-in')
   }
 
@@ -121,6 +124,7 @@ export default function AdminHeader({
           .admin-logo-desktop { display: none; }
           .admin-hamburger { display: flex; }
         }
+        @keyframes spin { to { transform: rotate(360deg); } }
       `}</style>
 
       <header style={{
@@ -191,9 +195,7 @@ export default function AdminHeader({
                   </div>
                 )}
                 {notifications.length === 0 ? (
-                  <div style={{ padding: '28px 16px', textAlign: 'center', color: dark ? 'rgba(255,255,255,0.4)' : '#94A3B8', fontSize: 13 }}>
-                    No new messages
-                  </div>
+                  <div style={{ padding: '28px 16px', textAlign: 'center', color: dark ? 'rgba(255,255,255,0.4)' : '#94A3B8', fontSize: 13 }}>No new messages</div>
                 ) : (
                   <>
                     {unreadNotifs.length > 0 && (
@@ -240,43 +242,40 @@ export default function AdminHeader({
 
             {profileOpen && (
               <div style={{ position: 'absolute', right: 0, top: 42, width: 260, background: dark ? '#1E293B' : 'white', borderRadius: 14, boxShadow: '0 8px 40px rgba(0,0,0,0.18)', border: `1px solid ${dark ? 'rgba(255,255,255,0.08)' : '#E2E8F0'}`, zIndex: 200, overflow: 'hidden' }}>
-                
-                {/* Profile section */}
+
                 <div style={{ padding: '20px 16px 16px', background: dark ? '#0F172A' : '#F8FAFC', textAlign: 'center', borderBottom: `1px solid ${dark ? 'rgba(255,255,255,0.08)' : '#E2E8F0'}` }}>
-                  
-                  {/* Avatar */}
                   {adminImg ? (
-                    <img src={adminImg} alt="" style={{ width: 64, height: 64, borderRadius: '50%', objectFit: 'cover', border: '3px solid #7C3AED', marginBottom: 10, display: 'block', margin: '0 auto 10px' }}/>
+                    <img src={adminImg} alt="" style={{ width: 64, height: 64, borderRadius: '50%', objectFit: 'cover', border: '3px solid #7C3AED', display: 'block', margin: '0 auto 10px' }}/>
                   ) : (
                     <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#7C3AED', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 800, fontSize: 24, margin: '0 auto 10px' }}>
                       {(adminName || email)[0]?.toUpperCase() || 'A'}
                     </div>
                   )}
-
                   <p style={{ fontSize: 14, fontWeight: 700, color: dark ? 'white' : '#0F172A', marginBottom: 2 }}>{adminName || 'Admin'}</p>
                   <p style={{ fontSize: 12, color: dark ? 'rgba(255,255,255,0.5)' : '#64748B', marginBottom: 12 }}>{email}</p>
 
-                  {/* FIX 2: Clear visible Change Photo button */}
                   <button
                     onClick={() => fileRef.current?.click()}
                     disabled={uploading}
                     style={{
                       width: '100%', padding: '8px 0',
-                      background: uploading ? '#E5E7EB' : '#7C3AED',
+                      background: uploadSuccess ? '#22C55E' : '#7C3AED',
                       color: 'white', border: 'none', borderRadius: 8,
-                      fontSize: 12, fontWeight: 600, cursor: uploading ? 'not-allowed' : 'pointer',
+                      fontSize: 12, fontWeight: 600,
+                      cursor: uploading ? 'not-allowed' : 'pointer',
                       display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                      opacity: uploading ? 0.7 : 1,
                     }}>
                     {uploading ? (
                       <>
                         <span style={{ width: 12, height: 12, border: '2px solid white', borderTopColor: 'transparent', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.8s linear infinite' }}/>
                         Uploading...
                       </>
-                    ) : uploadSuccess ? (
-                      '✓ Photo updated!'
-                    ) : (
+                    ) : uploadSuccess ? '✓ Photo saved!' : (
                       <>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
+                          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+                        </svg>
                         Change Photo
                       </>
                     )}
@@ -284,7 +283,6 @@ export default function AdminHeader({
                   <input ref={fileRef} type="file" accept="image/*" onChange={uploadPhoto} style={{ display: 'none' }}/>
                 </div>
 
-                {/* Actions */}
                 <div style={{ padding: 12 }}>
                   <button onClick={() => { router.push('/admin/profile'); setProfileOpen(false) }}
                     style={{ display: 'block', width: '100%', padding: '10px 14px', background: 'none', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 500, color: dark ? 'rgba(255,255,255,0.7)' : '#374151', cursor: 'pointer', textAlign: 'left', marginBottom: 4 }}>
@@ -300,7 +298,6 @@ export default function AdminHeader({
           </div>
         </div>
       </header>
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </>
   )
 }
