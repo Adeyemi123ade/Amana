@@ -1,4 +1,4 @@
-`import type { ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { Topbar } from '@/components/layout/Topbar'
 import { ThemeProvider } from '@/lib/theme/ThemeProvider'
@@ -9,18 +9,16 @@ import type { ThemeId } from '@/lib/theme/themes'
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
   const supabase = await createClient()
   const { data, error } = await supabase.auth.getUser()
-const user = data?.user
+  const user = data?.user
 
   if (error || !user) redirect('/sign-in')
 
-  // Get workspace to use business name as primary identity
   const { data: workspace } = await supabase
     .from('workspaces')
     .select('name, business_type')
     .eq('created_by', user.id)
     .maybeSingle()
 
-  // Get personal name as fallback
   let fullName = user.user_metadata?.full_name || ''
   if (!fullName) {
     const { data: profile } = await supabase
@@ -31,8 +29,6 @@ const user = data?.user
     if (profile?.full_name) fullName = profile.full_name
   }
 
-  // Business name is primary — used in sidebar and greeting
-  // Falls back to personal name if no workspace yet
   const displayName = workspace?.name || fullName || user.email || 'User'
 
   const enrichedUser = {
