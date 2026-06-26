@@ -25,7 +25,6 @@ export default function AdminHeader({
   const profileRef = useRef<HTMLDivElement>(null)
   const fileRef = useRef<HTMLInputElement>(null)
 
-  // Load profile and notifications
   useEffect(() => {
     fetch('/api/admin/profile').then(r => r.json()).then(d => {
       setAdminName(d.admin?.display_name || '')
@@ -34,12 +33,10 @@ export default function AdminHeader({
     loadNotifs()
   }, [])
 
-  // Apply dark mode
   useEffect(() => {
     document.documentElement.setAttribute('data-admin-theme', dark ? 'dark' : 'light')
   }, [dark])
 
-  // Close panels when clicking outside
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
       if (notifRef.current && !notifRef.current.contains(e.target as Node)) setNotifOpen(false)
@@ -98,27 +95,39 @@ export default function AdminHeader({
   const unreadNotifs = notifications.filter(n => !n.read)
   const readNotifs = notifications.filter(n => n.read)
 
-  const hd: React.CSSProperties = {
-    position: 'sticky', top: 0, zIndex: 100,
-    background: 'var(--admin-header, #FFFFFF)',
-    borderBottom: '1px solid var(--admin-header-border, #E2E8F0)',
-    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-    padding: '0 16px', height: 56, flexShrink: 0,
-  }
-
   return (
     <>
-      <header style={hd}>
-        {/* Left: hamburger (mobile only) + logo */}
+      <style>{`
+        .admin-logo-desktop { display: flex; }
+        .admin-hamburger { display: none; }
+        @media (max-width: 899px) {
+          .admin-logo-desktop { display: none; }
+          .admin-hamburger { display: flex; }
+        }
+      `}</style>
+
+      <header style={{
+        position: 'sticky', top: 0, zIndex: 100,
+        background: dark ? '#0F172A' : '#FFFFFF',
+        borderBottom: `1px solid ${dark ? 'rgba(255,255,255,0.08)' : '#E2E8F0'}`,
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '0 16px', height: 56, flexShrink: 0,
+      }}>
+
+        {/* Left: hamburger (mobile only) OR logo (desktop only) */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+
+          {/* Hamburger — mobile only */}
           <button onClick={onMenuClick}
-            className="mobile-hamburger"
-            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex', flexDirection: 'column', gap: 4 }}>
+            className="admin-hamburger"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, flexDirection: 'column', gap: 4 }}>
             {[0,1,2].map(i => (
-              <span key={i} style={{ width: 20, height: 2, background: 'var(--admin-text, #334155)', borderRadius: 2, display: 'block' }}/>
+              <span key={i} style={{ width: 20, height: 2, background: dark ? 'rgba(255,255,255,0.8)' : '#334155', borderRadius: 2, display: 'block' }}/>
             ))}
           </button>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+
+          {/* Logo — desktop only */}
+          <div className="admin-logo-desktop" style={{ alignItems: 'center', gap: 10 }}>
             <div style={{ width: 36, height: 36, background: '#7C3AED', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
                 <rect x="2" y="2" width="7" height="7" rx="1.5" fill="white"/>
@@ -127,7 +136,7 @@ export default function AdminHeader({
                 <rect x="11" y="11" width="7" height="7" rx="1.5" fill="white"/>
               </svg>
             </div>
-            <span style={{ fontWeight: 800, fontSize: 20, color: 'var(--admin-text, #0F172A)', letterSpacing: '-0.3px' }}>Amana</span>
+            <span style={{ fontWeight: 800, fontSize: 20, color: dark ? 'white' : '#0F172A', letterSpacing: '-0.3px' }}>Amana</span>
           </div>
         </div>
 
@@ -162,7 +171,6 @@ export default function AdminHeader({
                   {unread > 0 && <span style={{ fontSize: 11, fontWeight: 700, color: '#7C3AED', background: '#EDE9FE', padding: '2px 8px', borderRadius: 20 }}>{unread} unread</span>}
                 </div>
 
-                {/* Open message card */}
                 {openMsg && (
                   <div style={{ padding: 16, background: dark ? '#0F172A' : '#F8FAFC', borderBottom: `1px solid ${dark ? 'rgba(255,255,255,0.08)' : '#E2E8F0'}` }}>
                     <p style={{ fontSize: 13, fontWeight: 700, color: dark ? 'white' : '#0F172A', marginBottom: 6 }}>{openMsg.title}</p>
