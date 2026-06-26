@@ -8,7 +8,8 @@ import type { ThemeId } from '@/lib/theme/themes'
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
   const supabase = await createClient()
-  const { data: { user }, error } = await supabase.auth.getUser()
+  const { data, error } = await supabase.auth.getUser()
+const user = data?.user
 
   if (error || !user) redirect('/sign-in')
 
