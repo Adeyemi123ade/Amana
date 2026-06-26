@@ -87,10 +87,10 @@ export default function AdminHeader({
     } finally { setUploading(false) }
   }
 
-  const signOut = async () => {
-    await supabase.auth.signOut()
-    window.location.href = '/sign-in'
-  }
+ const signOut = async () => {
+  await supabase.auth.signOut()
+  window.location.href = '/auth/sign-in'
+}
 
   const unreadNotifs = notifications.filter(n => !n.read)
   const readNotifs = notifications.filter(n => n.read)
