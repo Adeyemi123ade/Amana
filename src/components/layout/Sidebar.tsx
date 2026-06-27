@@ -19,22 +19,6 @@ const NAV = [
   { href:'/dashboard/settings', label:'Settings', icon:'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z' },
 ]
 
-function AmanaLogo({ size = 34 }: { size?: number }) {
-  return (
-    <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-      <div style={{ width:size, height:size, background:'#7C3AED', borderRadius:8, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-        <svg width={size * 0.5} height={size * 0.5} viewBox="0 0 20 20" fill="none">
-          <rect x="2" y="2" width="7" height="7" rx="1.5" fill="white"/>
-          <rect x="11" y="2" width="7" height="7" rx="1.5" fill="white"/>
-          <rect x="2" y="11" width="7" height="7" rx="1.5" fill="white"/>
-          <rect x="11" y="11" width="7" height="7" rx="1.5" fill="white"/>
-        </svg>
-      </div>
-      <span style={{ color:'white', fontWeight:800, fontSize: size === 30 ? 15 : 17, letterSpacing:-0.5 }}>Amana</span>
-    </div>
-  )
-}
-
 interface SidebarProps { user: User }
 
 export function Sidebar({ user }: SidebarProps) {
@@ -61,11 +45,6 @@ export function Sidebar({ user }: SidebarProps) {
 
   const NavContent = ({ onNav }: { onNav?: () => void }) => (
     <div style={{ display:'flex', flexDirection:'column', height:'100%', overflow:'hidden' }}>
-      {/* Logo — only shown inside mobile drawer, hidden on desktop sidebar */}
-      <div className="sidebar-logo-mobile" style={{ padding:'18px 16px 16px', borderBottom:'1px solid rgba(255,255,255,0.08)', flexShrink:0 }}>
-        <AmanaLogo size={34} />
-      </div>
-
       {/* Nav */}
       <nav style={{ flex:1, padding:'10px', overflowY:'auto' }}>
         {NAV.map(item => {
@@ -105,23 +84,12 @@ export function Sidebar({ user }: SidebarProps) {
 
   return (
     <>
-      <style>{`
-        /* Desktop sidebar: hide logo (topbar shows it) */
-        @media (min-width: 1024px) {
-          .sidebar-logo-mobile { display: none !important; }
-        }
-        /* Mobile drawer: show logo */
-        @media (max-width: 1023px) {
-          .sidebar-logo-mobile { display: block !important; }
-        }
-      `}</style>
-
-      {/* Desktop sidebar */}
+      {/* Desktop sidebar — NO logo, nav only */}
       <aside className="dashboard-sidebar">
         <NavContent />
       </aside>
 
-      {/* Hamburger — mobile only */}
+      {/* Hamburger button — mobile only */}
       <button
         className="mobile-hamburger"
         onClick={() => setOpen(true)}
@@ -132,14 +100,14 @@ export function Sidebar({ user }: SidebarProps) {
         </svg>
       </button>
 
-      {/* Mobile drawer */}
+      {/* Mobile drawer — NO logo at top, clean nav */}
       <div className={`mobile-drawer-overlay${open ? ' open' : ''}`} onClick={() => setOpen(false)}>
         <div
           style={{ width:264, background:'#111827', height:'100%', display:'flex', flexDirection:'column', boxShadow:'4px 0 24px rgba(0,0,0,0.4)' }}
           onClick={e => e.stopPropagation()}
         >
-          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'14px 14px 4px' }}>
-            <AmanaLogo size={30} />
+          {/* Close button only — no logo */}
+          <div style={{ display:'flex', justifyContent:'flex-end', padding:'14px 14px 4px' }}>
             <button onClick={() => setOpen(false)} style={{ background:'none', border:'none', cursor:'pointer', color:'#9CA3AF', padding:4 }}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                 <path d="M6 18L18 6M6 6l12 12"/>
@@ -152,4 +120,3 @@ export function Sidebar({ user }: SidebarProps) {
     </>
   )
 }
-
