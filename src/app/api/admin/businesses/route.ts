@@ -2,6 +2,20 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getAdminSupabase, logAdminAction } from '@/lib/admin-auth'
 import { createClient } from '@/lib/supabase/server'
 
+export async function GET() {
+  try {
+    const db = getAdminSupabase()
+    const { data: businesses, error } = await db
+      .from('workspaces')
+      .select('*')
+      .order('created_at', { ascending: false })
+    if (error) throw error
+    return NextResponse.json({ businesses: businesses || [] })
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message || 'Server error' }, { status: 500 })
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { id, action } = await req.json()
@@ -16,7 +30,6 @@ export async function POST(req: NextRequest) {
     await logAdminAction(user?.email || 'admin', 'BUSINESS_' + action.toUpperCase(), 'workspace', id)
     return NextResponse.json({ success: true })
   } catch (err: any) {
-    console.error('Admin businesses error:', err)
     return NextResponse.json({ error: err.message || 'Server error' }, { status: 500 })
   }
 }
