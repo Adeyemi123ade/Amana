@@ -11,9 +11,9 @@ export default function AdminTeamPage() {
   const [email, setEmail] = useState('')
   const [name, setName] = useState('')
   const [role, setRole] = useState('ADMIN')
-  const [step, setStep] = useState<'form'|'preview'|'sent'>('form')
-  const [previewUrl, setPreviewUrl] = useState('')
-  const [sending, setSending] = useState(false)
+  const [preparing, setPreparing] = useState(false)
+  const [emailOpened, setEmailOpened] = useState(false)
+  const [inviteUrl, setInviteUrl] = useState('')
   const [msg, setMsg] = useState('')
   const [confirmRemove, setConfirmRemove] = useState<string|null>(null)
 
@@ -25,39 +25,76 @@ export default function AdminTeamPage() {
       setAdminRole(d.admin?.role || (SUPER_ADMIN_EMAILS.includes((d.email||'').toLowerCase()) ? 'SUPER_ADMIN' : 'ADMIN'))
     })
   }
+
   useEffect(() => { load() }, [])
 
-  const preparePreview = () => {
+  // Exact same pattern as business invoice sendEmail():
+  // 1. Call API to prepare the DB record and get the invite URL
+  // 2. Build the mailto: link with full pre-filled email body
+  // 3. Open device email client — admin reads, edits, sends themselves
+  const openEmailInvite = async () => {
     if (!email.trim()) { setMsg('Please enter the email address'); return }
     const emailRx = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRx.test(email.trim())) { setMsg('Please enter a valid email address'); return }
-    setMsg('')
-    const appUrl = 'https://amana-two.vercel.app'
-    setPreviewUrl(`${appUrl}/admin-invite/[TOKEN-WILL-BE-GENERATED]`)
-    setStep('preview')
-  }
+    setPreparing(true); setMsg('')
 
-  const sendInvite = async () => {
-    setSending(true); setMsg('')
+    // Step 1: prepare DB record, get invite URL
     const res = await fetch('/api/admin/team', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: email.trim(), name: name.trim(), role }),
     })
     const data = await res.json()
-    if (data.success) {
-      setStep('sent')
-      load()
-    } else {
-      setMsg('Error: ' + (data.error || 'Could not send invite. Please try again.'))
-      setStep('form')
+
+    if (!data.success) {
+      setMsg('Error: ' + (data.error || 'Could not prepare invitation'))
+      setPreparing(false)
+      return
     }
-    setSending(false)
+
+    const url = data.inviteUrl
+    const sender = adminName || adminEmail
+    const recipientName = name.trim() || email.trim()
+
+    // Step 2: build mailto exactly like business invoice does
+    const subject = encodeURIComponent("You've been invited to join Amana Admin Dashboard")
+    const body = encodeURIComponent(
+      'Hello ' + recipientName + ',\n\n' +
+      sender + ' has invited you to join the Amana Admin Dashboard as ' + role + '.\n\n' +
+      '━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n' +
+      'INVITATION DETAILS\n' +
+      '━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n' +
+      'Role:         ' + role + '\n' +
+      'Invited by:   ' + sender + '\n' +
+      'Your email:   ' + email.trim() + '\n\n' +
+      '━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n' +
+      'Use the link below to create your admin account and set your password:\n\n' +
+      url + '\n\n' +
+      'Once you click the link, you will be asked to enter your name and set a password.\n' +
+      'After that, you can sign in at https://amana-two.vercel.app/sign-in\n\n' +
+      'If you did not expect this invitation, you can safely ignore this email.\n\n' +
+      'Best regards,\n' +
+      sender + '\n' +
+      'Amana Admin'
+    )
+
+    // Step 3: open device email app — same as business invoice
+    window.location.href = 'mailto:' + email.trim() + '?subject=' + subject + '&body=' + body
+
+    setInviteUrl(url)
+    setEmailOpened(true)
+    load()
+    setPreparing(false)
+  }
+
+  const resendEmail = () => {
+    setEmailOpened(false)
+    setTimeout(openEmailInvite, 100)
   }
 
   const resetForm = () => {
     setEmail(''); setName(''); setRole('ADMIN')
-    setStep('form'); setPreviewUrl(''); setMsg('')
+    setEmailOpened(false); setInviteUrl(''); setMsg('')
   }
 
   const remove = async (targetEmail: string) => {
@@ -91,7 +128,9 @@ export default function AdminTeamPage() {
     <div style={{ maxWidth: 680 }}>
       <div style={{ marginBottom: 24 }}>
         <h1 style={{ fontSize: 22, fontWeight: 800, color: 'var(--admin-text)', marginBottom: 4 }}>Admin Team</h1>
-        <p style={{ fontSize: 13, color: 'var(--admin-text-muted)' }}>Invite and manage who has access to the Amana Admin dashboard</p>
+        <p style={{ fontSize: 13, color: 'var(--admin-text-muted)' }}>
+          Invite and manage who has access to the Amana Admin dashboard
+        </p>
       </div>
 
       {!isSuperAdmin && (
@@ -105,16 +144,67 @@ export default function AdminTeamPage() {
         <div style={{ background: 'var(--admin-card)', borderRadius: 14, border: '1px solid var(--admin-card-border)', padding: 24, marginBottom: 24 }}>
           <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--admin-text)', marginBottom: 16 }}>Invite New Admin</p>
 
-          {/* STEP 1: Form */}
-          {step === 'form' && (
+          {emailOpened ? (
+            /* After email app opened */
+            <>
+              <div style={{ background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 12, padding: '16px 18px', marginBottom: 16, display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="2.5" strokeLinecap="round" style={{ flexShrink: 0, marginTop: 2 }}>
+                  <path d="M20 6L9 17l-5-5"/>
+                </svg>
+                <div>
+                  <p style={{ fontSize: 14, fontWeight: 700, color: '#16A34A', marginBottom: 4 }}>Email App Opened</p>
+                  <p style={{ fontSize: 13, color: '#15803D', lineHeight: 1.6 }}>
+                    Your email app has opened with the invitation pre-filled and ready to send to{' '}
+                    <strong>{email}</strong>. Review the email in your email app and click{' '}
+                    <strong>Send</strong> to deliver the invitation.
+                  </p>
+                </div>
+              </div>
+
+              {/* Show the invite link in case email fails */}
+              <div style={{ background: 'var(--admin-bg)', border: '1px solid var(--admin-card-border)', borderRadius: 10, padding: '12px 14px', marginBottom: 16 }}>
+                <p style={{ fontSize: 11, fontWeight: 600, color: 'var(--admin-text-muted)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>
+                  Invitation Link (share manually if needed)
+                </p>
+                <p style={{ fontSize: 12, color: 'var(--admin-accent, #7C3AED)', wordBreak: 'break-all', fontFamily: 'monospace' }}>
+                  {inviteUrl}
+                </p>
+              </div>
+
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button onClick={resendEmail}
+                  style={{ flex: 1, height: 44, background: '#0E1A6E', color: 'white', border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/>
+                  </svg>
+                  Resend Invitation
+                </button>
+                <button onClick={resetForm}
+                  style={{ flex: 1, height: 44, background: 'none', border: '1px solid var(--admin-card-border)', borderRadius: 10, fontSize: 13, color: 'var(--admin-text-muted)', cursor: 'pointer' }}>
+                  Invite Another
+                </button>
+              </div>
+            </>
+          ) : (
+            /* Invite form */
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <div>
                 <label style={lbl}>Email Address *</label>
-                <input style={inp} placeholder="colleague@example.com" value={email} onChange={e => setEmail(e.target.value)} />
+                <input
+                  style={inp}
+                  placeholder="colleague@example.com"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                />
               </div>
               <div>
                 <label style={lbl}>Full Name (optional)</label>
-                <input style={inp} placeholder="Their full name" value={name} onChange={e => setName(e.target.value)} />
+                <input
+                  style={inp}
+                  placeholder="Their full name"
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                />
               </div>
               <div>
                 <label style={lbl}>Role</label>
@@ -124,96 +214,21 @@ export default function AdminTeamPage() {
                   <option value="SUPER_ADMIN">Super Admin — can invite and remove admins</option>
                 </select>
               </div>
-              {msg && <p style={{ fontSize: 13, color: '#DC2626' }}>{msg}</p>}
-              <button onClick={preparePreview}
-                style={{ width: '100%', height: 46, background: '#0E1A6E', color: 'white', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+              {msg && (
+                <p style={{ fontSize: 13, color: '#DC2626', background: '#FEF2F2', padding: '8px 12px', borderRadius: 8 }}>
+                  {msg}
+                </p>
+              )}
+              <button onClick={openEmailInvite} disabled={preparing}
+                style={{ width: '100%', height: 48, background: preparing ? '#94A3B8' : '#0E1A6E', color: 'white', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: preparing ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 4 }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round">
-                  <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0zM2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/>
                 </svg>
-                Preview Invitation Email
+                {preparing ? 'Preparing...' : 'Open Email to Send Invitation'}
               </button>
-            </div>
-          )}
-
-          {/* STEP 2: Email Preview */}
-          {step === 'preview' && (
-            <div>
-              <div style={{ background: 'var(--admin-bg)', borderRadius: 12, border: '1px solid var(--admin-card-border)', marginBottom: 16, overflow: 'hidden' }}>
-                {/* Email header */}
-                <div style={{ background: '#0E1A6E', padding: '12px 16px' }}>
-                  <p style={{ fontSize: 12, fontWeight: 700, color: 'white', marginBottom: 2 }}>EMAIL PREVIEW</p>
-                  <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>This is exactly what the invitee will receive</p>
-                </div>
-                {/* Email fields */}
-                <div style={{ padding: '14px 16px', borderBottom: '1px solid var(--admin-card-border)' }}>
-                  {[
-                    ['From', 'Amana Admin <noreply@chichatapp.com>'],
-                    ['To', email.trim()],
-                    ['Subject', "You've been invited to join Amana Admin"],
-                    ['Role', role],
-                    ['Invited by', adminEmail],
-                  ].map(([l, v]) => (
-                    <div key={l} style={{ display: 'flex', gap: 12, padding: '5px 0', borderBottom: '1px solid var(--admin-card-border)' }}>
-                      <p style={{ fontSize: 12, color: 'var(--admin-text-muted)', width: 80, flexShrink: 0 }}>{l}</p>
-                      <p style={{ fontSize: 12, fontWeight: 600, color: 'var(--admin-text)' }}>{v}</p>
-                    </div>
-                  ))}
-                </div>
-                {/* Email body preview */}
-                <div style={{ padding: '16px', background: 'white' }}>
-                  <p style={{ fontSize: 14, fontWeight: 700, color: '#0F172A', marginBottom: 8 }}>You have been invited!</p>
-                  <p style={{ fontSize: 13, color: '#4B5563', lineHeight: 1.6, marginBottom: 12 }}>
-                    <strong>{adminEmail}</strong> has invited you to join the Amana Admin Dashboard as <strong>{role}</strong>.
-                  </p>
-                  <p style={{ fontSize: 13, color: '#4B5563', lineHeight: 1.6, marginBottom: 16 }}>
-                    Click the button below to create your admin account and set your password.
-                  </p>
-                  <div style={{ background: '#0E1A6E', borderRadius: 8, padding: '12px 20px', textAlign: 'center', marginBottom: 12 }}>
-                    <p style={{ fontSize: 13, fontWeight: 700, color: 'white' }}>Accept Invitation and Create Account</p>
-                  </div>
-                  <p style={{ fontSize: 11, color: '#94A3B8', textAlign: 'center' }}>
-                    You will sign in with: <strong>{email.trim()}</strong>
-                  </p>
-                </div>
-              </div>
-
-              {msg && <p style={{ fontSize: 13, color: '#DC2626', marginBottom: 12 }}>{msg}</p>}
-
-              <div style={{ display: 'flex', gap: 10 }}>
-                <button onClick={() => setStep('form')}
-                  style={{ flex: 1, height: 44, background: 'none', border: '1px solid var(--admin-card-border)', borderRadius: 10, fontSize: 13, color: 'var(--admin-text-muted)', cursor: 'pointer' }}>
-                  ← Edit Details
-                </button>
-                <button onClick={sendInvite} disabled={sending}
-                  style={{ flex: 2, height: 44, background: sending ? '#94A3B8' : '#16A34A', color: 'white', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: sending ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                  {sending ? (
-                    <><span style={{ width: 14, height: 14, border: '2px solid white', borderTopColor: 'transparent', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.8s linear infinite' }}/> Sending...</>
-                  ) : (
-                    <><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg> Confirm & Send Invite</>
-                  )}
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* STEP 3: Sent confirmation */}
-          {step === 'sent' && (
-            <div>
-              <div style={{ background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 12, padding: '16px 18px', marginBottom: 14, display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="2.5" strokeLinecap="round" style={{ flexShrink: 0, marginTop: 1 }}>
-                  <path d="M20 6L9 17l-5-5"/>
-                </svg>
-                <div>
-                  <p style={{ fontSize: 14, fontWeight: 700, color: '#16A34A', marginBottom: 2 }}>Invitation Sent Successfully</p>
-                  <p style={{ fontSize: 12, color: '#15803D' }}>
-                    An email with a registration link was sent to <strong>{email}</strong>. They will receive it shortly and can use it to create their admin account.
-                  </p>
-                </div>
-              </div>
-              <button onClick={resetForm}
-                style={{ width: '100%', height: 44, background: 'var(--admin-bg)', border: '1px solid var(--admin-card-border)', borderRadius: 10, fontSize: 13, fontWeight: 500, color: 'var(--admin-text)', cursor: 'pointer' }}>
-                Invite Another Admin
-              </button>
+              <p style={{ fontSize: 11, color: 'var(--admin-text-muted)', textAlign: 'center' }}>
+                Your email app will open with the invitation pre-filled. Review and click Send.
+              </p>
             </div>
           )}
         </div>
@@ -222,7 +237,7 @@ export default function AdminTeamPage() {
       {/* Admin list */}
       <div style={{ background: 'var(--admin-card)', borderRadius: 14, border: '1px solid var(--admin-card-border)', overflow: 'hidden' }}>
         <div style={{ padding: '12px 20px', background: 'var(--admin-bg)', borderBottom: '2px solid var(--admin-card-border)' }}>
-          <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--admin-text-muted)', textTransform: 'uppercase', letterSpacing: .5 }}>
+          <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--admin-text-muted)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
             {admins.length} Admin{admins.length !== 1 ? 's' : ''}
           </p>
         </div>
@@ -237,7 +252,9 @@ export default function AdminTeamPage() {
                 <div>
                   <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--admin-text)' }}>{a.display_name || 'Name not set'}</p>
                   <p style={{ fontSize: 11, color: 'var(--admin-text-muted)' }}>{a.email}</p>
-                  {a.invited_by && <p style={{ fontSize: 10, color: 'var(--admin-text-faint)' }}>Invited by {a.invited_by}</p>}
+                  {a.invited_by && (
+                    <p style={{ fontSize: 10, color: 'var(--admin-text-faint)' }}>Invited by {a.invited_by}</p>
+                  )}
                 </div>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
@@ -257,6 +274,7 @@ export default function AdminTeamPage() {
         })}
       </div>
 
+      {/* Remove confirmation */}
       {confirmRemove && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 20 }}>
           <div style={{ background: 'var(--admin-card)', borderRadius: 16, padding: 28, maxWidth: 380, width: '100%', textAlign: 'center', border: '1px solid var(--admin-card-border)' }}>
@@ -277,7 +295,6 @@ export default function AdminTeamPage() {
           </div>
         </div>
       )}
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   )
 }
