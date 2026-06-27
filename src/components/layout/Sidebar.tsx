@@ -18,7 +18,6 @@ const NAV = [
   { href:'/dashboard/settings', label:'Settings', icon:'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z' },
 ]
 
-// ── Correct Amana logo — matches landing page exactly ──
 function AmanaLogo({ size = 34 }: { size?: number }) {
   return (
     <div style={{ display:'flex', alignItems:'center', gap:8 }}>
@@ -61,8 +60,8 @@ export function Sidebar({ user }: SidebarProps) {
 
   const NavContent = ({ onNav }: { onNav?: () => void }) => (
     <div style={{ display:'flex', flexDirection:'column', height:'100%', overflow:'hidden' }}>
-      {/* Logo */}
-      <div style={{ padding:'18px 16px 16px', borderBottom:'1px solid rgba(255,255,255,0.08)', flexShrink:0 }}>
+      {/* Logo — only shown inside mobile drawer, hidden on desktop sidebar */}
+      <div className="sidebar-logo-mobile" style={{ padding:'18px 16px 16px', borderBottom:'1px solid rgba(255,255,255,0.08)', flexShrink:0 }}>
         <AmanaLogo size={34} />
       </div>
 
@@ -72,7 +71,7 @@ export function Sidebar({ user }: SidebarProps) {
           const active = isActive(item.href, item.exact)
           return (
             <Link key={item.href} href={item.href} onClick={onNav}
-              style={{ display:'flex', alignItems:'center', gap:11, padding:'11px 12px', borderRadius:10, marginBottom:2, textDecoration:'none', background: active ? '#7C3AED' : 'transparent', color: active ? 'white' : '#9CA3AF', fontWeight: active ? 600 : 400, fontSize:14, transition:'background 0.15s, color 0.15s', whiteSpace:'nowrap' }}>
+              style={{ display:'flex', alignItems:'center', gap:11, padding:'11px 12px', borderRadius:10, marginBottom:2, textDecoration:'none', background: active ? '#7C3AED' : 'transparent', color: active ? 'white' : 'var(--sidebar-text, #9CA3AF)', fontWeight: active ? 600 : 400, fontSize:14, transition:'background 0.15s, color 0.15s', whiteSpace:'nowrap' }}>
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink:0 }}>
                 <path d={item.icon}/>
               </svg>
@@ -105,6 +104,17 @@ export function Sidebar({ user }: SidebarProps) {
 
   return (
     <>
+      <style>{`
+        /* Desktop sidebar: hide logo (topbar shows it) */
+        @media (min-width: 1024px) {
+          .sidebar-logo-mobile { display: none !important; }
+        }
+        /* Mobile drawer: show logo */
+        @media (max-width: 1023px) {
+          .sidebar-logo-mobile { display: block !important; }
+        }
+      `}</style>
+
       {/* Desktop sidebar */}
       <aside className="dashboard-sidebar">
         <NavContent />
