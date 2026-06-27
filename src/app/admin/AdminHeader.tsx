@@ -127,12 +127,8 @@ export default function AdminHeader({
   return (
     <>
       <style>{`
-        .admin-logo-desktop { display: flex; }
-        .admin-hamburger { display: none; }
-        @media (max-width: 899px) {
-          .admin-logo-desktop { display: none; }
-          .admin-hamburger { display: flex; }
-        }
+        /* Hamburger always visible — sidebar shows the logo */
+        .admin-hamburger { display: flex; }
         @keyframes spin { to { transform: rotate(360deg); } }
       `}</style>
 
@@ -153,17 +149,7 @@ export default function AdminHeader({
             ))}
           </button>
 
-          <div className="admin-logo-desktop" style={{ alignItems: 'center', gap: 10 }}>
-            <div style={{ width: 36, height: 36, background: '#7C3AED', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
-                <rect x="2" y="2" width="7" height="7" rx="1.5" fill="white"/>
-                <rect x="11" y="2" width="7" height="7" rx="1.5" fill="white"/>
-                <rect x="2" y="11" width="7" height="7" rx="1.5" fill="white"/>
-                <rect x="11" y="11" width="7" height="7" rx="1.5" fill="white"/>
-              </svg>
-            </div>
-            <span style={{ fontWeight: 800, fontSize: 20, color: textC, letterSpacing: '-0.3px' }}>Amana</span>
-          </div>
+
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
