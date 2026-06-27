@@ -5,30 +5,16 @@ export default async function AdminOverviewPage() {
   const db = getAdminSupabase()
 
   const safeCount = async (query: any) => {
-    try {
-      const { count } = await query
-      return count ?? 0
-    } catch { return 0 }
+    try { const { count } = await query; return count ?? 0 } catch { return 0 }
   }
-
   const safeData = async (query: any) => {
-    try {
-      const { data } = await query
-      return data ?? []
-    } catch { return [] }
+    try { const { data } = await query; return data ?? [] } catch { return [] }
   }
 
   const [
-    totalBiz,
-    pendingKyc,
-    totalInv,
-    totalPay,
-    totalAppt,
-    totalUsers,
-    totalSupport,
-    recentActivity,
-    recentKyc,
-    paidPayments,
+    totalBiz, pendingKyc, totalInv, totalPay,
+    totalAppt, totalUsers, totalSupport,
+    recentActivity, recentKyc, paidPayments,
   ] = await Promise.all([
     safeCount(db.from('workspaces').select('*', { count: 'exact', head: true })),
     safeCount(db.from('kyc_submissions').select('*', { count: 'exact', head: true }).eq('status', 'PENDING')),
@@ -52,58 +38,126 @@ export default async function AdminOverviewPage() {
     { label: 'Appointments',     value: totalAppt,   color: '#EC4899', link: '/admin/businesses' },
     { label: 'Open Support',     value: totalSupport,color: '#EF4444', link: '/admin/support' },
     { label: 'Total Revenue',    value: '₦' + totalRevenue.toLocaleString(), color: '#16A34A', link: '/admin/payments' },
-    { label: 'Total Customers',  value: totalUsers,  color: '#0EA5E9', link: '/admin/users' },
+    { label: 'Customers',        value: totalUsers,  color: '#0EA5E9', link: '/admin/users' },
   ]
 
   return (
     <div>
       <div style={{ marginBottom: 24 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 800, color: 'var(--admin-text, #0F172A)', marginBottom: 4 }}>Platform Overview</h1>
-        <p style={{ fontSize: 13, color: 'var(--admin-text-muted, #64748B)' }}>Real-time view of all activity across the Amana platform</p>
+        <h1 style={{ fontSize: 22, fontWeight: 800, color: 'var(--admin-text)', marginBottom: 4 }}>
+          Platform Overview
+        </h1>
+        <p style={{ fontSize: 13, color: 'var(--admin-text-muted)' }}>
+          Real-time view of all activity across the Amana platform
+        </p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, marginBottom: 28 }}>
+      {/* Stats grid — uses admin-stat-grid class which collapses to 2 cols on mobile */}
+      <div className="admin-stat-grid" style={{ marginBottom: 28 }}>
         {stats.map(s => (
-          <Link key={s.label} href={s.link} style={{ textDecoration: 'none', background: 'var(--admin-card, white)', borderRadius: 12, padding: '18px 20px', border: '1px solid var(--admin-card-border, #E2E8F0)', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', display: 'block' }}>
-            <p style={{ fontSize: 11, fontWeight: 600, color: 'var(--admin-text-muted, #64748B)', textTransform: 'uppercase', letterSpacing: .5, marginBottom: 8 }}>{s.label}</p>
-            <p style={{ fontSize: 26, fontWeight: 800, color: s.color }}>{s.value}</p>
+          <Link key={s.label} href={s.link} style={{ textDecoration: 'none' }}>
+            <div style={{
+              background: 'var(--admin-card)',
+              borderRadius: 12,
+              padding: '16px 18px',
+              border: '1px solid var(--admin-card-border)',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+              display: 'block',
+              transition: 'box-shadow 0.15s ease',
+            }}>
+              <p style={{
+                fontSize: 11, fontWeight: 600,
+                color: 'var(--admin-text-muted)',
+                textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8,
+              }}>
+                {s.label}
+              </p>
+              <p style={{ fontSize: 24, fontWeight: 800, color: s.color }}>
+                {s.value}
+              </p>
+            </div>
           </Link>
         ))}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
-        <div style={{ background: 'var(--admin-card, white)', borderRadius: 12, border: '1px solid var(--admin-card-border, #E2E8F0)', overflow: 'hidden' }}>
-          <div style={{ padding: '14px 20px', borderBottom: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--admin-text, #0F172A)' }}>Pending KYC Reviews</p>
-            <Link href="/admin/kyc" style={{ fontSize: 12, color: '#7C3AED', textDecoration: 'none', fontWeight: 600 }}>View all →</Link>
+      {/* Bottom panels — 2 col on desktop, 1 col on mobile */}
+      <div className="admin-two-col">
+        <div style={{
+          background: 'var(--admin-card)',
+          borderRadius: 12,
+          border: '1px solid var(--admin-card-border)',
+          overflow: 'hidden',
+        }}>
+          <div style={{
+            padding: '14px 20px',
+            borderBottom: '1px solid var(--admin-card-border)',
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          }}>
+            <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--admin-text)' }}>
+              Pending KYC Reviews
+            </p>
+            <Link href="/admin/kyc" style={{ fontSize: 12, color: '#7C3AED', textDecoration: 'none', fontWeight: 600 }}>
+              View all →
+            </Link>
           </div>
           {recentKyc.length === 0 ? (
-            <div style={{ padding: '24px 20px', textAlign: 'center', color: '#94A3B8', fontSize: 13 }}>No pending submissions</div>
+            <div style={{ padding: '24px 20px', textAlign: 'center', color: 'var(--admin-text-muted)', fontSize: 13 }}>
+              No pending submissions
+            </div>
           ) : recentKyc.map((k: any) => (
-            <div key={k.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 20px', borderBottom: '1px solid #F8FAFC' }}>
+            <div key={k.id} style={{
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+              padding: '12px 20px', borderBottom: '1px solid var(--admin-card-border)',
+            }}>
               <div>
-                <p style={{ fontSize: 13, fontWeight: 600, color: '#1E293B' }}>{k.document_type}</p>
-                <p style={{ fontSize: 11, color: '#94A3B8' }}>{new Date(k.submitted_at).toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+                <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--admin-text)' }}>{k.document_type}</p>
+                <p style={{ fontSize: 11, color: 'var(--admin-text-muted)' }}>
+                  {new Date(k.submitted_at).toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric' })}
+                </p>
               </div>
-              <span style={{ fontSize: 10, fontWeight: 700, color: '#D97706', background: '#FFFBEB', padding: '3px 8px', borderRadius: 20 }}>PENDING</span>
+              <span style={{ fontSize: 10, fontWeight: 700, color: '#D97706', background: '#FFFBEB', padding: '3px 8px', borderRadius: 20 }}>
+                PENDING
+              </span>
             </div>
           ))}
         </div>
 
-        <div style={{ background: 'var(--admin-card, white)', borderRadius: 12, border: '1px solid var(--admin-card-border, #E2E8F0)', overflow: 'hidden' }}>
-          <div style={{ padding: '14px 20px', borderBottom: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--admin-text, #0F172A)' }}>Recent Activity</p>
-            <Link href="/admin/logs" style={{ fontSize: 12, color: '#7C3AED', textDecoration: 'none', fontWeight: 600 }}>View all →</Link>
+        <div style={{
+          background: 'var(--admin-card)',
+          borderRadius: 12,
+          border: '1px solid var(--admin-card-border)',
+          overflow: 'hidden',
+        }}>
+          <div style={{
+            padding: '14px 20px',
+            borderBottom: '1px solid var(--admin-card-border)',
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          }}>
+            <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--admin-text)' }}>
+              Recent Activity
+            </p>
+            <Link href="/admin/logs" style={{ fontSize: 12, color: '#7C3AED', textDecoration: 'none', fontWeight: 600 }}>
+              View all →
+            </Link>
           </div>
           {recentActivity.length === 0 ? (
-            <div style={{ padding: '24px 20px', textAlign: 'center', color: '#94A3B8', fontSize: 13 }}>No recent activity</div>
+            <div style={{ padding: '24px 20px', textAlign: 'center', color: 'var(--admin-text-muted)', fontSize: 13 }}>
+              No recent activity
+            </div>
           ) : recentActivity.map((a: any, i: number) => (
-            <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 20px', borderBottom: '1px solid #F8FAFC' }}>
+            <div key={i} style={{
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+              padding: '10px 20px', borderBottom: '1px solid var(--admin-card-border)',
+            }}>
               <div>
-                <p style={{ fontSize: 12, fontWeight: 600, color: '#1E293B' }}>{a.action?.replace(/_/g, ' ')}</p>
-                <p style={{ fontSize: 11, color: '#94A3B8' }}>{a.entity_type}</p>
+                <p style={{ fontSize: 12, fontWeight: 600, color: 'var(--admin-text)' }}>
+                  {a.action?.replace(/_/g, ' ')}
+                </p>
+                <p style={{ fontSize: 11, color: 'var(--admin-text-muted)' }}>{a.entity_type}</p>
               </div>
-              <p style={{ fontSize: 11, color: '#94A3B8' }}>{new Date(a.created_at).toLocaleDateString('en-NG', { day: 'numeric', month: 'short' })}</p>
+              <p style={{ fontSize: 11, color: 'var(--admin-text-muted)' }}>
+                {new Date(a.created_at).toLocaleDateString('en-NG', { day: 'numeric', month: 'short' })}
+              </p>
             </div>
           ))}
         </div>
@@ -111,3 +165,6 @@ export default async function AdminOverviewPage() {
     </div>
   )
 }
+ENDTSX
+
+echo "admin page written: $(wc -l < /tmp/admin_page_new.tsx) lines"
