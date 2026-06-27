@@ -34,7 +34,7 @@ export default async function AdminReportsPage() {
       </div>
 
       {/* 3-col grid on desktop, 2-col on tablet, 1-col on mobile */}
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(3, 1fr)', gap:16, marginBottom:24 }}>
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(2, 1fr)', gap:16, marginBottom:24 }}>
         {reports.map(r => (
           <Link key={r.label} href={r.link} style={{ textDecoration:'none' }}>
             <div style={{ background:'var(--admin-card)', borderRadius:14, padding:'20px', border:'1px solid var(--admin-card-border)', height:'100%', boxSizing:'border-box' }}>
