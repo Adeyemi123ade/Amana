@@ -20,61 +20,37 @@ export default function PaymentsPage() {
       const { data: { user } } = await supabase.auth.getUser()
       const { data: ws } = await supabase.from('workspaces').select('id,currency').eq('created_by', user?.id).maybeSingle()
       setWorkspace(ws)
-      if (ws) await fetch_(ws.id, 0, '')
+      if (ws) await fetchData(ws.id, 0, '')
     }
     load()
   }, [])
 
-  const fetch_ = async (wsId: string, p: number, q: string) => {
+  const fetchData = async (wsId: string, p: number, q: string) => {
     setLoading(true)
-
-    // Fetch payments without join
     let query = supabase
       .from('payments')
       .select('*', { count: 'exact' })
       .eq('workspace_id', wsId)
       .order('created_at', { ascending: false })
       .range(p * PAGE_SIZE, (p + 1) * PAGE_SIZE - 1)
-
     if (q.trim()) query = query.ilike('customer_email', `%${q.trim()}%`)
-
     const { data: pays, count } = await query
     const payList = pays || []
-
-    // Separately fetch invoice numbers for the invoice_ids on these payments
     const invoiceIds = [...new Set(payList.map((p: any) => p.invoice_id).filter(Boolean))]
     let invMap: Record<string, any> = {}
     if (invoiceIds.length > 0) {
-      const { data: invs } = await supabase
-        .from('invoices')
-        .select('id, invoice_number, customer_id')
-        .in('id', invoiceIds)
-
-      // Fetch customer names for those invoices
+      const { data: invs } = await supabase.from('invoices').select('id,invoice_number,customer_id').in('id', invoiceIds)
       const custIds = [...new Set((invs || []).map((i: any) => i.customer_id).filter(Boolean))]
       let custMap: Record<string, string> = {}
       if (custIds.length > 0) {
-        const { data: custs } = await supabase
-          .from('customers')
-          .select('id, name')
-          .in('id', custIds)
+        const { data: custs } = await supabase.from('customers').select('id,name').in('id', custIds)
         ;(custs || []).forEach((c: any) => { custMap[c.id] = c.name })
       }
-
       ;(invs || []).forEach((inv: any) => {
-        invMap[inv.id] = {
-          invoice_number: inv.invoice_number,
-          customers: { name: custMap[inv.customer_id] || null }
-        }
+        invMap[inv.id] = { invoice_number: inv.invoice_number, customers: { name: custMap[inv.customer_id] || null } }
       })
     }
-
-    // Merge invoice data into payments
-    const merged = payList.map((p: any) => ({
-      ...p,
-      invoices: p.invoice_id ? invMap[p.invoice_id] || null : null,
-    }))
-
+    const merged = payList.map((p: any) => ({ ...p, invoices: p.invoice_id ? invMap[p.invoice_id] || null : null }))
     setPayments(merged)
     setTotal(count || 0)
     setLoading(false)
@@ -83,99 +59,116 @@ export default function PaymentsPage() {
   const handleSearch = (q: string) => {
     setSearch(q)
     setPage(0)
-    if (workspace) fetch_(workspace.id, 0, q)
-  }
-
-  const handlePage = (p: number) => {
-    setPage(p)
-    if (workspace) fetch_(workspace.id, p, search)
+    if (workspace) fetchData(workspace.id, 0, q)
   }
 
   const currency = workspace?.currency || 'NGN'
-  const totalPages = Math.ceil(total / PAGE_SIZE)
-  const totalRevenue = payments.reduce((s, p) => s + Number(p.amount), 0)
+  const totalReceived = payments.filter(p => p.status === 'SUCCESS').reduce((s, p) => s + Number(p.amount), 0)
+
+  const statusColor = (s: string) => {
+    if (s === 'SUCCESS') return ['#16A34A', '#F0FDF4']
+    if (s === 'FAILED') return ['#DC2626', '#FEF2F2']
+    return ['#D97706', '#FFFBEB']
+  }
 
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 700, color: 'var(--text)' }}>Payment History</h1>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          {total > 0 && (
-            <div style={{ textAlign: 'right' }}>
-              <p style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.4 }}>Total Received</p>
-              <p style={{ fontSize: 20, fontWeight: 800, color: '#22C55E' }}>{formatCurrency(totalRevenue, currency)}</p>
-            </div>
-          )}
-          {workspace && (
-            <a href={`/api/export?type=payments&workspace=${workspace.id}`}
-              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 9, border: '1px solid var(--border-light)', fontSize: 13, fontWeight: 600, color: 'var(--text-muted)', textDecoration: 'none', background: 'var(--bg-secondary)' }}>
-              ↓ Export CSV
-            </a>
-          )}
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
+        <div>
+          <h1 style={{ fontSize: 22, fontWeight: 800, color: 'var(--text)', marginBottom: 4 }}>Payment History</h1>
+          <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>
+            Total received: <strong style={{ color: '#16A34A' }}>{formatCurrency(totalReceived, currency)}</strong>
+          </p>
         </div>
+        <a href={`/api/export?type=payments`} download
+          style={{ height: 40, padding: '0 16px', background: 'var(--card)', border: '1px solid var(--border-light)', borderRadius: 9, fontSize: 13, fontWeight: 600, color: 'var(--text)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+          </svg>
+          Export CSV
+        </a>
       </div>
 
-      <div style={{ background: 'var(--card)', borderRadius: 14, border: '1px solid var(--border)', overflow: 'hidden' }}>
-        <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)' }}>
-          <div style={{ position: 'relative' }}>
-            <svg style={{ position: 'absolute', left: 10, top: 10 }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-            <input value={search} onChange={e => handleSearch(e.target.value)}
-              placeholder="Search by customer email..."
-              style={{ width: '100%', height: 36, paddingLeft: 34, paddingRight: 12, borderRadius: 8, border: '1px solid var(--border-light)', fontSize: 13, color: 'var(--text)', outline: 'none', boxSizing: 'border-box', background: 'var(--bg-secondary)' }} />
-          </div>
-        </div>
-
-        {loading ? (
-          <div style={{ padding: 48, textAlign: 'center' }}>
-            <div style={{ width: 24, height: 24, border: '3px solid var(--accent)', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin .8s linear infinite', margin: '0 auto' }} />
-          </div>
-        ) : payments.length === 0 ? (
-          <div style={{ padding: '48px 20px', textAlign: 'center' }}>
-            <div style={{ fontSize: 40, marginBottom: 12 }}>💳</div>
-            <p style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)', marginBottom: 4 }}>No payments found</p>
-            <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>{search ? 'Try a different search' : 'Payments appear here once received via Paystack'}</p>
-          </div>
-        ) : (
-          <>
-            {/* Table header */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 120px 100px 80px', gap: 12, padding: '10px 20px', borderBottom: '1px solid var(--border)', background: 'var(--bg-secondary)' }}>
-              {['Customer / Invoice', 'Amount', 'Date', 'Status'].map(h => (
-                <p key={h} style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.4 }}>{h}</p>
-              ))}
-            </div>
-            {payments.map((p: any, i: number) => (
-              <div key={p.id} style={{ display: 'grid', gridTemplateColumns: '1fr 120px 100px 80px', gap: 12, padding: '13px 20px', borderTop: '1px solid var(--border)', alignItems: 'center' }}>
-                <div style={{ minWidth: 0 }}>
-                  <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {(p.invoices as any)?.customers?.name || p.customer_email || 'Customer'}
-                  </p>
-                  <p style={{ fontSize: 11, color: 'var(--text-muted)' }}>
-                    {(p.invoices as any)?.invoice_number || ''}{p.paystack_ref ? ' · ' + p.paystack_ref.slice(0, 12) + '...' : ''}
-                  </p>
-                </div>
-                <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)' }}>{formatCurrency(Number(p.amount), currency)}</p>
-                <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>{new Date(p.created_at).toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
-                <span style={{ fontSize: 11, fontWeight: 700, color: p.status === 'SUCCESS' ? '#22C55E' : '#EF4444', background: p.status === 'SUCCESS' ? '#F0FDF4' : '#FEF2F2', padding: '3px 8px', borderRadius: 20, display: 'inline-block' }}>
-                  {p.status === 'SUCCESS' ? 'Paid' : p.status}
-                </span>
-              </div>
-            ))}
-
-            {totalPages > 1 && (
-              <div style={{ padding: '14px 20px', borderTop: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>Page {page + 1} of {totalPages} · {total} total</p>
-                <div style={{ display: 'flex', gap: 6 }}>
-                  <button onClick={() => handlePage(page - 1)} disabled={page === 0}
-                    style={{ padding: '6px 12px', borderRadius: 8, border: '1px solid var(--border-light)', background: 'var(--bg-secondary)', fontSize: 12, cursor: page === 0 ? 'not-allowed' : 'pointer', opacity: page === 0 ? 0.4 : 1, color: 'var(--text-muted)' }}>← Previous</button>
-                  <button onClick={() => handlePage(page + 1)} disabled={page >= totalPages - 1}
-                    style={{ padding: '6px 12px', borderRadius: 8, border: '1px solid var(--border-light)', background: 'var(--bg-secondary)', fontSize: 12, cursor: page >= totalPages - 1 ? 'not-allowed' : 'pointer', opacity: page >= totalPages - 1 ? 0.4 : 1, color: 'var(--text-muted)' }}>Next →</button>
-                </div>
-              </div>
-            )}
-          </>
-        )}
+      {/* Search */}
+      <div style={{ background: 'var(--card)', borderRadius: 10, border: '1px solid var(--border-light)', padding: '10px 14px', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 10 }}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2" strokeLinecap="round">
+          <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+        </svg>
+        <input value={search} onChange={e => handleSearch(e.target.value)}
+          placeholder="Search by customer email..."
+          style={{ border: 'none', outline: 'none', fontSize: 14, color: 'var(--text)', background: 'transparent', flex: 1 }}/>
       </div>
-      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+
+      {/* Payment cards */}
+      {loading ? (
+        <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-muted)' }}>Loading...</div>
+      ) : payments.length === 0 ? (
+        <div style={{ background: 'var(--card)', borderRadius: 14, border: '1px solid var(--border-light)', padding: 48, textAlign: 'center', color: 'var(--text-muted)' }}>
+          No payments found
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {payments.map(p => {
+            const [sc, sb] = statusColor(p.status)
+            const inv = p.invoices
+            const fmt = (d: string) => d ? new Date(d).toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'
+            return (
+              <div key={p.id} style={{ background: 'var(--card)', borderRadius: 12, border: '1px solid var(--border-light)', padding: '14px 18px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+                  <div style={{ minWidth: 0, flex: 1, marginRight: 12 }}>
+                    {inv?.customers?.name && (
+                      <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)', marginBottom: 2 }}>{inv.customers.name}</p>
+                    )}
+                    <p style={{ fontSize: 12, color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {p.customer_email || '—'}
+                    </p>
+                    {inv?.invoice_number && (
+                      <p style={{ fontSize: 11, color: 'var(--accent, #7C3AED)', marginTop: 2 }}>{inv.invoice_number}</p>
+                    )}
+                    {p.paystack_ref && (
+                      <p style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: 'monospace', marginTop: 2 }}>{p.paystack_ref}</p>
+                    )}
+                  </div>
+                  <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                    <p style={{ fontSize: 18, fontWeight: 800, color: '#16A34A', marginBottom: 4 }}>
+                      {formatCurrency(Number(p.amount), currency)}
+                    </p>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: sc, background: sb, padding: '3px 10px', borderRadius: 20 }}>
+                      {p.status}
+                    </span>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <p style={{ fontSize: 11, color: 'var(--text-muted)' }}>{fmt(p.created_at)}</p>
+                  {p.payment_channel && (
+                    <p style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'capitalize' }}>{p.payment_channel}</p>
+                  )}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+      {/* Pagination */}
+      {total > PAGE_SIZE && (
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 10, marginTop: 20 }}>
+          <button disabled={page === 0}
+            onClick={() => { const p = page - 1; setPage(p); if (workspace) fetchData(workspace.id, p, search) }}
+            style={{ height: 36, padding: '0 16px', borderRadius: 8, border: '1px solid var(--border-light)', background: 'var(--card)', color: 'var(--text)', cursor: 'pointer', fontSize: 13, opacity: page === 0 ? 0.4 : 1 }}>
+            Previous
+          </button>
+          <span style={{ height: 36, display: 'flex', alignItems: 'center', fontSize: 13, color: 'var(--text-muted)' }}>
+            Page {page + 1} of {Math.ceil(total / PAGE_SIZE)}
+          </span>
+          <button disabled={(page + 1) * PAGE_SIZE >= total}
+            onClick={() => { const p = page + 1; setPage(p); if (workspace) fetchData(workspace.id, p, search) }}
+            style={{ height: 36, padding: '0 16px', borderRadius: 8, border: '1px solid var(--border-light)', background: 'var(--card)', color: 'var(--text)', cursor: 'pointer', fontSize: 13, opacity: (page + 1) * PAGE_SIZE >= total ? 0.4 : 1 }}>
+            Next
+          </button>
+        </div>
+      )}
     </div>
   )
 }
