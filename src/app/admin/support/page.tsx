@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 type Msg = {
   id: string; name: string; email: string; subject: string;
@@ -16,7 +16,7 @@ export default function AdminSupportPage() {
   const [sending, setSending] = useState(false)
   const [sentMsg, setSentMsg] = useState('')
 
-  useState(() => {
+  useEffect(() => {
     fetch('/api/admin/support').then(r => r.json()).then(d => {
       setMsgs(d.messages || [])
       setLoading(false)
