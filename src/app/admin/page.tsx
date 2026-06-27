@@ -165,6 +165,3 @@ export default async function AdminOverviewPage() {
     </div>
   )
 }
-ENDTSX
-
-echo "admin page written: $(wc -l < /tmp/admin_page_new.tsx) lines"
