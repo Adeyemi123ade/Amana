@@ -1,34 +1,57 @@
-import { getAdminSupabase } from '@/lib/admin-auth'
-import BusinessActions from './BusinessActions'
+'use client'
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 
-export default async function AdminBusinessesPage() {
-  const db = getAdminSupabase()
-  const { data: businesses } = await db.from('workspaces').select('*').order('created_at', { ascending: false })
+export default function AdminBusinessesPage() {
+  const router = useRouter()
+  const [businesses, setBusinesses] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetch('/api/admin/businesses').then(r => r.json()).then(d => {
+      setBusinesses(d.businesses || [])
+      setLoading(false)
+    })
+  }, [])
 
   return (
     <div>
       <div style={{ marginBottom:24 }}>
-        <h1 style={{ fontSize:20, fontWeight:800, color:'#0F172A' }}>Business Management</h1>
-        <p style={{ fontSize:13, color:'#64748B' }}>{businesses?.length || 0} businesses on the platform</p>
+        <h1 style={{ fontSize:22, fontWeight:800, color:'var(--admin-text)', marginBottom:4 }}>Business Management</h1>
+        <p style={{ fontSize:13, color:'var(--admin-text-muted)' }}>{businesses.length} businesses on the platform</p>
       </div>
-      <div style={{ background:'white', borderRadius:12, border:'1px solid #E2E8F0', overflow:'hidden' }}>
-        <div style={{ display:'grid', gridTemplateColumns:'1fr 160px 120px 100px 100px', gap:12, padding:'10px 20px', background:'#F8FAFC', borderBottom:'2px solid #E2E8F0' }}>
-          {['Business','Type','Country','Status','Actions'].map(h=>(
-            <p key={h} style={{ fontSize:10, fontWeight:700, color:'#64748B', textTransform:'uppercase', letterSpacing:.5 }}>{h}</p>
+
+      <div style={{ background:'var(--admin-card)', borderRadius:12, border:'1px solid var(--admin-card-border)', overflow:'hidden' }}>
+        {/* Table header */}
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 140px 100px 90px', gap:12, padding:'12px 20px', background:'var(--admin-bg)', borderBottom:'2px solid var(--admin-card-border)' }}>
+          {['Business','Type','Country','Status'].map(h => (
+            <p key={h} style={{ fontSize:11, fontWeight:700, color:'var(--admin-text-muted)', textTransform:'uppercase', letterSpacing:0.5 }}>{h}</p>
           ))}
         </div>
-        {(businesses||[]).map((b:any) => (
-          <div key={b.id} style={{ display:'grid', gridTemplateColumns:'1fr 160px 120px 100px 100px', gap:12, padding:'13px 20px', borderBottom:'1px solid #F8FAFC', alignItems:'center' }}>
+
+        {loading ? (
+          <div style={{ padding:40, textAlign:'center', color:'var(--admin-text-muted)', fontSize:13 }}>Loading...</div>
+        ) : businesses.length === 0 ? (
+          <div style={{ padding:40, textAlign:'center', color:'var(--admin-text-muted)', fontSize:13 }}>No businesses yet</div>
+        ) : businesses.map((b:any) => (
+          <div key={b.id}
+            style={{ display:'grid', gridTemplateColumns:'1fr 140px 100px 90px', gap:12, padding:'14px 20px', borderBottom:'1px solid var(--admin-card-border)', alignItems:'center', cursor:'pointer', transition:'background 0.15s' }}
+            onClick={() => router.push('/admin/businesses/' + b.id)}
+            onMouseEnter={e => (e.currentTarget.style.background = 'var(--admin-bg)')}
+            onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
             <div>
-              <p style={{ fontSize:13, fontWeight:600, color:'#1E293B' }}>{b.name}</p>
-              <p style={{ fontSize:11, color:'#94A3B8' }}>{b.business_email || '—'}</p>
+              <p style={{ fontSize:14, fontWeight:700, color:'var(--admin-accent)', marginBottom:2, textDecoration:'underline', textDecorationColor:'transparent' }}
+                onMouseEnter={e => ((e.target as any).style.textDecorationColor = 'var(--admin-accent)')}
+                onMouseLeave={e => ((e.target as any).style.textDecorationColor = 'transparent')}>
+                {b.name}
+              </p>
+              <p style={{ fontSize:12, color:'var(--admin-text-muted)' }}>{b.business_email || '—'}</p>
             </div>
-            <p style={{ fontSize:12, color:'#64748B' }}>{b.business_type || '—'}</p>
-            <p style={{ fontSize:12, color:'#64748B' }}>{b.country || '—'}</p>
-            <span style={{ fontSize:10, fontWeight:700, color:b.suspended?'#DC2626':'#16A34A', background:b.suspended?'#FEF2F2':'#F0FDF4', padding:'3px 8px', borderRadius:20, display:'inline-block' }}>
+            <p style={{ fontSize:13, color:'var(--admin-text-secondary)' }}>{b.business_type || '—'}</p>
+            <p style={{ fontSize:13, color:'var(--admin-text-secondary)' }}>{b.country || '—'}</p>
+            <span style={{ fontSize:11, fontWeight:700, color:b.suspended?'#DC2626':'#16A34A', background:b.suspended?'#FEF2F2':'#F0FDF4', padding:'4px 10px', borderRadius:20, display:'inline-block', whiteSpace:'nowrap' }}>
               {b.suspended ? 'SUSPENDED' : 'ACTIVE'}
             </span>
-            <BusinessActions id={b.id} suspended={!!b.suspended} name={b.name}/>
           </div>
         ))}
       </div>
