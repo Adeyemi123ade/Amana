@@ -48,19 +48,19 @@ input:focus, select:focus, textarea:focus {
 ::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: #9CA3AF; }
 
-/* ── DASHBOARD LAYOUT ── */
+/* ── BUSINESS DASHBOARD LAYOUT ── */
 .dashboard-root {
   display: flex;
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  background: #F9FAFB;
+  background: var(--bg, #F9FAFB);
 }
 
 .dashboard-sidebar {
   width: 240px;
   flex-shrink: 0;
-  background: #111827;
+  background: var(--sidebar, #111827);
   height: 100vh;
   display: flex;
   flex-direction: column;
@@ -82,12 +82,13 @@ input:focus, select:focus, textarea:focus {
   overflow-y: auto;
   padding: 24px;
   -webkit-overflow-scrolling: touch;
+  background: var(--bg, #F9FAFB);
 }
 
 .dashboard-topbar {
   height: 64px;
-  background: white;
-  border-bottom: 1px solid #F3F4F6;
+  background: var(--topbar, white);
+  border-bottom: 1px solid var(--border-light, #F3F4F6);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -97,7 +98,7 @@ input:focus, select:focus, textarea:focus {
   z-index: 10;
 }
 
-/* Mobile hamburger — hidden on desktop */
+/* Mobile hamburger */
 .mobile-hamburger {
   display: none;
   position: fixed;
@@ -115,7 +116,6 @@ input:focus, select:focus, textarea:focus {
   box-shadow: 0 2px 8px rgba(0,0,0,0.25);
 }
 
-/* Mobile overlay drawer */
 .mobile-drawer-overlay {
   display: none;
   position: fixed;
@@ -252,22 +252,18 @@ button, a, [role="button"] {
     max-width: 100%;
   }
 
-  /* Stack form grids on mobile */
   .form-grid-2 {
     grid-template-columns: 1fr !important;
   }
 
-  /* Hide greeting subtitle on very small screens */
   .topbar-subtitle {
     display: none;
   }
 
-  /* Make stat card text smaller */
   .stat-value {
     font-size: 18px !important;
   }
 
-  /* Full-width tables become card lists */
   .table-row {
     grid-template-columns: 1fr auto !important;
   }
@@ -309,8 +305,13 @@ button, a, [role="button"] {
   }
 }
 
-/* ── THEME CSS VARIABLES (default: Professional Light) ── */
+/* ══════════════════════════════════════════════════════
+   DESIGN SYSTEM — THEME CSS VARIABLES
+   Same token names used on both business and admin sides
+   ══════════════════════════════════════════════════════ */
+
 :root {
+  /* Business dashboard default (Professional Light) */
   --bg: #F9FAFB;
   --bg-secondary: #F3F4F6;
   --card: #FFFFFF;
@@ -331,9 +332,75 @@ button, a, [role="button"] {
   --success: #22C55E;
   --danger: #EF4444;
   --warning: #F59E0B;
+
+  /* Admin dashboard default (Light) — mirrors business tokens */
+  --admin-bg: #F1F5F9;
+  --admin-header: #FFFFFF;
+  --admin-header-border: #E2E8F0;
+  --admin-main: #F1F5F9;
+  --admin-card: #FFFFFF;
+  --admin-card-border: #E2E8F0;
+  --admin-text: #0F172A;
+  --admin-text-secondary: #374151;
+  --admin-text-muted: #64748B;
+  --admin-text-faint: #94A3B8;
+  --admin-accent: #0E1A6E;
+  --admin-accent-light: #EEF2FF;
+  --admin-sidebar: #0E1A6E;
+  --admin-sidebar-text: #94A3B8;
+  --admin-sidebar-active: #7C3AED;
+  --admin-success: #16A34A;
+  --admin-danger: #DC2626;
+  --admin-warning: #D97706;
 }
 
-/* Apply theme vars to dashboard elements */
+/* ── BUSINESS DARK MODE (Executive Dark theme) ── */
+[data-theme="dark"] {
+  --bg: #0F172A;
+  --bg-secondary: #1E293B;
+  --card: #1E293B;
+  --card-hover: #263244;
+  --sidebar: #020617;
+  --sidebar-active: #818CF8;
+  --sidebar-text: #64748B;
+  --sidebar-subtext: #475569;
+  --accent: #818CF8;
+  --accent-hover: #6366F1;
+  --accent-light: #1E1B4B;
+  --text: #F1F5F9;
+  --text-secondary: #CBD5E1;
+  --text-muted: #94A3B8;
+  --border: #1E293B;
+  --border-light: #334155;
+  --topbar: #0F172A;
+  --success: #34D399;
+  --danger: #F87171;
+  --warning: #FBBF24;
+}
+
+/* ── ADMIN DARK MODE — same visual language as business dark ── */
+[data-admin-theme="dark"] {
+  --admin-bg: #0F172A;
+  --admin-header: #0F172A;
+  --admin-header-border: rgba(255,255,255,0.08);
+  --admin-main: #0F172A;
+  --admin-card: #1E293B;
+  --admin-card-border: #334155;
+  --admin-text: #F1F5F9;
+  --admin-text-secondary: #CBD5E1;
+  --admin-text-muted: #94A3B8;
+  --admin-text-faint: #64748B;
+  --admin-accent: #818CF8;
+  --admin-accent-light: #1E1B4B;
+  --admin-sidebar: #020617;
+  --admin-sidebar-text: #64748B;
+  --admin-sidebar-active: #818CF8;
+  --admin-success: #34D399;
+  --admin-danger: #F87171;
+  --admin-warning: #FBBF24;
+}
+
+/* ── APPLY BUSINESS THEME VARS ── */
 body {
   background-color: var(--bg);
   color: var(--text);
@@ -356,17 +423,70 @@ body {
   background: var(--bg);
 }
 
-/* Theme transition — smooth color changes */
-*, *::before, *::after {
-  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+/* ── APPLY ADMIN THEME VARS TO ADMIN LAYOUT ── */
+[data-admin-theme] main {
+  background: var(--admin-main) !important;
+  color: var(--admin-text) !important;
 }
 
-/* Disable transition for animations */
-.no-transition, .no-transition * {
-  transition: none !important;
+/* Admin cards — any element using white background on admin pages */
+[data-admin-theme="dark"] [style*="background: white"],
+[data-admin-theme="dark"] [style*="background:white"],
+[data-admin-theme="dark"] [style*="background: #FFFFFF"],
+[data-admin-theme="dark"] [style*="background:#FFFFFF"] {
+  background: var(--admin-card) !important;
+  border-color: var(--admin-card-border) !important;
 }
 
-/* Admin hamburger — only visible on mobile */
+[data-admin-theme="dark"] [style*="background: #F8FAFC"],
+[data-admin-theme="dark"] [style*="background:#F8FAFC"],
+[data-admin-theme="dark"] [style*="background: #F1F5F9"],
+[data-admin-theme="dark"] [style*="background:#F1F5F9"],
+[data-admin-theme="dark"] [style*="background: #F9FAFB"],
+[data-admin-theme="dark"] [style*="background:#F9FAFB"] {
+  background: var(--admin-bg) !important;
+}
+
+/* Admin text in dark mode */
+[data-admin-theme="dark"] [style*="color: #0F172A"],
+[data-admin-theme="dark"] [style*="color:#0F172A"],
+[data-admin-theme="dark"] [style*="color: #1E293B"],
+[data-admin-theme="dark"] [style*="color:#1E293B"],
+[data-admin-theme="dark"] [style*="color: #111827"],
+[data-admin-theme="dark"] [style*="color:#111827"],
+[data-admin-theme="dark"] [style*="color: #374151"],
+[data-admin-theme="dark"] [style*="color:#374151"] {
+  color: var(--admin-text) !important;
+}
+
+[data-admin-theme="dark"] [style*="color: #64748B"],
+[data-admin-theme="dark"] [style*="color:#64748B"],
+[data-admin-theme="dark"] [style*="color: #94A3B8"],
+[data-admin-theme="dark"] [style*="color:#94A3B8"],
+[data-admin-theme="dark"] [style*="color: #6B7280"],
+[data-admin-theme="dark"] [style*="color:#6B7280"] {
+  color: var(--admin-text-muted) !important;
+}
+
+/* Admin borders in dark mode */
+[data-admin-theme="dark"] [style*="border: 1px solid #E2E8F0"],
+[data-admin-theme="dark"] [style*="border:1px solid #E2E8F0"],
+[data-admin-theme="dark"] [style*="borderBottom: 1px solid #E2E8F0"],
+[data-admin-theme="dark"] [style*="border-bottom: 1px solid #E2E8F0"],
+[data-admin-theme="dark"] [style*="borderBottom: 2px solid #E2E8F0"] {
+  border-color: var(--admin-card-border) !important;
+}
+
+/* Admin inputs in dark mode */
+[data-admin-theme="dark"] input,
+[data-admin-theme="dark"] select,
+[data-admin-theme="dark"] textarea {
+  background: var(--admin-card) !important;
+  color: var(--admin-text) !important;
+  border-color: var(--admin-card-border) !important;
+}
+
+/* Admin hamburger */
 .mobile-hamburger {
   display: none !important;
 }
@@ -376,108 +496,81 @@ body {
   }
 }
 
-/* ── ADMIN THEME VARIABLES ── */
-:root, [data-admin-theme="light"] {
-  --admin-bg: #F1F5F9;
-  --admin-header: #FFFFFF;
-  --admin-header-border: #E2E8F0;
-  --admin-main: #F1F5F9;
-  --admin-card: #FFFFFF;
-  --admin-card-border: #E2E8F0;
-  --admin-text: #0F172A;
-  --admin-text-muted: #64748B;
-  --admin-text-faint: #94A3B8;
+/* Admin stat grid — collapses to 2 cols on mobile */
+.admin-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+@media (max-width: 899px) {
+  .admin-stat-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+}
+@media (max-width: 480px) {
+  .admin-stat-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
 }
 
-[data-admin-theme="dark"] {
-  --admin-bg: #0F172A;
-  --admin-header: #0F172A;
-  --admin-header-border: rgba(255,255,255,0.08);
-  --admin-main: #0F172A;
-  --admin-card: #1E293B;
-  --admin-card-border: #334155;
-  --admin-text: #F1F5F9;
-  --admin-text-muted: #94A3B8;
-  --admin-text-faint: #64748B;
+/* Admin two-col grid */
+.admin-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+@media (max-width: 899px) {
+  .admin-two-col {
+    grid-template-columns: 1fr;
+  }
 }
 
-/* Admin page content dark mode */
-[data-admin-theme="dark"] .admin-card {
-  background: var(--admin-card) !important;
-  border-color: var(--admin-card-border) !important;
-  color: var(--admin-text) !important;
-}
-[data-admin-theme="dark"] p,
-[data-admin-theme="dark"] h1,
-[data-admin-theme="dark"] h2,
-[data-admin-theme="dark"] h3,
-[data-admin-theme="dark"] span,
-[data-admin-theme="dark"] a {
-  color: inherit;
-}
-[data-admin-theme="dark"] main {
-  background: var(--admin-main) !important;
+/* ── BUSINESS DARK MODE — fix hardcoded colors in settings and other pages ── */
+[data-theme="dark"] [style*="background: white"],
+[data-theme="dark"] [style*="background:white"],
+[data-theme="dark"] [style*="background: #FFFFFF"],
+[data-theme="dark"] [style*="background:#FFFFFF"] {
+  background: var(--card) !important;
 }
 
-/* ── ADMIN PAGES — dark mode for all content pages ── */
-[data-admin-theme="dark"] h1,
-[data-admin-theme="dark"] h2,
-[data-admin-theme="dark"] p {
-  color: inherit;
+[data-theme="dark"] [style*="background: #F9FAFB"],
+[data-theme="dark"] [style*="background:#F9FAFB"],
+[data-theme="dark"] [style*="background: #F3F4F6"],
+[data-theme="dark"] [style*="background:#F3F4F6"],
+[data-theme="dark"] [style*="background: #F8FAFC"],
+[data-theme="dark"] [style*="background:#F8FAFC"] {
+  background: var(--bg-secondary) !important;
 }
 
-/* Cards and containers on all admin pages */
-[data-admin-theme="dark"] .admin-page-card {
-  background: var(--admin-card) !important;
-  border-color: var(--admin-card-border) !important;
-  color: var(--admin-text) !important;
+[data-theme="dark"] [style*="color: #111827"],
+[data-theme="dark"] [style*="color:#111827"],
+[data-theme="dark"] [style*="color: #1E293B"],
+[data-theme="dark"] [style*="color:#1E293B"],
+[data-theme="dark"] [style*="color: #0F172A"],
+[data-theme="dark"] [style*="color:#0F172A"] {
+  color: var(--text) !important;
 }
 
-/* Table headers */
-[data-admin-theme="dark"] .admin-table-header {
-  background: var(--admin-bg) !important;
-  border-color: var(--admin-card-border) !important;
+[data-theme="dark"] [style*="color: #6B7280"],
+[data-theme="dark"] [style*="color:#6B7280"],
+[data-theme="dark"] [style*="color: #9CA3AF"],
+[data-theme="dark"] [style*="color:#9CA3AF"],
+[data-theme="dark"] [style*="color: #374151"],
+[data-theme="dark"] [style*="color:#374151"] {
+  color: var(--text-muted) !important;
 }
 
-/* Headings on admin pages */
-[data-admin-theme="dark"] [style*="color:#0F172A"],
-[data-admin-theme="dark"] [style*="color: #0F172A"],
-[data-admin-theme="dark"] [style*="color:#1E293B"],
-[data-admin-theme="dark"] [style*="color: #1E293B"],
-[data-admin-theme="dark"] [style*="color:#374151"],
-[data-admin-theme="dark"] [style*="color: #374151"] {
-  color: var(--admin-text) !important;
+[data-theme="dark"] [style*="border: 1px solid #E5E7EB"],
+[data-theme="dark"] [style*="border:1px solid #E5E7EB"],
+[data-theme="dark"] [style*="border: 1px solid #F3F4F6"],
+[data-theme="dark"] [style*="border:1px solid #F3F4F6"],
+[data-theme="dark"] [style*="borderTop: 1px solid #F3F4F6"],
+[data-theme="dark"] [style*="borderBottom: 1px solid #F3F4F6"] {
+  border-color: var(--border-light) !important;
 }
 
-[data-admin-theme="dark"] [style*="color:#64748B"],
-[data-admin-theme="dark"] [style*="color: #64748B"],
-[data-admin-theme="dark"] [style*="color:#94A3B8"],
-[data-admin-theme="dark"] [style*="color: #94A3B8"] {
-  color: var(--admin-text-muted) !important;
-}
-
-[data-admin-theme="dark"] [style*="background:white"],
-[data-admin-theme="dark"] [style*="background: white"],
-[data-admin-theme="dark"] [style*="background:#FFFFFF"],
-[data-admin-theme="dark"] [style*="background: #FFFFFF"] {
-  background: var(--admin-card) !important;
-}
-
-[data-admin-theme="dark"] [style*="background:#F8FAFC"],
-[data-admin-theme="dark"] [style*="background: #F8FAFC"],
-[data-admin-theme="dark"] [style*="background:#F1F5F9"],
-[data-admin-theme="dark"] [style*="background: #F1F5F9"] {
-  background: var(--admin-bg) !important;
-}
-
-[data-admin-theme="dark"] [style*="border:'1px solid #E2E8F0'"],
-[data-admin-theme="dark"] [style*="border: '1px solid #E2E8F0'"],
-[data-admin-theme="dark"] [style*="borderColor:#E2E8F0"],
-[data-admin-theme="dark"] [style*="borderBottom:'2px solid #E2E8F0'"] {
-  border-color: var(--admin-card-border) !important;
-}
-
-/* Customer dashboard — modals and form inputs in dark mode */
 [data-theme="dark"] input,
 [data-theme="dark"] textarea,
 [data-theme="dark"] select {
@@ -486,16 +579,11 @@ body {
   border-color: var(--border-light) !important;
 }
 
-[data-theme="dark"] [style*="background:'white'"],
-[data-theme="dark"] [style*="background: white"],
-[data-theme="dark"] [style*="background:#FFFFFF"],
-[data-theme="dark"] [style*="background: #FFFFFF"] {
-  background: var(--card) !important;
+/* Theme transition */
+*, *::before, *::after {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
-[data-theme="dark"] [style*="color:'#111827'"],
-[data-theme="dark"] [style*="color: #111827"],
-[data-theme="dark"] [style*="color:#374151"],
-[data-theme="dark"] [style*="color: #374151"] {
-  color: var(--text) !important;
+.no-transition, .no-transition * {
+  transition: none !important;
 }
