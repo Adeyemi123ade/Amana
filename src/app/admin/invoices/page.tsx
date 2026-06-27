@@ -281,6 +281,18 @@ export default function AdminBillingPage() {
                 ))}
               </div>
 
+              {/* Delivery status */}
+              {selected.delivery_status && selected.delivery_status !== 'NOT_SENT' && (
+                <div style={{ background:'var(--admin-bg)', borderRadius:10, padding:'12px 16px', marginBottom:16 }}>
+                  <p style={{ fontSize:11, fontWeight:700, color:'var(--admin-text-muted)', textTransform:'uppercase', letterSpacing:0.5, marginBottom:6 }}>DELIVERY STATUS</p>
+                  <div style={{ display:'flex', justifyContent:'space-between' }}>
+                    <p style={{ fontSize:13, color:'var(--admin-text)' }}>Email: {selected.delivery_status}</p>
+                    {selected.sent_at && <p style={{ fontSize:12, color:'var(--admin-text-muted)' }}>Sent: {new Date(selected.sent_at).toLocaleDateString('en-NG',{day:'numeric',month:'short',year:'numeric'})}</p>}
+                  </div>
+                  {selected.recipient_email && <p style={{ fontSize:12, color:'var(--admin-text-muted)', marginTop:4 }}>To: {selected.recipient_email}</p>}
+                </div>
+              )}
+
               {/* Admin notes */}
               {selected.admin_notes && (
                 <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 10, padding: '12px 16px', marginBottom: 16 }}>
@@ -299,6 +311,24 @@ export default function AdminBillingPage() {
               <div style={{ borderTop: '1px solid var(--admin-card-border)', paddingTop: 16, marginTop: 8 }}>
                 <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--admin-text-muted)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12 }}>Admin Actions</p>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+
+                  {['DRAFT','PENDING'].includes(selected.status) && (
+                    <button onClick={() => {
+                      setActing(true); setActMsg('')
+                      fetch('/api/admin/billing', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ action:'SEND_INVOICE', id:selected.id }) })
+                        .then(r => r.json())
+                        .then(d => {
+                          if (d.success) {
+                            setActMsg(d.emailSent ? '✓ Invoice sent by email' + (d.notificationSent ? ' and in-app notification' : '') : '⚠ Invoice sent but email failed: ' + d.emailError)
+                            load()
+                          } else setActMsg('Error: ' + d.error)
+                          setActing(false)
+                        }).catch(() => { setActMsg('Error sending invoice'); setActing(false) })
+                    }} disabled={acting}
+                      style={{ height: 38, background: '#0E1A6E', color: 'white', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+                      Send Invoice
+                    </button>
+                  )}
 
                   {selected.status !== 'PAID' && (
                     <button onClick={() => act('MARK_PAID', { amount: selected.invoice_amount })} disabled={acting}
