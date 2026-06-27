@@ -4,17 +4,16 @@ import { useState, useEffect } from 'react'
 const SUPER_ADMIN_EMAILS = ['admin@kajolacooperative.com', 'admin@amana.app']
 
 export default function AdminTeamPage() {
-  const [admins, setAdmins]         = useState<any[]>([])
+  const [admins, setAdmins] = useState<any[]>([])
   const [adminEmail, setAdminEmail] = useState('')
-  const [adminName, setAdminName]   = useState('')
-  const [adminRole, setAdminRole]   = useState('')
-  const [email, setEmail]           = useState('')
-  const [name, setName]             = useState('')
-  const [role, setRole]             = useState('ADMIN')
-  const [preparing, setPreparing]   = useState(false)
-  const [emailSent, setEmailSent]   = useState(false)
-  const [inviteUrl, setInviteUrl]   = useState('')
-  const [msg, setMsg]               = useState('')
+  const [adminName, setAdminName] = useState('')
+  const [adminRole, setAdminRole] = useState('')
+  const [email, setEmail] = useState('')
+  const [name, setName] = useState('')
+  const [role, setRole] = useState('ADMIN')
+  const [sending, setSending] = useState(false)
+  const [sent, setSent] = useState(false)
+  const [msg, setMsg] = useState('')
   const [confirmRemove, setConfirmRemove] = useState<string|null>(null)
 
   const load = () => {
@@ -27,198 +26,139 @@ export default function AdminTeamPage() {
   }
   useEffect(() => { load() }, [])
 
-  // Step 1: Prepare the invite — saves token to DB, returns invite URL
-  const prepareInvite = async () => {
+  const sendInvite = async () => {
     if (!email.trim()) { setMsg('Please enter the invitee email address'); return }
     const emailRx = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRx.test(email.trim())) { setMsg('Please enter a valid email address'); return }
-    setPreparing(true); setMsg('')
+    setSending(true); setMsg('')
     const res = await fetch('/api/admin/team', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: email.trim(), name: name.trim(), role }),
     })
     const data = await res.json()
     if (data.success) {
-      setInviteUrl(data.inviteUrl)
-      openEmail(data.inviteUrl)
+      setSent(true)
+      load()
     } else {
-      setMsg('Error: ' + (data.error || 'Could not prepare invite'))
+      setMsg('Error: ' + (data.error || 'Could not send invite'))
     }
-    setPreparing(false)
+    setSending(false)
   }
 
-  // Step 2: Open email client — same as invoice mailto: pattern
-  const openEmail = (url: string) => {
-    const to      = email.trim()
-    const sender  = adminName || adminEmail || 'Amana Admin'
-    const subject = encodeURIComponent('You have been invited to join Amana Admin Dashboard')
-    const body = encodeURIComponent(
-      'Hello ' + (name.trim() || to) + ',\n\n' +
-      sender + ' has invited you to join the Amana platform as an administrator.\n\n' +
-      '━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n' +
-      'INVITATION DETAILS\n' +
-      '━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n' +
-      'Role:         ' + role + '\n' +
-      'Invited by:   ' + sender + '\n' +
-      'From:         ' + adminEmail + '\n\n' +
-      '━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n' +
-      'To accept this invitation, create your account using the link below.\n' +
-      'Make sure to register with this exact email address: ' + to + '\n\n' +
-      'Accept Invitation:\n' +
-      url + '\n\n' +
-      'Once registered, you will have access to the Amana Admin Dashboard\n' +
-      'with the role of ' + role + '.\n\n' +
-      'If you did not expect this invitation, please disregard this email.\n\n' +
-      'Best regards,\n' +
-      sender + '\n' +
-      'Amana Admin'
-    )
-    window.location.href = 'mailto:' + to + '?subject=' + subject + '&body=' + body
-    setEmailSent(true)
-    load()
-  }
-
-  const resendEmail = () => {
-    setEmailSent(false)
-    setTimeout(() => openEmail(inviteUrl), 100)
-  }
-
-  const resetForm = () => {
-    setEmail(''); setName(''); setRole('ADMIN')
-    setEmailSent(false); setInviteUrl(''); setMsg('')
-  }
-
-  const remove = async (adminEmail: string) => {
+  const remove = async (targetEmail: string) => {
     await fetch('/api/admin/team', {
       method: 'DELETE', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: adminEmail }),
+      body: JSON.stringify({ email: targetEmail }),
     })
     setConfirmRemove(null)
     load()
   }
 
-  const inp: React.CSSProperties = {
-    height: 42, padding: '0 14px', borderRadius: 9,
-    border: '1px solid #E2E8F0', fontSize: 14, outline: 'none',
-    background: 'white', color: '#1E293B', boxSizing: 'border-box', width: '100%',
+  const resetForm = () => {
+    setEmail(''); setName(''); setRole('ADMIN'); setSent(false); setMsg('')
   }
-  const roleColor: Record<string, [string, string]> = {
-    SUPER_ADMIN: ['#DC2626', '#FEF2F2'],
-    ADMIN: ['#0E1A6E', '#EEF2FF'],
-    REVIEWER: ['#D97706', '#FFFBEB'],
+
+  const inp: React.CSSProperties = { height:42, padding:'0 14px', borderRadius:9, border:'1px solid var(--admin-card-border)', fontSize:14, outline:'none', background:'var(--admin-bg)', color:'var(--admin-text)', boxSizing:'border-box', width:'100%' }
+  const lbl: React.CSSProperties = { fontSize:12, fontWeight:600, color:'var(--admin-text-secondary)', display:'block', marginBottom:5 }
+  const roleColor: Record<string,[string,string]> = {
+    SUPER_ADMIN:['#DC2626','#FEF2F2'], ADMIN:['#0E1A6E','#EEF2FF'], REVIEWER:['#D97706','#FFFBEB'],
   }
+  const isSuperAdmin = adminRole === 'SUPER_ADMIN' || SUPER_ADMIN_EMAILS.includes(adminEmail.toLowerCase())
 
   return (
-    <div style={{ maxWidth: 680 }}>
-      <div style={{ marginBottom: 24 }}>
-        <h1 style={{ fontSize: 20, fontWeight: 800, color: '#0F172A', marginBottom: 4 }}>Admin Team</h1>
-        <p style={{ fontSize: 13, color: '#64748B' }}>Invite and manage who has access to the Amana Admin dashboard</p>
+    <div style={{ maxWidth:680 }}>
+      <div style={{ marginBottom:24 }}>
+        <h1 style={{ fontSize:22, fontWeight:800, color:'var(--admin-text)', marginBottom:4 }}>Admin Team</h1>
+        <p style={{ fontSize:13, color:'var(--admin-text-muted)' }}>Invite and manage who has access to the Amana Admin dashboard</p>
       </div>
 
-      {/* Access denied for non-super-admins */}
-      {adminRole && adminRole !== 'SUPER_ADMIN' && !SUPER_ADMIN_EMAILS.includes(adminEmail.toLowerCase()) && (
-        <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 12, padding: '16px 20px', marginBottom: 20 }}>
-          <p style={{ fontSize: 14, fontWeight: 700, color: '#DC2626', marginBottom: 4 }}>Access Restricted</p>
-          <p style={{ fontSize: 13, color: '#B91C1C' }}>Only the Super Admin can invite new admins.</p>
+      {/* Access restricted for non-super-admins */}
+      {!isSuperAdmin && (
+        <div style={{ background:'#FEF2F2', border:'1px solid #FECACA', borderRadius:12, padding:'16px 20px', marginBottom:20 }}>
+          <p style={{ fontSize:14, fontWeight:700, color:'#DC2626', marginBottom:4 }}>Access Restricted</p>
+          <p style={{ fontSize:13, color:'#B91C1C' }}>Only the Super Admin can invite new admins.</p>
         </div>
       )}
 
       {/* Invite card — super admin only */}
-      {(adminRole === 'SUPER_ADMIN' || SUPER_ADMIN_EMAILS.includes(adminEmail.toLowerCase())) && (
-      <div style={{ background: 'white', borderRadius: 14, border: '1px solid #E2E8F0', padding: 24, marginBottom: 24 }}>
-        <p style={{ fontSize: 14, fontWeight: 700, color: '#0F172A', marginBottom: 16 }}>Invite New Admin</p>
+      {isSuperAdmin && (
+        <div style={{ background:'var(--admin-card)', borderRadius:14, border:'1px solid var(--admin-card-border)', padding:24, marginBottom:24 }}>
+          <p style={{ fontSize:14, fontWeight:700, color:'var(--admin-text)', marginBottom:16 }}>Invite New Admin</p>
 
-        {emailSent ? (
-          /* ── After email opened ── */
-          <>
-            <div style={{ background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 12, padding: '16px 18px', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 12 }}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="2.5" strokeLinecap="round"><path d="M20 6L9 17l-5-5"/></svg>
-              <div>
-                <p style={{ fontSize: 14, fontWeight: 700, color: '#16A34A' }}>Invitation Email Opened</p>
-                <p style={{ fontSize: 12, color: '#15803D' }}>Check your email app and click Send to deliver the invitation to {email}</p>
+          {sent ? (
+            <div>
+              <div style={{ background:'#F0FDF4', border:'1px solid #BBF7D0', borderRadius:12, padding:'14px 18px', marginBottom:14, display:'flex', alignItems:'center', gap:12 }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="2.5" strokeLinecap="round"><path d="M20 6L9 17l-5-5"/></svg>
+                <div>
+                  <p style={{ fontSize:14, fontWeight:700, color:'#16A34A' }}>Invitation Sent!</p>
+                  <p style={{ fontSize:12, color:'#15803D' }}>An email with a registration link was sent to {email}</p>
+                </div>
               </div>
-            </div>
-            <div style={{ display: 'flex', gap: 10 }}>
-              <button onClick={resendEmail}
-                style={{ flex: 1, height: 42, background: '#111827', color: 'white', border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/>
-                </svg>
-                Resend Invitation
-              </button>
               <button onClick={resetForm}
-                style={{ flex: 1, height: 42, background: 'none', border: '1px solid #E2E8F0', borderRadius: 9, fontSize: 13, fontWeight: 500, color: '#64748B', cursor: 'pointer' }}>
+                style={{ width:'100%', height:44, background:'var(--admin-bg)', border:'1px solid var(--admin-card-border)', borderRadius:10, fontSize:13, fontWeight:500, color:'var(--admin-text)', cursor:'pointer' }}>
                 Invite Another Admin
               </button>
             </div>
-          </>
-        ) : (
-          /* ── Invite form ── */
-          <>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 14 }}>
+          ) : (
+            <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
               <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 5 }}>Email Address *</label>
+                <label style={lbl}>Email Address *</label>
                 <input style={inp} placeholder="colleague@example.com" value={email} onChange={e => setEmail(e.target.value)} />
               </div>
               <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 5 }}>Full Name (optional)</label>
+                <label style={lbl}>Full Name (optional)</label>
                 <input style={inp} placeholder="Their full name" value={name} onChange={e => setName(e.target.value)} />
               </div>
               <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 5 }}>Role</label>
+                <label style={lbl}>Role</label>
                 <select style={inp} value={role} onChange={e => setRole(e.target.value)}>
                   <option value="ADMIN">Admin — full platform access</option>
                   <option value="REVIEWER">Reviewer — view only, can review KYC</option>
                   <option value="SUPER_ADMIN">Super Admin — can invite and remove admins</option>
                 </select>
               </div>
+              {msg && <p style={{ fontSize:13, color:'#DC2626' }}>{msg}</p>}
+              <button onClick={sendInvite} disabled={sending}
+                style={{ width:'100%', height:48, background:sending?'#94A3B8':'#0E1A6E', color:'white', border:'none', borderRadius:10, fontSize:14, fontWeight:700, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:8 }}>
+                {sending ? 'Sending...' : 'Send Invitation Email'}
+              </button>
+              <p style={{ fontSize:11, color:'var(--admin-text-muted)', textAlign:'center' }}>
+                The invitee will receive an email with a link to create their admin account.
+              </p>
             </div>
-            {msg && <p style={{ fontSize: 13, color: '#DC2626', marginBottom: 12 }}>{msg}</p>}
-            <button onClick={prepareInvite} disabled={preparing}
-              style={{ width: '100%', height: 48, background: preparing ? '#94A3B8' : '#0E1A6E', color: 'white', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/>
-              </svg>
-              {preparing ? 'Preparing...' : 'Open Email to Send Invitation'}
-            </button>
-            <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 8, textAlign: 'center' }}>
-              Your email app will open with the invitation pre-filled. Review and click Send.
-            </p>
-          </>
-        )}
-      </div>
-
+          )}
+        </div>
       )}
 
       {/* Admin list */}
-      <div style={{ background: 'white', borderRadius: 14, border: '1px solid #E2E8F0', overflow: 'hidden' }}>
-        <div style={{ padding: '12px 20px', background: '#F8FAFC', borderBottom: '2px solid #E2E8F0' }}>
-          <p style={{ fontSize: 11, fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: .5 }}>
+      <div style={{ background:'var(--admin-card)', borderRadius:14, border:'1px solid var(--admin-card-border)', overflow:'hidden' }}>
+        <div style={{ padding:'12px 20px', background:'var(--admin-bg)', borderBottom:'2px solid var(--admin-card-border)' }}>
+          <p style={{ fontSize:11, fontWeight:700, color:'var(--admin-text-muted)', textTransform:'uppercase', letterSpacing:.5 }}>
             {admins.length} Admin{admins.length !== 1 ? 's' : ''}
           </p>
         </div>
-        {admins.map((a: any) => {
-          const [c, b] = roleColor[a.role] || ['#64748B', '#F8FAFC']
+        {admins.map((a:any) => {
+          const [c,b] = roleColor[a.role] || ['#64748B','#F8FAFC']
           return (
-            <div key={a.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px', borderBottom: '1px solid #F8FAFC' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <div style={{ width: 38, height: 38, borderRadius: '50%', background: '#0E1A6E', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 700, fontSize: 14, flexShrink: 0 }}>
+            <div key={a.id} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'14px 20px', borderBottom:'1px solid var(--admin-card-border)', flexWrap:'wrap', gap:10 }}>
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <div style={{ width:40, height:40, borderRadius:'50%', background:'#0E1A6E', display:'flex', alignItems:'center', justifyContent:'center', color:'white', fontWeight:700, fontSize:14, flexShrink:0 }}>
                   {(a.display_name || a.email || '?')[0].toUpperCase()}
                 </div>
                 <div>
-                  <p style={{ fontSize: 13, fontWeight: 600, color: '#1E293B' }}>{a.display_name || 'Name not set'}</p>
-                  <p style={{ fontSize: 11, color: '#94A3B8' }}>{a.email}</p>
-                  {a.invited_by && <p style={{ fontSize: 10, color: '#CBD5E1' }}>Invited by {a.invited_by}</p>}
+                  <p style={{ fontSize:13, fontWeight:600, color:'var(--admin-text)' }}>{a.display_name || 'Name not set'}</p>
+                  <p style={{ fontSize:11, color:'var(--admin-text-muted)' }}>{a.email}</p>
+                  {a.invited_by && <p style={{ fontSize:10, color:'var(--admin-text-faint)' }}>Invited by {a.invited_by}</p>}
                 </div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-                <span style={{ fontSize: 10, fontWeight: 700, color: c, background: b, padding: '3px 10px', borderRadius: 20 }}>{a.role}</span>
-                <span style={{ fontSize: 10, fontWeight: 700, color: a.active ? '#16A34A' : '#94A3B8', background: a.active ? '#F0FDF4' : '#F8FAFC', padding: '3px 8px', borderRadius: 20 }}>
+              <div style={{ display:'flex', alignItems:'center', gap:8, flexShrink:0 }}>
+                <span style={{ fontSize:10, fontWeight:700, color:c, background:b, padding:'3px 10px', borderRadius:20 }}>{a.role}</span>
+                <span style={{ fontSize:10, fontWeight:700, color:a.active?'#16A34A':'#94A3B8', background:a.active?'#F0FDF4':'var(--admin-bg)', padding:'3px 8px', borderRadius:20 }}>
                   {a.active ? 'Active' : 'Invited'}
                 </span>
-                {a.email !== 'admin@amana.app' && (
+                {isSuperAdmin && !SUPER_ADMIN_EMAILS.includes(a.email?.toLowerCase()) && (
                   <button onClick={() => setConfirmRemove(a.email)}
-                    style={{ fontSize: 11, padding: '4px 10px', borderRadius: 7, border: '1px solid #FECACA', background: '#FEF2F2', color: '#DC2626', cursor: 'pointer', fontWeight: 600 }}>
+                    style={{ fontSize:11, padding:'4px 10px', borderRadius:7, border:'1px solid #FECACA', background:'#FEF2F2', color:'#DC2626', cursor:'pointer', fontWeight:600 }}>
                     Remove
                   </button>
                 )}
@@ -228,22 +168,21 @@ export default function AdminTeamPage() {
         })}
       </div>
 
-      {/* Remove confirmation modal */}
+      {/* Confirm remove modal */}
       {confirmRemove && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 20 }}>
-          <div style={{ background: 'white', borderRadius: 16, padding: 28, maxWidth: 380, width: '100%', textAlign: 'center' }}>
-            <div style={{ fontSize: 36, marginBottom: 12 }}>⚠️</div>
-            <h3 style={{ fontSize: 16, fontWeight: 700, color: '#0F172A', marginBottom: 8 }}>Remove Admin?</h3>
-            <p style={{ fontSize: 13, color: '#64748B', marginBottom: 24 }}>
-              <strong>{confirmRemove}</strong> will lose all admin access immediately.
+        <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:1000, padding:20 }}>
+          <div style={{ background:'var(--admin-card)', borderRadius:16, padding:28, maxWidth:380, width:'100%', textAlign:'center', border:'1px solid var(--admin-card-border)' }}>
+            <p style={{ fontSize:16, fontWeight:700, color:'var(--admin-text)', marginBottom:8 }}>Remove Admin?</p>
+            <p style={{ fontSize:13, color:'var(--admin-text-muted)', marginBottom:24 }}>
+              <strong style={{ color:'var(--admin-text)' }}>{confirmRemove}</strong> will lose all admin access immediately.
             </p>
-            <div style={{ display: 'flex', gap: 10 }}>
+            <div style={{ display:'flex', gap:10 }}>
               <button onClick={() => setConfirmRemove(null)}
-                style={{ flex: 1, height: 42, background: 'none', border: '1px solid #E2E8F0', borderRadius: 10, fontSize: 14, color: '#64748B', cursor: 'pointer' }}>
+                style={{ flex:1, height:42, background:'none', border:'1px solid var(--admin-card-border)', borderRadius:10, fontSize:14, color:'var(--admin-text-muted)', cursor:'pointer' }}>
                 Cancel
               </button>
               <button onClick={() => remove(confirmRemove)}
-                style={{ flex: 1, height: 42, background: '#DC2626', color: 'white', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
+                style={{ flex:1, height:42, background:'#DC2626', color:'white', border:'none', borderRadius:10, fontSize:14, fontWeight:700, cursor:'pointer' }}>
                 Yes, Remove
               </button>
             </div>
