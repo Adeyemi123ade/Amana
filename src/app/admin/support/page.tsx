@@ -48,34 +48,18 @@ export default function AdminSupportPage() {
     )
   }
 
-  const sendReply = async () => {
+  const sendReply = () => {
     if (!replyOpen) return
-    setSending(true)
-    try {
-      const res = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          to: replyOpen.email,
-          subject: 'Re: ' + (replyOpen.subject || 'Your Support Request'),
-          body: replyBody,
-          from_name: 'Amana Support',
-        }),
-      })
-      const data = await res.json()
-      if (data.success || res.ok) {
-        setSentMsg('Reply sent to ' + replyOpen.email)
-        await updateStatus(replyOpen.id, 'RESOLVED')
-        setReplyOpen(null)
-        setTimeout(() => setSentMsg(''), 4000)
-      } else {
-        setSentMsg('Error: ' + (data.error || 'Could not send'))
-      }
-    } catch {
-      setSentMsg('Connection error. Please try again.')
-    } finally {
-      setSending(false)
-    }
+    // Same pattern as business invoice — open device email app with pre-filled content
+    // Admin reads the full email in their own email client, edits if needed, then clicks Send
+    const subject = encodeURIComponent('Re: ' + (replyOpen.subject || 'Your Support Request'))
+    const body = encodeURIComponent(replyBody)
+    window.location.href = 'mailto:' + replyOpen.email + '?subject=' + subject + '&body=' + body
+    // Mark as replied and update status
+    updateStatus(replyOpen.id, 'RESOLVED')
+    setSentMsg('\u2713 Email app opened. Review and click Send in your email client.')
+    setReplyOpen(null)
+    setTimeout(() => setSentMsg(''), 5000)
   }
 
   const sc: Record<string, [string, string]> = {
@@ -201,7 +185,7 @@ export default function AdminSupportPage() {
                 </button>
                 <button onClick={sendReply} disabled={sending}
                   style={{ flex: 2, height: 44, background: '#7C3AED', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 700, color: 'white', cursor: sending ? 'not-allowed' : 'pointer', opacity: sending ? 0.7 : 1 }}>
-                  {sending ? 'Sending...' : 'Send Reply'}
+                  Send Reply
                 </button>
               </div>
             </div>
