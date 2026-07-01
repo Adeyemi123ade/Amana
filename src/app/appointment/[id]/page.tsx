@@ -101,8 +101,17 @@ export default function PublicAppointmentPage({ params }: { params: Promise<{ id
           {row('Date', fmtDate(appt.start_time))}
           {row('Time', fmtTime(appt.start_time))}
           {row('Type', appt.location_type === 'PHYSICAL' ? 'In-Person' : 'Virtual')}
-          {row('Location', appt.location)}
+          {appt.location_type === 'PHYSICAL'
+            ? row('Location', appt.location)
+            : null}
           {row('Notes', appt.notes)}
+
+          {appt.location_type !== 'PHYSICAL' && appt.location && appt.status !== 'CANCELLED' && (
+            <a href={appt.location} target="_blank" rel="noopener noreferrer"
+              style={{ display: 'block', textAlign: 'center', marginTop: 16, height: 48, lineHeight: '48px', background: 'linear-gradient(135deg,#7C3AED,#6D28D9)', color: 'white', borderRadius: 12, fontSize: 14, fontWeight: 700, textDecoration: 'none', boxShadow: '0 4px 16px rgba(124,58,237,0.35)' }}>
+              🔗 Join Meeting
+            </a>
+          )}
 
           {appt.status === 'CANCELLED' && (
             <div style={{ marginTop: 16, background: '#FEF2F2', border: '1px solid #FEE2E2', borderRadius: 10, padding: '10px 14px', fontSize: 13, color: '#DC2626' }}>
