@@ -33,10 +33,16 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
       const { data: { user } } = await supabase.auth.getUser()
       const [wsRes, invRes] = await Promise.all([
         supabase.from('workspaces').select('*').eq('created_by', user?.id).maybeSingle(),
-        supabase.from('invoices').select('*, customers(name,phone,email,address)').eq('id', id).single(),
+        supabase.from('invoices').select('*').eq('id', id).maybeSingle(),
       ])
       setWorkspace(wsRes.data)
-      setInvoice(invRes.data)
+      const inv = invRes.data
+      if (inv?.customer_id) {
+        const { data: cust } = await supabase
+          .from('customers').select('name,phone,email,address').eq('id', inv.customer_id).maybeSingle()
+        inv.customers = cust || null
+      }
+      setInvoice(inv)
       setLoading(false)
     }
     load()

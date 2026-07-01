@@ -23,7 +23,7 @@ export default function PublicBookingPage({ params }: { params: Promise<{ slug: 
         .from('workspaces')
         .select('id, name, business_type, business_email, currency, slug')
         .eq('slug', slug)
-        .single()
+        .maybeSingle()
       setWorkspace(ws)
       setLoading(false)
     }

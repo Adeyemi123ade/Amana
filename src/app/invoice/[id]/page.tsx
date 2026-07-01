@@ -20,17 +20,28 @@ export default function PublicInvoicePage({ params }: { params: Promise<{ id: st
     const load = async () => {
       const { data: inv } = await supabase
         .from('invoices')
-        .select('*, customers(*)')
+        .select('*')
         .eq('id', id)
-        .single()
+        .maybeSingle()
       if (!inv) { setLoading(false); return }
+
+      // Two separate queries, not a nested join — anon key joins are unreliable
+      if (inv.customer_id) {
+        const { data: cust } = await supabase
+          .from('customers')
+          .select('*')
+          .eq('id', inv.customer_id)
+          .maybeSingle()
+        inv.customers = cust || null
+      }
+
       setInvoice(inv)
       if (inv.status === 'PAID') setPaid(true)
       const { data: ws } = await supabase
         .from('workspaces')
         .select('*')
         .eq('id', inv.workspace_id)
-        .single()
+        .maybeSingle()
       setWorkspace(ws)
       setLoading(false)
 

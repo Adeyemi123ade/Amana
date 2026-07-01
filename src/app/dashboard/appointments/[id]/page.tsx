@@ -65,7 +65,7 @@ export default function AppointmentDetailPage({ params }: { params: Promise<{ id
       return
     }
     const origin = typeof window !== 'undefined' ? window.location.origin : ''
-    const apptLink = origin + '/dashboard/appointments/' + id
+    const apptLink = origin + '/appointment/' + id
     const subject = encodeURIComponent('Appointment Confirmation — ' + appt.title)
     const body = encodeURIComponent(
       'Dear ' + cust.name + ',\n' +
@@ -106,7 +106,7 @@ export default function AppointmentDetailPage({ params }: { params: Promise<{ id
   }
 
   const copyLink = async () => {
-    const link = (typeof window !== 'undefined' ? window.location.origin : '') + '/dashboard/appointments/' + id
+    const link = (typeof window !== 'undefined' ? window.location.origin : '') + '/appointment/' + id
     await navigator.clipboard.writeText(link)
     setCopied(true)
     setTimeout(() => setCopied(false), 2500)
