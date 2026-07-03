@@ -29,6 +29,7 @@ export default function SettingsPage() {
   const [profile, setProfile] = useState({ fullName:'', email:'', phone:'', country:'' })
   const [pwd, setPwd] = useState({ newPwd:'', confirm:'' })
   const [pwdErr, setPwdErr] = useState('')
+  const [showPwd, setShowPwd] = useState(false)
   const [notifs, setNotifs] = useState({ email:true, payment:true, appointment:true, invoice:true, weekly:true })
   const [inviteEmail, setInviteEmail] = useState('')
 
@@ -88,7 +89,7 @@ export default function SettingsPage() {
     setSavingPwd(true)
     const { error } = await supabase.auth.updateUser({ password: pwd.newPwd })
     setSavingPwd(false)
-    if (error) setPwdErr('We could not update your password. Please try again.')
+    if (error) setPwdErr(error.message || 'We could not update your password. Please try again.')
     else { ok('Password updated successfully'); setPwd({ newPwd:'', confirm:'' }) }
   }
 
@@ -193,11 +194,23 @@ export default function SettingsPage() {
       <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
         <div>
           <label style={lbl}>New Password</label>
-          <input type="password" style={inp} placeholder="At least 8 characters" value={pwd.newPwd} onChange={e => setPwd(p => ({ ...p, newPwd: e.target.value }))} />
+          <div style={{ position: 'relative' }}>
+            <input type={showPwd ? 'text' : 'password'} style={{...inp, paddingRight:44}} placeholder="At least 8 characters" value={pwd.newPwd} onChange={e => setPwd(p => ({ ...p, newPwd: e.target.value }))} />
+            <button type="button" onClick={() => setShowPwd(s => !s)}
+              style={{ position:'absolute', right:10, top:'50%', transform:'translateY(-50%)', background:'none', border:'none', cursor:'pointer', color:'var(--text-muted)', fontSize:12, fontWeight:600 }}>
+              {showPwd ? 'Hide' : 'Show'}
+            </button>
+          </div>
         </div>
         <div>
           <label style={lbl}>Confirm Password</label>
-          <input type="password" style={inp} placeholder="Repeat new password" value={pwd.confirm} onChange={e => setPwd(p => ({ ...p, confirm: e.target.value }))} />
+          <div style={{ position: 'relative' }}>
+            <input type={showPwd ? 'text' : 'password'} style={{...inp, paddingRight:44}} placeholder="Repeat new password" value={pwd.confirm} onChange={e => setPwd(p => ({ ...p, confirm: e.target.value }))} />
+            <button type="button" onClick={() => setShowPwd(s => !s)}
+              style={{ position:'absolute', right:10, top:'50%', transform:'translateY(-50%)', background:'none', border:'none', cursor:'pointer', color:'var(--text-muted)', fontSize:12, fontWeight:600 }}>
+              {showPwd ? 'Hide' : 'Show'}
+            </button>
+          </div>
         </div>
         {pwdErr && <p style={{ fontSize:13, color:'#DC2626' }}>{pwdErr}</p>}
         <button onClick={savePwd} disabled={savingPwd} style={btn}>{savingPwd ? 'Updating...' : 'Update Password'}</button>

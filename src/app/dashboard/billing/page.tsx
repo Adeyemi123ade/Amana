@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { BackLink } from '@/components/shared/BackLink'
 
 const STATUS_COLORS: Record<string, [string, string]> = {
   DRAFT:     ['#6B7280', '#F9FAFB'],
@@ -59,6 +60,7 @@ export default function BusinessBillingPage() {
 
   return (
     <div style={{ maxWidth: 800 }}>
+      <BackLink href="/dashboard" />
       {/* Overdue warning */}
       {overdueInvoices.length > 0 && (
         <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 12, padding: '14px 20px', marginBottom: 20, display: 'flex', alignItems: 'flex-start', gap: 12 }}>

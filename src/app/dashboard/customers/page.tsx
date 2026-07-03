@@ -47,8 +47,12 @@ export default function CustomersPage() {
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE)
   const paginated = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
 
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
   const handleAdd = async () => {
     if (!form.name.trim()) { setError('Please enter the customer name'); return }
+    if (!form.email.trim()) { setError('Please enter the customer email'); return }
+    if (!EMAIL_RE.test(form.email.trim())) { setError('Please enter a valid email address'); return }
     const ws = wsRef.current
     if (!ws) { setError('Your workspace is still loading. Please wait a moment and try again.'); return }
     setSaving(true)
@@ -135,7 +139,9 @@ export default function CustomersPage() {
               </div>
               <div>
                 <p style={{fontSize:14, fontWeight:500, color:'var(--text)'}}>{c.name}</p>
-                <p style={{fontSize:12, color:'var(--text-muted)'}}>{c.phone || c.email || 'No contact info'}</p>
+                <p style={{fontSize:12, color:'var(--text-muted)'}}>
+                  {[c.phone, c.email].filter(Boolean).join(' · ') || 'No contact info'}
+                </p>
               </div>
             </div>
             <div style={{display:'flex', alignItems:'center', gap:10}}>

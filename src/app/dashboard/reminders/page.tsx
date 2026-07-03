@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { BackLink } from '@/components/shared/BackLink'
 
 const supabase = createClient()
 
@@ -140,6 +141,7 @@ export default function RemindersPage() {
 
   return (
     <div>
+      <BackLink href="/dashboard" />
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 700, color: 'var(--text)', marginBottom: 2 }}>Reminders & Automation</h1>

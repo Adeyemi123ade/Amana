@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { formatCurrency } from '@/lib/utils'
+import { BackLink } from '@/components/shared/BackLink'
 
 const supabase = createClient()
 const PAGE_SIZE = 20
@@ -73,6 +74,7 @@ export default function PaymentsPage() {
 
   return (
     <div>
+      <BackLink href="/dashboard" />
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
         <div>
