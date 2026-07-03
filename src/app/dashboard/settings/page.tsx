@@ -262,7 +262,7 @@ export default function SettingsPage() {
           <button key={t.id} onClick={() => setTheme(t.id as ThemeId)}
             style={{ padding:'14px 12px', borderRadius:12, border: themeId === t.id ? '2px solid #7C3AED' : '1px solid var(--border-light)', background: themeId === t.id ? '#EDE9FE' : 'var(--card)', cursor:'pointer', textAlign:'left' }}>
             <div style={{ display:'flex', gap:4, marginBottom:10 }}>
-              {t.preview.map((c, i) => <div key={i} style={{ width:18, height:18, borderRadius:4, background:c }}/>)}
+              {Object.values(t.preview).map((c, i) => <div key={i} style={{ width:18, height:18, borderRadius:4, background:c }}/>)}
             </div>
             <p style={{ fontSize:12, fontWeight: themeId === t.id ? 700 : 500, color: themeId === t.id ? '#7C3AED' : 'var(--text)' }}>{t.name}</p>
           </button>
