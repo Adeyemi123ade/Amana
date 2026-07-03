@@ -32,6 +32,45 @@ export default function SettingsPage() {
   const [showPwd, setShowPwd] = useState(false)
   const [notifs, setNotifs] = useState({ email:true, payment:true, appointment:true, invoice:true, weekly:true })
   const [inviteEmail, setInviteEmail] = useState('')
+  const [invites, setInvites] = useState<any[]>([])
+  const [invitesLoading, setInvitesLoading] = useState(false)
+  const [sendingInvite, setSendingInvite] = useState(false)
+  const [inviteMsg, setInviteMsg] = useState('')
+  const [inviteMsgOk, setInviteMsgOk] = useState(true)
+
+  const loadInvites = async (wsId: string) => {
+    setInvitesLoading(true)
+    const { data } = await supabase.from('team_invites').select('*').eq('workspace_id', wsId).order('created_at', { ascending: false })
+    setInvites(data || [])
+    setInvitesLoading(false)
+  }
+
+  const sendInvite = async () => {
+    setInviteMsg('')
+    const email = inviteEmail.trim().toLowerCase()
+    if (!email) { setInviteMsgOk(false); setInviteMsg('Please enter an email address'); return }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setInviteMsgOk(false); setInviteMsg('Please enter a valid email address'); return }
+    const ws = workspaceRef.current
+    if (!ws || !user) { setInviteMsgOk(false); setInviteMsg('Your workspace is still loading. Please wait a moment.'); return }
+    setSendingInvite(true)
+    try {
+      const res = await fetch('/api/team-invite', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, workspaceId: ws.id, invitedBy: user.id, workspaceName: ws.name }),
+      })
+      const data = await res.json()
+      if (!res.ok) { setInviteMsgOk(false); setInviteMsg(data.error || 'Could not send invite'); }
+      else { setInviteMsgOk(true); setInviteMsg('Invite sent to ' + email); setInviteEmail(''); loadInvites(ws.id) }
+    } catch {
+      setInviteMsgOk(false); setInviteMsg('Connection error. Please try again.')
+    }
+    setSendingInvite(false)
+  }
+
+  useEffect(() => {
+    if (section === 'team' && workspaceRef.current) loadInvites(workspaceRef.current.id)
+  }, [section])
 
   useEffect(() => {
     const load = async () => {
@@ -271,6 +310,49 @@ export default function SettingsPage() {
     </div>
   )
 
+  if (section === 'team') return (
+    <div>
+      <button onClick={() => setSection(null)} style={{ display:'flex', alignItems:'center', gap:8, background:'none', border:'none', cursor:'pointer', color:'var(--accent)', fontSize:14, fontWeight:600, marginBottom:20, padding:0 }}>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        Back to Settings
+      </button>
+      <h2 style={{ fontSize:18, fontWeight:800, color:'var(--text)', marginBottom:20 }}>Team Members</h2>
+
+      {inviteMsg && <div style={{ padding:'10px 14px', borderRadius:8, background:inviteMsgOk?'#F0FDF4':'#FEF2F2', color:inviteMsgOk?'#16A34A':'#DC2626', fontSize:13, marginBottom:16 }}>{inviteMsg}</div>}
+
+      <div style={{ display:'flex', gap:8, marginBottom:24 }}>
+        <input type="email" style={inp} placeholder="teammate@example.com" value={inviteEmail} onChange={e => setInviteEmail(e.target.value)} />
+        <button onClick={sendInvite} disabled={sendingInvite} style={{ ...btn, width:'auto', padding:'0 20px', whiteSpace:'nowrap' }}>{sendingInvite ? 'Sending...' : 'Invite'}</button>
+      </div>
+
+      <p style={secHead}>INVITES SENT</p>
+      <div style={card}>
+        {invitesLoading ? (
+          <div style={{ padding:20, textAlign:'center', color:'var(--text-muted)', fontSize:13 }}>Loading...</div>
+        ) : invites.length === 0 ? (
+          <div style={{ padding:20, textAlign:'center', color:'var(--text-muted)', fontSize:13 }}>No invites sent yet</div>
+        ) : invites.map((inv, i) => {
+          const statusColor: Record<string,[string,string]> = {
+            PENDING: ['#D97706','#FFFBEB'], ACCEPTED: ['#16A34A','#F0FDF4'],
+            DECLINED: ['#DC2626','#FEF2F2'], EXPIRED: ['#6B7280','#F9FAFB'],
+          }
+          const [sc, sb] = statusColor[inv.status] || statusColor.PENDING
+          return (
+            <div key={inv.id} style={{ ...row, borderBottom: i === invites.length-1 ? 'none' : '1px solid var(--border)' }}>
+              <div>
+                <p style={rowTitle}>{inv.email}</p>
+                <p style={rowSub}>Sent {new Date(inv.created_at).toLocaleDateString('en-NG', { day:'numeric', month:'short', year:'numeric' })}</p>
+              </div>
+              <span style={{ fontSize:11, fontWeight:700, color:sc, background:sb, padding:'4px 10px', borderRadius:20, border:'1px solid '+sc+'33' }}>
+                {inv.status.charAt(0) + inv.status.slice(1).toLowerCase()}
+              </span>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+
   // ── Main settings list ──
   return (
     <div style={{ maxWidth:560 }}>
@@ -290,7 +372,7 @@ export default function SettingsPage() {
           { key:'team', icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" strokeWidth="1.8" strokeLinecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M12 7a4 4 0 100 8 4 4 0 000-8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>, bg:'#EDE9FE', title:'Team Members', sub:'Invite and manage your team' },
           { key:'appearance', icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" strokeWidth="1.8" strokeLinecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>, bg:'#EDE9FE', title:'Appearance & Theme', sub:`Current: ${THEMES.find(t => t.id === themeId)?.name || 'Default'}` },
         ].map(item => (
-          <div key={item.key} onClick={() => setSection(item.key as Section)}
+          <div key={item.key} onClick={() => item.key === 'kyc' ? router.push('/onboarding/identity-verification') : setSection(item.key as Section)}
             style={{ ...row, borderBottom: item.key === 'appearance' ? 'none' : '1px solid var(--border)' }}>
             <div style={{ display:'flex', alignItems:'center', gap:14 }}>
               {iconBox(item.icon, item.bg)}
