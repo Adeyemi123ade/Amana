@@ -7,8 +7,8 @@ import { formatCurrency } from '@/lib/utils'
 
 const supabase = createClient()
 
-const inp: React.CSSProperties = { width:'100%', height:44, padding:'0 12px', borderRadius:8, border:'1px solid #E5E7EB', fontSize:14, color:'#111827', outline:'none', boxSizing:'border-box', background:'white' }
-const lbl: React.CSSProperties = { display:'block', fontSize:13, fontWeight:500, color:'#374151', marginBottom:6 }
+const inp: React.CSSProperties = { width:'100%', height:44, padding:'0 12px', borderRadius:8, border:'1px solid var(--border-light)', fontSize:14, color:'var(--text)', outline:'none', boxSizing:'border-box', background:'white' }
+const lbl: React.CSSProperties = { display:'block', fontSize:13, fontWeight:500, color:'var(--text-secondary)', marginBottom:6 }
 
 export default function CustomersPage() {
   const [customers, setCustomers] = useState<any[]>([])
@@ -104,7 +104,7 @@ export default function CustomersPage() {
             </a>
           )}
           <button onClick={() => { setShowModal(true); setError('') }}
-            style={{display:'flex', alignItems:'center', gap:6, background:'#7C3AED', color:'white', padding:'10px 18px', borderRadius:10, fontSize:14, fontWeight:600, border:'none', cursor:'pointer'}}>
+            style={{display:'flex', alignItems:'center', gap:6, background:'var(--accent)', color:'white', padding:'10px 18px', borderRadius:10, fontSize:14, fontWeight:600, border:'none', cursor:'pointer'}}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
             Add Customer
           </button>
@@ -116,7 +116,7 @@ export default function CustomersPage() {
           <div style={{position:'relative'}}>
             <svg style={{position:'absolute', left:10, top:10}} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
             <input placeholder="Search customers..." value={search} onChange={e => { setSearch(e.target.value); setPage(0) }}
-              style={{width:'100%', height:36, paddingLeft:34, paddingRight:12, borderRadius:8, border:'1px solid #E5E7EB', fontSize:13, outline:'none', boxSizing:'border-box', background:'white'}} />
+              style={{width:'100%', height:36, paddingLeft:34, paddingRight:12, borderRadius:8, border:'1px solid var(--border-light)', fontSize:13, outline:'none', boxSizing:'border-box', background:'white'}} />
           </div>
         </div>
 
@@ -159,7 +159,7 @@ export default function CustomersPage() {
         <div style={{position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:16}}>
           <div style={{background:'white', borderRadius:16, padding:'24px', width:'100%', maxWidth:480, maxHeight:'90vh', overflowY:'auto'}}>
             <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20}}>
-              <h2 style={{fontSize:18, fontWeight:700, color:'#111827'}}>Add Customer</h2>
+              <h2 style={{fontSize:18, fontWeight:700, color:'var(--text)'}}>Add Customer</h2>
               <button onClick={() => setShowModal(false)} style={{background:'none', border:'none', cursor:'pointer', color:'#9CA3AF', fontSize:24, lineHeight:1}}>×</button>
             </div>
             {error && (
@@ -191,11 +191,11 @@ export default function CustomersPage() {
               </div>
               <div style={{display:'flex', gap:10}}>
                 <button onClick={() => setShowModal(false)}
-                  style={{flex:1, height:44, background:'white', border:'1px solid #E5E7EB', borderRadius:10, fontSize:14, color:'#374151', cursor:'pointer'}}>
+                  style={{flex:1, height:44, background:'white', border:'1px solid var(--border-light)', borderRadius:10, fontSize:14, color:'var(--text-secondary)', cursor:'pointer'}}>
                   Cancel
                 </button>
                 <button onClick={handleAdd} disabled={saving}
-                  style={{flex:2, height:44, background:'#7C3AED', border:'none', borderRadius:10, fontSize:14, fontWeight:600, color:'white', cursor:saving?'not-allowed':'pointer', opacity:saving?0.7:1, display:'flex', alignItems:'center', justifyContent:'center', gap:6}}>
+                  style={{flex:2, height:44, background:'var(--accent)', border:'none', borderRadius:10, fontSize:14, fontWeight:600, color:'white', cursor:saving?'not-allowed':'pointer', opacity:saving?0.7:1, display:'flex', alignItems:'center', justifyContent:'center', gap:6}}>
                   {saving && <span style={{width:14, height:14, border:'2px solid white', borderTopColor:'transparent', borderRadius:'50%', display:'inline-block', animation:'spin 0.8s linear infinite'}}/>}
                   {saving ? 'Saving...' : 'Save Customer'}
                 </button>

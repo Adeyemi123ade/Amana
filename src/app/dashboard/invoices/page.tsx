@@ -80,8 +80,8 @@ export default function InvoicesPage() {
     PAID:     ['#22C55E', '#F0FDF4'],
     UNPAID:   ['#F59E0B', '#FFFBEB'],
     OVERDUE:  ['#EF4444', '#FEF2F2'],
-    DRAFT:    ['#6B7280', '#F9FAFB'],
-    CANCELLED:['#6B7280', '#F9FAFB'],
+    DRAFT:    ['var(--text-muted)', 'var(--bg)'],
+    CANCELLED:['var(--text-muted)', 'var(--bg)'],
   }
 
   return (
@@ -95,7 +95,7 @@ export default function InvoicesPage() {
               ↓ Export CSV
             </a>
           )}
-          <Link href="/dashboard/invoices/create" style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#7C3AED', color: 'white', padding: '10px 18px', borderRadius: 10, fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>
+          <Link href="/dashboard/invoices/create" style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--accent)', color: 'white', padding: '10px 18px', borderRadius: 10, fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
             Create Invoice
           </Link>
@@ -114,7 +114,7 @@ export default function InvoicesPage() {
           <div style={{ display: 'flex', gap: 6 }}>
             {['All', 'Paid', 'Unpaid', 'Overdue', 'Draft'].map(tab => (
               <button key={tab} onClick={() => handleFilter(tab)}
-                style={{ padding: '6px 14px', borderRadius: 8, border: `1px solid ${statusFilter === tab ? '#7C3AED' : 'var(--border-light)'}`, background: statusFilter === tab ? '#7C3AED' : 'var(--bg-secondary)', color: statusFilter === tab ? 'white' : 'var(--text-muted)', fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>
+                style={{ padding: '6px 14px', borderRadius: 8, border: `1px solid ${statusFilter === tab ? 'var(--accent)' : 'var(--border-light)'}`, background: statusFilter === tab ? 'var(--accent)' : 'var(--bg-secondary)', color: statusFilter === tab ? 'white' : 'var(--text-muted)', fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>
                 {tab}
               </button>
             ))}
@@ -147,7 +147,7 @@ export default function InvoicesPage() {
               ))}
             </div>
             {invoices.map((inv: any) => {
-              const [sc, sb] = statusColor[inv.status] || ['#6B7280', '#F9FAFB']
+              const [sc, sb] = statusColor[inv.status] || ['var(--text-muted)', 'var(--bg)']
               return (
                 <Link key={inv.id} href={`/dashboard/invoices/${inv.id}`} style={{ display: 'grid', gridTemplateColumns: '1fr auto auto auto', gap: 8, padding: '11px 16px', borderTop: '1px solid var(--border)', alignItems: 'center', textDecoration: 'none' }}>
                   <div style={{ minWidth: 0 }}>

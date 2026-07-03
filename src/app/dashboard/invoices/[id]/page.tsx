@@ -16,8 +16,8 @@ const STATUS: Record<string, [string,string]> = {
   PAID:    ['#16A34A','#F0FDF4'],
   UNPAID:  ['#D97706','#FFFBEB'],
   OVERDUE: ['#DC2626','#FEF2F2'],
-  DRAFT:   ['#6B7280','#F9FAFB'],
-  PENDING_VERIFICATION: ['#7C3AED','#EDE9FE'],
+  DRAFT:   ['var(--text-muted)','var(--bg)'],
+  PENDING_VERIFICATION: ['var(--accent)','var(--accent-light)'],
 }
 
 export default function InvoiceDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -107,7 +107,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
 
   const cur  = workspace?.currency || 'NGN'
   const isPaid = invoice.status === 'PAID'
-  const [sc, sb] = STATUS[invoice.status] || ['#6B7280','#F9FAFB']
+  const [sc, sb] = STATUS[invoice.status] || ['var(--text-muted)','var(--bg)']
   const items: any[] = Array.isArray(invoice.items) ? invoice.items : []
   const subtotal = Number(invoice.subtotal) || items.reduce((s:number,i:any)=>s+Number(i.amount||0),0)
   const tax      = Number(invoice.tax_amount) || 0
@@ -140,7 +140,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
       <div style={{ background:'var(--card)', borderRadius:16, border:'1px solid var(--border)', overflow:'hidden', marginBottom:14 }}>
 
         {/* Top accent bar */}
-        <div style={{ height:4, background:'linear-gradient(90deg,#7C3AED,#3B82F6)' }}/>
+        <div style={{ height:4, background:'linear-gradient(90deg,var(--accent),#3B82F6)' }}/>
 
         <div style={{ padding:'28px 28px 0' }}>
 
@@ -290,7 +290,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
 
             {/* Resend Invoice — opens the email flow again from scratch */}
             <button onClick={resendEmail}
-              style={{ width:'100%', height:44, background:'#111827', color:'white', border:'none', borderRadius:12, fontSize:14, fontWeight:600, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:8 }}>
+              style={{ width:'100%', height:44, background:'var(--text)', color:'white', border:'none', borderRadius:12, fontSize:14, fontWeight:600, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:8 }}>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/>
               </svg>
@@ -299,7 +299,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
 
             {/* Copy payment link */}
             <button onClick={copyLink}
-              style={{ width:'100%', height:44, background:copied?'#22C55E':'#7C3AED', color:'white', border:'none', borderRadius:12, fontSize:14, fontWeight:600, cursor:'pointer' }}>
+              style={{ width:'100%', height:44, background:copied?'#22C55E':'var(--accent)', color:'white', border:'none', borderRadius:12, fontSize:14, fontWeight:600, cursor:'pointer' }}>
               {copied ? '✓ Link Copied!' : '🔗 Copy Payment Link'}
             </button>
           </>
@@ -314,7 +314,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
               </div>
             </div>
             <a href={'/api/invoice-pdf?id=' + id} target="_blank" rel="noreferrer"
-              style={{ display:'block', width:'100%', height:46, background:'#111827', color:'white', borderRadius:12, fontSize:14, fontWeight:600, textDecoration:'none', lineHeight:'46px', textAlign:'center' }}>
+              style={{ display:'block', width:'100%', height:46, background:'var(--text)', color:'white', borderRadius:12, fontSize:14, fontWeight:600, textDecoration:'none', lineHeight:'46px', textAlign:'center' }}>
               ⬇ Download Invoice PDF
             </a>
             <button onClick={copyLink}
@@ -328,7 +328,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
             {/* Send invoice email */}
             {invoice.customers?.email ? (
               <button onClick={sendEmail}
-                style={{ width:'100%', height:48, background:'#111827', color:'white', border:'none', borderRadius:12, fontSize:14, fontWeight:600, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:8 }}>
+                style={{ width:'100%', height:48, background:'var(--text)', color:'white', border:'none', borderRadius:12, fontSize:14, fontWeight:600, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:8 }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                   <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/>
                 </svg>
@@ -342,13 +342,13 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
 
             {/* Copy payment link */}
             <div style={{ background:'#F5F3FF', border:'1px solid #DDD6FE', borderRadius:12, padding:'14px 16px' }}>
-              <p style={{ fontSize:11, fontWeight:700, color:'#7C3AED', marginBottom:8 }}>Customer Payment Link</p>
+              <p style={{ fontSize:11, fontWeight:700, color:'var(--accent)', marginBottom:8 }}>Customer Payment Link</p>
               <div style={{ display:'flex', gap:8 }}>
                 <div style={{ flex:1, background:'white', borderRadius:8, padding:'8px 12px', border:'1px solid #DDD6FE', overflow:'hidden' }}>
-                  <p style={{ fontSize:11, color:'#6B7280', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{paymentLink}</p>
+                  <p style={{ fontSize:11, color:'var(--text-muted)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{paymentLink}</p>
                 </div>
                 <button onClick={copyLink}
-                  style={{ height:36, padding:'0 14px', background:copied?'#22C55E':'#7C3AED', color:'white', border:'none', borderRadius:8, fontSize:12, fontWeight:700, cursor:'pointer', flexShrink:0 }}>
+                  style={{ height:36, padding:'0 14px', background:copied?'#22C55E':'var(--accent)', color:'white', border:'none', borderRadius:8, fontSize:12, fontWeight:700, cursor:'pointer', flexShrink:0 }}>
                   {copied ? 'Copied!' : 'Copy'}
                 </button>
               </div>

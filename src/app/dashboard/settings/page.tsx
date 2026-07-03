@@ -279,7 +279,7 @@ export default function SettingsPage() {
               <p style={{ fontSize:12, color:'var(--text-muted)' }}>{desc}</p>
             </div>
             <button onClick={() => setNotifs(n => ({ ...n, [key]: !((n as any)[key]) }))}
-              style={{ width:48, height:26, borderRadius:20, background:(notifs as any)[key]?'#7C3AED':'var(--border-light)', border:'none', cursor:'pointer', position:'relative', transition:'background 0.2s', flexShrink:0 }}>
+              style={{ width:48, height:26, borderRadius:20, background:(notifs as any)[key]?'var(--accent)':'var(--border-light)', border:'none', cursor:'pointer', position:'relative', transition:'background 0.2s', flexShrink:0 }}>
               <span style={{ position:'absolute', top:3, left:(notifs as any)[key]?22:3, width:20, height:20, borderRadius:'50%', background:'white', transition:'left 0.2s', boxShadow:'0 1px 3px rgba(0,0,0,0.2)' }}/>
             </button>
           </div>
@@ -299,11 +299,11 @@ export default function SettingsPage() {
       <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(140px, 1fr))', gap:12 }}>
         {THEMES.map(t => (
           <button key={t.id} onClick={() => setTheme(t.id as ThemeId)}
-            style={{ padding:'14px 12px', borderRadius:12, border: themeId === t.id ? '2px solid #7C3AED' : '1px solid var(--border-light)', background: themeId === t.id ? '#EDE9FE' : 'var(--card)', cursor:'pointer', textAlign:'left' }}>
+            style={{ padding:'14px 12px', borderRadius:12, border: themeId === t.id ? '2px solid var(--accent)' : '1px solid var(--border-light)', background: themeId === t.id ? 'var(--accent-light)' : 'var(--card)', cursor:'pointer', textAlign:'left' }}>
             <div style={{ display:'flex', gap:4, marginBottom:10 }}>
               {Object.values(t.preview).map((c, i) => <div key={i} style={{ width:18, height:18, borderRadius:4, background:c }}/>)}
             </div>
-            <p style={{ fontSize:12, fontWeight: themeId === t.id ? 700 : 500, color: themeId === t.id ? '#7C3AED' : 'var(--text)' }}>{t.name}</p>
+            <p style={{ fontSize:12, fontWeight: themeId === t.id ? 700 : 500, color: themeId === t.id ? 'var(--accent)' : 'var(--text)' }}>{t.name}</p>
           </button>
         ))}
       </div>
@@ -334,7 +334,7 @@ export default function SettingsPage() {
         ) : invites.map((inv, i) => {
           const statusColor: Record<string,[string,string]> = {
             PENDING: ['#D97706','#FFFBEB'], ACCEPTED: ['#16A34A','#F0FDF4'],
-            DECLINED: ['#DC2626','#FEF2F2'], EXPIRED: ['#6B7280','#F9FAFB'],
+            DECLINED: ['#DC2626','#FEF2F2'], EXPIRED: ['var(--text-muted)','var(--bg)'],
           }
           const [sc, sb] = statusColor[inv.status] || statusColor.PENDING
           return (
@@ -366,11 +366,11 @@ export default function SettingsPage() {
       <p style={secHead}>BUSINESS SETTINGS</p>
       <div style={card}>
         {[
-          { key:'business', icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" strokeWidth="1.8" strokeLinecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>, bg:'#EDE9FE', title:'Business Profile', sub: workspace?.name || 'Update your business information' },
-          { key:'notifications', icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" strokeWidth="1.8" strokeLinecap="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>, bg:'#EDE9FE', title:'Notifications', sub:'Manage your alerts' },
-          { key:'kyc', icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" strokeWidth="1.8" strokeLinecap="round"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>, bg:'#EDE9FE', title:'Identity Verification', sub:'Verify your business identity' },
-          { key:'team', icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" strokeWidth="1.8" strokeLinecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M12 7a4 4 0 100 8 4 4 0 000-8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>, bg:'#EDE9FE', title:'Team Members', sub:'Invite and manage your team' },
-          { key:'appearance', icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" strokeWidth="1.8" strokeLinecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>, bg:'#EDE9FE', title:'Appearance & Theme', sub:`Current: ${THEMES.find(t => t.id === themeId)?.name || 'Default'}` },
+          { key:'business', icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="1.8" strokeLinecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>, bg:'var(--accent-light)', title:'Business Profile', sub: workspace?.name || 'Update your business information' },
+          { key:'notifications', icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="1.8" strokeLinecap="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>, bg:'var(--accent-light)', title:'Notifications', sub:'Manage your alerts' },
+          { key:'kyc', icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="1.8" strokeLinecap="round"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>, bg:'var(--accent-light)', title:'Identity Verification', sub:'Verify your business identity' },
+          { key:'team', icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="1.8" strokeLinecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M12 7a4 4 0 100 8 4 4 0 000-8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>, bg:'var(--accent-light)', title:'Team Members', sub:'Invite and manage your team' },
+          { key:'appearance', icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="1.8" strokeLinecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>, bg:'var(--accent-light)', title:'Appearance & Theme', sub:`Current: ${THEMES.find(t => t.id === themeId)?.name || 'Default'}` },
         ].map(item => (
           <div key={item.key} onClick={() => item.key === 'kyc' ? router.push('/onboarding/identity-verification') : setSection(item.key as Section)}
             style={{ ...row, borderBottom: item.key === 'appearance' ? 'none' : '1px solid var(--border)' }}>
@@ -389,8 +389,8 @@ export default function SettingsPage() {
       <p style={secHead}>ACCOUNT SETTINGS</p>
       <div style={card}>
         {[
-          { key:'profile', icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" strokeWidth="1.8" strokeLinecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z"/></svg>, bg:'#EDE9FE', title:'Update your personal details', sub:'Name, phone, country' },
-          { key:'password', icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" strokeWidth="1.8" strokeLinecap="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>, bg:'#EDE9FE', title:'Update your account password', sub:'Change your login password' },
+          { key:'profile', icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="1.8" strokeLinecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z"/></svg>, bg:'var(--accent-light)', title:'Update your personal details', sub:'Name, phone, country' },
+          { key:'password', icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="1.8" strokeLinecap="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>, bg:'var(--accent-light)', title:'Update your account password', sub:'Change your login password' },
         ].map((item, i, arr) => (
           <div key={item.key} onClick={() => setSection(item.key as Section)}
             style={{ ...row, borderBottom: i === arr.length-1 ? 'none' : '1px solid var(--border)' }}>

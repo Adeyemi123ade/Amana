@@ -10,7 +10,7 @@ const STATUS_COLOR: Record<string, [string,string]> = {
   CONFIRMED: ['#3B82F6','#EFF6FF'],
   COMPLETED: ['#22C55E','#F0FDF4'],
   CANCELLED: ['#EF4444','#FEF2F2'],
-  NO_SHOW:   ['#6B7280','#F9FAFB'],
+  NO_SHOW:   ['var(--text-muted)','var(--bg)'],
 }
 
 export default function AppointmentsPage() {
@@ -94,7 +94,7 @@ export default function AppointmentsPage() {
   )
 
   const Row = ({ a }: { a: any }) => {
-    const [sc, sb] = STATUS_COLOR[a.status] || ['#6B7280','#F9FAFB']
+    const [sc, sb] = STATUS_COLOR[a.status] || ['var(--text-muted)','var(--bg)']
     return (
       <div onClick={() => router.push(`/dashboard/appointments/${a.id}`)}
         style={{display:'flex',alignItems:'center',gap:14,padding:'14px 20px',borderTop:'1px solid var(--border)',cursor:'pointer',transition:'background .15s'}}

@@ -126,7 +126,7 @@ export default function PaymentsPage() {
                       {p.customer_email || '—'}
                     </p>
                     {inv?.invoice_number && (
-                      <p style={{ fontSize: 11, color: 'var(--accent, #7C3AED)', marginTop: 2 }}>{inv.invoice_number}</p>
+                      <p style={{ fontSize: 11, color: 'var(--accent, var(--accent))', marginTop: 2 }}>{inv.invoice_number}</p>
                     )}
                     {p.paystack_ref && (
                       <p style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: 'monospace', marginTop: 2 }}>{p.paystack_ref}</p>

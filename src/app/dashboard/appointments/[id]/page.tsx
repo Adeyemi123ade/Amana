@@ -16,7 +16,7 @@ function na(v: any) { return v || 'Not provided' }
 
 const STATUS_COLOR: Record<string, string> = {
   PENDING: '#F59E0B', CONFIRMED: '#3B82F6', COMPLETED: '#22C55E',
-  CANCELLED: '#EF4444', NO_SHOW: '#6B7280',
+  CANCELLED: '#EF4444', NO_SHOW: 'var(--text-muted)',
 }
 
 export default function AppointmentDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -139,7 +139,7 @@ export default function AppointmentDetailPage({ params }: { params: Promise<{ id
     </div>
   )
 
-  const sc = STATUS_COLOR[appt?.status] || '#6B7280'
+  const sc = STATUS_COLOR[appt?.status] || 'var(--text-muted)'
 
   return (
     <div style={{ maxWidth: 580 }}>
@@ -191,7 +191,7 @@ export default function AppointmentDetailPage({ params }: { params: Promise<{ id
 
           {/* Send Email — exact invoice pattern */}
           <button onClick={sendEmail}
-            style={{ width: '100%', height: 48, background: emailSent ? '#22C55E' : '#111827', color: 'white', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+            style={{ width: '100%', height: 48, background: emailSent ? '#22C55E' : 'var(--text)', color: 'white', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/>
             </svg>

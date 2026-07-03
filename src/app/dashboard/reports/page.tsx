@@ -103,7 +103,7 @@ export default function ReportsPage() {
           </select>
           {workspace && <>
             <a href={exportUrl('full','pdf')} target="_blank" rel="noreferrer"
-              style={{display:'inline-flex',alignItems:'center',gap:6,padding:'8px 14px',background:'#7C3AED',color:'white',borderRadius:9,fontSize:12,fontWeight:700,textDecoration:'none',whiteSpace:'nowrap'}}>
+              style={{display:'inline-flex',alignItems:'center',gap:6,padding:'8px 14px',background:'var(--accent)',color:'white',borderRadius:9,fontSize:12,fontWeight:700,textDecoration:'none',whiteSpace:'nowrap'}}>
               📄 Full Report PDF
             </a>
             <a href={exportUrl('invoices','csv')} target="_blank" rel="noreferrer"
@@ -187,8 +187,8 @@ export default function ReportsPage() {
             {invoices.length === 0 ? (
               <p style={{fontSize:13, color:'var(--text-muted)', textAlign:'center', padding:'24px'}}>No invoices yet</p>
             ) : invoices.map((inv: any) => {
-              const statusColor: Record<string,[string,string]> = { PAID:['#22C55E','#F0FDF4'], UNPAID:['#F59E0B','#FFFBEB'], OVERDUE:['#EF4444','#FEF2F2'], DRAFT:['#6B7280','#F9FAFB'] }
-              const [sc, sb] = statusColor[inv.status] || ['#6B7280','#F9FAFB']
+              const statusColor: Record<string,[string,string]> = { PAID:['#22C55E','#F0FDF4'], UNPAID:['#F59E0B','#FFFBEB'], OVERDUE:['#EF4444','#FEF2F2'], DRAFT:['var(--text-muted)','var(--bg)'] }
+              const [sc, sb] = statusColor[inv.status] || ['var(--text-muted)','var(--bg)']
               return (
                 <div key={inv.id} style={{display:'grid', gridTemplateColumns:'1fr 120px 100px 80px', gap:12, padding:'12px 20px', borderTop:'1px solid var(--border)', alignItems:'center'}}>
                   <div>

@@ -82,9 +82,9 @@ export default async function DashboardPage() {
   const statusBadge = (status: string) => {
     const map: Record<string,[string,string]> = {
       PAID:['#22C55E','#F0FDF4'], UNPAID:['#F59E0B','#FFFBEB'],
-      OVERDUE:['#EF4444','#FEF2F2'], DRAFT:['#6B7280','#F9FAFB'],
+      OVERDUE:['#EF4444','#FEF2F2'], DRAFT:['var(--text-muted)','var(--bg)'],
     }
-    const [color, bg] = map[status] || ['#6B7280','#F9FAFB']
+    const [color, bg] = map[status] || ['var(--text-muted)','var(--bg)']
     return <span style={{fontSize:11, fontWeight:600, color, background:bg, padding:'3px 9px', borderRadius:20, flexShrink:0}}>{status.charAt(0)+status.slice(1).toLowerCase()}</span>
   }
 

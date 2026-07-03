@@ -32,7 +32,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
       </div>
 
       {/* Header card — purple always, white text always */}
-      <div style={{ background: '#7C3AED', borderRadius: 14, padding: '20px 24px', marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ background: 'var(--accent)', borderRadius: 14, padding: '20px 24px', marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, fontWeight: 700, color: 'white' }}>
             {customer.name[0].toUpperCase()}
@@ -81,13 +81,13 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
             {customer.email && (
               <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 6 }}>
                 <span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>Email: </span>
-                <a href={`mailto:${customer.email}`} style={{ color: 'var(--accent, #7C3AED)', textDecoration: 'none' }}>{customer.email}</a>
+                <a href={`mailto:${customer.email}`} style={{ color: 'var(--accent, var(--accent))', textDecoration: 'none' }}>{customer.email}</a>
               </p>
             )}
             {customer.phone && (
               <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>
                 <span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>Phone: </span>
-                <a href={`tel:${customer.phone}`} style={{ color: 'var(--accent, #7C3AED)', textDecoration: 'none' }}>{customer.phone}</a>
+                <a href={`tel:${customer.phone}`} style={{ color: 'var(--accent, var(--accent))', textDecoration: 'none' }}>{customer.phone}</a>
               </p>
             )}
           </div>
@@ -104,7 +104,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
             <a key={action.label} href={action.href}
               style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 0', borderBottom: '1px solid var(--border)', textDecoration: 'none' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent, #7C3AED)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent, var(--accent))" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                   <path d={action.icon}/>
                 </svg>
                 <span style={{ fontSize: 14, color: 'var(--text)' }}>{action.label}</span>

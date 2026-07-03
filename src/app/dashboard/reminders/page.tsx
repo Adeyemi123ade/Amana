@@ -14,13 +14,13 @@ const RULE_DEFINITIONS = [
 ]
 
 const TYPE_COLOR: Record<string, string> = {
-  INVOICE_REMINDER: '#7C3AED',
+  INVOICE_REMINDER: 'var(--accent)',
   APPOINTMENT_REMINDER: '#3B82F6',
   FOLLOW_UP_REMINDER: '#F59E0B',
 }
 
-const inp: React.CSSProperties = { width:'100%', height:44, padding:'0 12px', borderRadius:8, border:'1px solid #E5E7EB', fontSize:14, color:'#111827', outline:'none', boxSizing:'border-box', background:'white' }
-const lbl: React.CSSProperties = { display:'block', fontSize:13, fontWeight:500, color:'#374151', marginBottom:6 }
+const inp: React.CSSProperties = { width:'100%', height:44, padding:'0 12px', borderRadius:8, border:'1px solid var(--border-light)', fontSize:14, color:'var(--text)', outline:'none', boxSizing:'border-box', background:'white' }
+const lbl: React.CSSProperties = { display:'block', fontSize:13, fontWeight:500, color:'var(--text-secondary)', marginBottom:6 }
 
 export default function RemindersPage() {
   const [rules, setRules] = useState<any[]>([])
@@ -183,7 +183,7 @@ export default function RemindersPage() {
           const def = RULE_DEFINITIONS.find(d => d.type === rule.type && d.trigger_days === rule.trigger_days)
           const label = def?.label || `${rule.type} — ${rule.trigger_days}d`
           const desc = def?.desc || rule.type
-          const color = TYPE_COLOR[rule.type] || '#6B7280'
+          const color = TYPE_COLOR[rule.type] || 'var(--text-muted)'
           return (
             <div key={rule.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', borderTop: i > 0 ? '1px solid var(--border)' : 'none' }}>
               <div style={{ flex: 1, marginRight: 16 }}>
@@ -195,7 +195,7 @@ export default function RemindersPage() {
                 <p style={{ fontSize: 12, color: 'var(--text-muted)', marginLeft: 16 }}>{desc}</p>
               </div>
               <button onClick={() => toggle(rule)} disabled={toggling === rule.id}
-                style={{ width: 44, height: 24, borderRadius: 12, border: 'none', cursor: toggling === rule.id ? 'not-allowed' : 'pointer', background: rule.active ? 'var(--accent)' : '#E5E7EB', position: 'relative', transition: 'background 0.2s', flexShrink: 0 }}>
+                style={{ width: 44, height: 24, borderRadius: 12, border: 'none', cursor: toggling === rule.id ? 'not-allowed' : 'pointer', background: rule.active ? 'var(--accent)' : 'var(--border-light)', position: 'relative', transition: 'background 0.2s', flexShrink: 0 }}>
                 <span style={{ position: 'absolute', top: 2, left: rule.active ? 20 : 2, width: 20, height: 20, borderRadius: '50%', background: 'white', transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)', display: 'block' }} />
               </button>
             </div>

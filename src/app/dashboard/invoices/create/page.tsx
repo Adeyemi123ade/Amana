@@ -8,8 +8,8 @@ import { formatCurrency } from '@/lib/utils'
 
 const supabase = createClient()
 
-const field: React.CSSProperties = {width:'100%',height:44,padding:'0 12px',borderRadius:8,border:'1px solid #E5E7EB',fontSize:14,color:'#111827',outline:'none',boxSizing:'border-box',background:'white'}
-const lbl: React.CSSProperties = {display:'block',fontSize:13,fontWeight:500,color:'#374151',marginBottom:6}
+const field: React.CSSProperties = {width:'100%',height:44,padding:'0 12px',borderRadius:8,border:'1px solid var(--border-light)',fontSize:14,color:'var(--text)',outline:'none',boxSizing:'border-box',background:'white'}
+const lbl: React.CSSProperties = {display:'block',fontSize:13,fontWeight:500,color:'var(--text-secondary)',marginBottom:6}
 
 export default function CreateInvoicePage() {
   const router = useRouter()
@@ -126,10 +126,10 @@ export default function CreateInvoicePage() {
   return (
     <div style={{maxWidth:640, margin:'0 auto'}}>
       <div style={{display:'flex', alignItems:'center', gap:12, marginBottom:24}}>
-        <Link href="/dashboard/invoices" style={{color:'#6B7280', textDecoration:'none', display:'flex', alignItems:'center'}}>
+        <Link href="/dashboard/invoices" style={{color:'var(--text-muted)', textDecoration:'none', display:'flex', alignItems:'center'}}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
         </Link>
-        <h1 style={{fontSize:20, fontWeight:700, color:'#111827'}}>Create Invoice</h1>
+        <h1 style={{fontSize:20, fontWeight:700, color:'var(--text)'}}>Create Invoice</h1>
       </div>
 
       {error && (
@@ -138,12 +138,12 @@ export default function CreateInvoicePage() {
         </div>
       )}
 
-      <div style={{background:'white', borderRadius:14, border:'1px solid #F3F4F6', padding:'24px'}}>
+      <div style={{background:'var(--card)', borderRadius:14, border:'1px solid var(--border)', padding:'24px'}}>
         {/* Customer */}
         <div style={{marginBottom:18}}>
           <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:6}}>
             <label style={lbl}>Customer <span style={{color:'#EF4444'}}>*</span></label>
-            <Link href="/dashboard/customers" style={{fontSize:12, color:'#7C3AED', textDecoration:'none', fontWeight:500}}>+ New Customer</Link>
+            <Link href="/dashboard/customers" style={{fontSize:12, color:'var(--accent)', textDecoration:'none', fontWeight:500}}>+ New Customer</Link>
           </div>
           <select value={form.customerId} onChange={e => setForm({...form, customerId:e.target.value})} style={field}>
             <option value="">Select customer...</option>
@@ -153,15 +153,15 @@ export default function CreateInvoicePage() {
             const sc = customers.find((c: any) => c.id === form.customerId)
             return sc ? (
               <div style={{marginTop:8, padding:'8px 12px', background:'#F5F3FF', borderRadius:8, border:'1px solid #DDD6FE', fontSize:12}}>
-                <span style={{fontWeight:600, color:'#7C3AED'}}>{sc.name}</span>
+                <span style={{fontWeight:600, color:'var(--accent)'}}>{sc.name}</span>
                 {sc.email
-                  ? <span style={{color:'#6B7280'}}> · {sc.email}</span>
+                  ? <span style={{color:'var(--text-muted)'}}> · {sc.email}</span>
                   : <span style={{color:'#EF4444'}}> · ⚠️ No email — add one before payment</span>}
               </div>
             ) : null
           })()}
           {customers.length === 0 && (
-            <p style={{fontSize:11, color:'#F59E0B', marginTop:4}}>No customers yet. <Link href="/dashboard/customers" style={{color:'#7C3AED', textDecoration:'none', fontWeight:500}}>Add a customer first</Link>.</p>
+            <p style={{fontSize:11, color:'#F59E0B', marginTop:4}}>No customers yet. <Link href="/dashboard/customers" style={{color:'var(--accent)', textDecoration:'none', fontWeight:500}}>Add a customer first</Link>.</p>
           )}
         </div>
 
@@ -169,7 +169,7 @@ export default function CreateInvoicePage() {
         <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:16, marginBottom:18}}>
           <div>
             <label style={lbl}>Invoice Number</label>
-            <input style={{...field, background:'#F9FAFB', color:'#9CA3AF'}} value="Auto-generated" readOnly />
+            <input style={{...field, background:'var(--bg)', color:'#9CA3AF'}} value="Auto-generated" readOnly />
           </div>
           <div>
             <label style={lbl}>Due Date <span style={{color:'#EF4444'}}>*</span></label>
@@ -180,8 +180,8 @@ export default function CreateInvoicePage() {
         {/* Items */}
         <div style={{marginBottom:18}}>
           <div style={{display:'grid', gridTemplateColumns:'1fr 120px 32px', gap:8, marginBottom:8}}>
-            <span style={{fontSize:12, fontWeight:600, color:'#6B7280'}}>Item / Description</span>
-            <span style={{fontSize:12, fontWeight:600, color:'#6B7280'}}>Amount</span>
+            <span style={{fontSize:12, fontWeight:600, color:'var(--text-muted)'}}>Item / Description</span>
+            <span style={{fontSize:12, fontWeight:600, color:'var(--text-muted)'}}>Amount</span>
             <span/>
           </div>
           {items.map((item, i) => (
@@ -193,7 +193,7 @@ export default function CreateInvoicePage() {
             </div>
           ))}
           <button onClick={() => setItems([...items, {description:'', amount:''}])}
-            style={{background:'none', border:'none', cursor:'pointer', color:'#7C3AED', fontSize:13, fontWeight:500, padding:0, display:'flex', alignItems:'center', gap:4}}>
+            style={{background:'none', border:'none', cursor:'pointer', color:'var(--accent)', fontSize:13, fontWeight:500, padding:0, display:'flex', alignItems:'center', gap:4}}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
             Add Item
           </button>
@@ -209,52 +209,52 @@ export default function CreateInvoicePage() {
         <div style={{marginBottom:20}}>
           <label style={lbl}>Payment Method</label>
           {['Paystack','Bank Transfer'].map(m => (
-            <label key={m} style={{display:'flex', alignItems:'center', gap:10, padding:'12px', border:`1px solid ${form.paymentMethod===m?'#7C3AED':'#E5E7EB'}`, borderRadius:8, marginBottom:8, cursor:'pointer', background:form.paymentMethod===m?'#F5F3FF':'white'}}>
-              <input type="radio" value={m} checked={form.paymentMethod===m} onChange={() => setForm({...form, paymentMethod:m})} style={{accentColor:'#7C3AED'}} />
-              <span style={{fontSize:14, color:'#111827', fontWeight:500}}>{m}</span>
+            <label key={m} style={{display:'flex', alignItems:'center', gap:10, padding:'12px', border:`1px solid ${form.paymentMethod===m?'var(--accent)':'var(--border-light)'}`, borderRadius:8, marginBottom:8, cursor:'pointer', background:form.paymentMethod===m?'#F5F3FF':'white'}}>
+              <input type="radio" value={m} checked={form.paymentMethod===m} onChange={() => setForm({...form, paymentMethod:m})} style={{accentColor:'var(--accent)'}} />
+              <span style={{fontSize:14, color:'var(--text)', fontWeight:500}}>{m}</span>
             </label>
           ))}
         </div>
 
         {/* Tax / VAT */}
         <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:8, padding:'0 2px'}}>
-          <label style={{fontSize:13, fontWeight:500, color:'#374151'}}>Tax / VAT (%)</label>
+          <label style={{fontSize:13, fontWeight:500, color:'var(--text-secondary)'}}>Tax / VAT (%)</label>
           <div style={{display:'flex', alignItems:'center', gap:6}}>
             <input type="number" min="0" max="100" step="0.5" value={taxRate || ''} onChange={e => setTaxRate(parseFloat(e.target.value) || 0)}
               placeholder="0"
-              style={{width:70, height:36, padding:'0 10px', borderRadius:8, border:'1px solid #E5E7EB', fontSize:13, textAlign:'right', outline:'none', color:'#111827', background:'white'}} />
-            <span style={{fontSize:13, color:'#6B7280'}}>%</span>
+              style={{width:70, height:36, padding:'0 10px', borderRadius:8, border:'1px solid var(--border-light)', fontSize:13, textAlign:'right', outline:'none', color:'var(--text)', background:'white'}} />
+            <span style={{fontSize:13, color:'var(--text-muted)'}}>%</span>
           </div>
         </div>
 
         {/* Total */}
-        <div style={{background:'#F9FAFB', borderRadius:10, padding:'12px 16px', marginBottom:20}}>
+        <div style={{background:'var(--bg)', borderRadius:10, padding:'12px 16px', marginBottom:20}}>
           {taxRate > 0 && (
             <>
               <div style={{display:'flex', justifyContent:'space-between', marginBottom:6}}>
-                <span style={{fontSize:13, color:'#6B7280'}}>Subtotal</span>
-                <span style={{fontSize:13, color:'#374151'}}>{currencySymbol}{subtotal.toLocaleString()}</span>
+                <span style={{fontSize:13, color:'var(--text-muted)'}}>Subtotal</span>
+                <span style={{fontSize:13, color:'var(--text-secondary)'}}>{currencySymbol}{subtotal.toLocaleString()}</span>
               </div>
               <div style={{display:'flex', justifyContent:'space-between', marginBottom:8}}>
-                <span style={{fontSize:13, color:'#6B7280'}}>Tax ({taxRate}%)</span>
-                <span style={{fontSize:13, color:'#374151'}}>{currencySymbol}{taxAmount.toFixed(2)}</span>
+                <span style={{fontSize:13, color:'var(--text-muted)'}}>Tax ({taxRate}%)</span>
+                <span style={{fontSize:13, color:'var(--text-secondary)'}}>{currencySymbol}{taxAmount.toFixed(2)}</span>
               </div>
             </>
           )}
           <div style={{display:'flex', justifyContent:'space-between'}}>
-            <span style={{fontSize:14, fontWeight:700, color:'#111827'}}>Total Amount</span>
-            <span style={{fontSize:20, fontWeight:800, color:'#111827'}}>{currencySymbol}{total.toLocaleString()}</span>
+            <span style={{fontSize:14, fontWeight:700, color:'var(--text)'}}>Total Amount</span>
+            <span style={{fontSize:20, fontWeight:800, color:'var(--text)'}}>{currencySymbol}{total.toLocaleString()}</span>
           </div>
         </div>
 
         {/* Buttons */}
         <div style={{display:'flex', gap:10}}>
           <button onClick={() => handleSubmit('DRAFT')} disabled={isLoading}
-            style={{flex:1, height:44, background:'white', border:'1px solid #E5E7EB', borderRadius:10, fontSize:14, fontWeight:600, color:'#374151', cursor:'pointer', opacity:isLoading?0.7:1}}>
+            style={{flex:1, height:44, background:'white', border:'1px solid var(--border-light)', borderRadius:10, fontSize:14, fontWeight:600, color:'var(--text-secondary)', cursor:'pointer', opacity:isLoading?0.7:1}}>
             Save Draft
           </button>
           <button onClick={() => handleSubmit('UNPAID')} disabled={isLoading}
-            style={{flex:2, height:44, background:'#7C3AED', border:'none', borderRadius:10, fontSize:14, fontWeight:600, color:'white', cursor:isLoading?'not-allowed':'pointer', opacity:isLoading?0.7:1, display:'flex', alignItems:'center', justifyContent:'center', gap:6}}>
+            style={{flex:2, height:44, background:'var(--accent)', border:'none', borderRadius:10, fontSize:14, fontWeight:600, color:'white', cursor:isLoading?'not-allowed':'pointer', opacity:isLoading?0.7:1, display:'flex', alignItems:'center', justifyContent:'center', gap:6}}>
             {isLoading && <span style={{width:14, height:14, border:'2px solid white', borderTopColor:'transparent', borderRadius:'50%', display:'inline-block', animation:'spin 0.8s linear infinite'}}/>}
             {isLoading ? 'Creating...' : 'Save & Send Invoice'}
           </button>

@@ -4,14 +4,14 @@ import Link from 'next/link'
 import { BackLink } from '@/components/shared/BackLink'
 
 const STATUS_COLORS: Record<string, [string, string]> = {
-  DRAFT:     ['#6B7280', '#F9FAFB'],
+  DRAFT:     ['var(--text-muted)', 'var(--bg)'],
   SENT:      ['#3B82F6', '#EFF6FF'],
   PAID:      ['#16A34A', '#F0FDF4'],
   PENDING:   ['#D97706', '#FFFBEB'],
   FAILED:    ['#DC2626', '#FEF2F2'],
   OVERDUE:   ['#DC2626', '#FEF2F2'],
-  CANCELLED: ['#6B7280', '#F1F5F9'],
-  WAIVED:    ['#7C3AED', '#EDE9FE'],
+  CANCELLED: ['var(--text-muted)', '#F1F5F9'],
+  WAIVED:    ['var(--accent)', 'var(--accent-light)'],
 }
 
 type Invoice = {
@@ -94,7 +94,7 @@ export default function BusinessBillingPage() {
         <div style={{ background: 'var(--card)', borderRadius: 14, border: '1px solid var(--border-light)', padding: '18px 24px', marginBottom: 24, display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 16 }}>
           <div>
             <p style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>Current Plan</p>
-            <p style={{ fontSize: 16, fontWeight: 800, color: 'var(--accent,#7C3AED)' }}>{workspace.plan || 'FREE'}</p>
+            <p style={{ fontSize: 16, fontWeight: 800, color: 'var(--accent)' }}>{workspace.plan || 'FREE'}</p>
           </div>
           <div>
             <p style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>Total Invoices</p>
@@ -121,7 +121,7 @@ export default function BusinessBillingPage() {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {invoices.map(inv => {
-            const [sc, sb] = STATUS_COLORS[inv.status] || ['#6B7280', '#F9FAFB']
+            const [sc, sb] = STATUS_COLORS[inv.status] || ['var(--text-muted)', 'var(--bg)']
             const isOverdue = inv.status === 'OVERDUE'
             const isPending = ['PENDING', 'SENT'].includes(inv.status)
             return (
@@ -132,7 +132,7 @@ export default function BusinessBillingPage() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10, gap: 8 }}>
                   <div style={{ minWidth: 0, flex: 1 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, flexWrap: 'wrap' }}>
-                      <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--accent,#7C3AED)' }}>{inv.invoice_number}</p>
+                      <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--accent)' }}>{inv.invoice_number}</p>
                       <span style={{ fontSize: 10, fontWeight: 700, color: sc, background: sb, padding: '2px 8px', borderRadius: 20 }}>{inv.status}</span>
                     </div>
                     <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)', marginBottom: 2 }}>
@@ -182,7 +182,7 @@ export default function BusinessBillingPage() {
           <div style={{ background: 'var(--card)', width: '100%', maxWidth: 480, height: '100vh', overflowY: 'auto', boxShadow: '-4px 0 24px rgba(0,0,0,0.15)' }}>
             <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, background: 'var(--card)', zIndex: 1 }}>
               <div>
-                <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--accent,#7C3AED)' }}>{selected.invoice_number}</p>
+                <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--accent)' }}>{selected.invoice_number}</p>
                 <p style={{ fontSize: 11, color: 'var(--text-muted)' }}>Platform Invoice from Amana</p>
               </div>
               <button onClick={() => setSelected(null)}
@@ -191,14 +191,14 @@ export default function BusinessBillingPage() {
 
             <div style={{ padding: '20px' }}>
               {/* Status badge */}
-              {(() => { const [sc, sb] = STATUS_COLORS[selected.status] || ['#6B7280', '#F9FAFB']; return (
+              {(() => { const [sc, sb] = STATUS_COLORS[selected.status] || ['var(--text-muted)', 'var(--bg)']; return (
                 <span style={{ fontSize: 12, fontWeight: 700, color: sc, background: sb, padding: '4px 14px', borderRadius: 20, display: 'inline-block', marginBottom: 20 }}>
                   {selected.status}
                 </span>
               )})()}
 
               {/* Amount due */}
-              <div style={{ background: 'var(--bg,#F9FAFB)', borderRadius: 12, padding: '16px 20px', marginBottom: 20, textAlign: 'center' }}>
+              <div style={{ background: 'var(--bg)', borderRadius: 12, padding: '16px 20px', marginBottom: 20, textAlign: 'center' }}>
                 <p style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>INVOICE AMOUNT</p>
                 <p style={{ fontSize: 28, fontWeight: 800, color: 'var(--text)' }}>{fmtAmt(selected.invoice_amount, selected.currency)}</p>
                 {Number(selected.outstanding_balance) > 0 && (
@@ -209,7 +209,7 @@ export default function BusinessBillingPage() {
               </div>
 
               {/* Details */}
-              <div style={{ background: 'var(--bg,#F9FAFB)', borderRadius: 10, padding: '14px 16px', marginBottom: 20 }}>
+              <div style={{ background: 'var(--bg)', borderRadius: 10, padding: '14px 16px', marginBottom: 20 }}>
                 {[
                   ['Plan', selected.plan_name],
                   ['Billing Type', selected.billing_type],
@@ -246,7 +246,7 @@ export default function BusinessBillingPage() {
               )}
 
               <button onClick={() => setSelected(null)}
-                style={{ width: '100%', height: 44, background: 'var(--accent,#7C3AED)', color: 'white', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
+                style={{ width: '100%', height: 44, background: 'var(--accent)', color: 'white', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
                 Close
               </button>
             </div>
