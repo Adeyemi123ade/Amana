@@ -51,7 +51,7 @@ export function Sidebar({ user }: SidebarProps) {
           const active = isActive(item.href, item.exact)
           return (
             <Link key={item.href} href={item.href} onClick={onNav}
-              style={{ display:'flex', alignItems:'center', gap:11, padding:'11px 12px', borderRadius:10, marginBottom:2, textDecoration:'none', background: active ? '#7C3AED' : 'transparent', color: active ? 'white' : 'var(--sidebar-text, #9CA3AF)', fontWeight: active ? 600 : 400, fontSize:14, transition:'background 0.15s, color 0.15s', whiteSpace:'nowrap' }}>
+              style={{ display:'flex', alignItems:'center', gap:11, padding:'11px 12px', borderRadius:10, marginBottom:2, textDecoration:'none', background: active ? 'var(--accent, #7C3AED)' : 'transparent', color: active ? 'white' : 'var(--sidebar-text, #9CA3AF)', fontWeight: active ? 600 : 400, fontSize:14, transition:'background 0.15s, color 0.15s', whiteSpace:'nowrap' }}>
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink:0 }}>
                 <path d={item.icon}/>
               </svg>
@@ -64,7 +64,7 @@ export function Sidebar({ user }: SidebarProps) {
       {/* User bottom */}
       <div style={{ padding:'12px 14px', borderTop:'1px solid rgba(255,255,255,0.08)', flexShrink:0 }}>
         <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-          <div style={{ width:34, height:34, borderRadius:'50%', background:'#7C3AED', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, fontSize:12, fontWeight:700, color:'white' }}>
+          <div style={{ width:34, height:34, borderRadius:'50%', background:'var(--accent, #7C3AED)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, fontSize:12, fontWeight:700, color:'white' }}>
             {initials}
           </div>
           <div style={{ flex:1, minWidth:0 }}>
@@ -103,7 +103,7 @@ export function Sidebar({ user }: SidebarProps) {
       {/* Mobile drawer — NO logo at top, clean nav */}
       <div className={`mobile-drawer-overlay${open ? ' open' : ''}`} onClick={() => setOpen(false)}>
         <div
-          style={{ width:264, background:'#111827', height:'100%', display:'flex', flexDirection:'column', boxShadow:'4px 0 24px rgba(0,0,0,0.4)' }}
+          style={{ width:264, background:'var(--sidebar, #111827)', height:'100%', display:'flex', flexDirection:'column', boxShadow:'4px 0 24px rgba(0,0,0,0.4)' }}
           onClick={e => e.stopPropagation()}
         >
           {/* Close button only — no logo */}

@@ -7,7 +7,7 @@ import { formatCurrency } from '@/lib/utils'
 
 const supabase = createClient()
 
-const inp: React.CSSProperties = { width:'100%', height:44, padding:'0 12px', borderRadius:8, border:'1px solid var(--border-light)', fontSize:14, color:'var(--text)', outline:'none', boxSizing:'border-box', background:'white' }
+const inp: React.CSSProperties = { width:'100%', height:44, padding:'0 12px', borderRadius:8, border:'1px solid var(--border-light)', fontSize:14, color:'var(--text)', outline:'none', boxSizing:'border-box', background:'var(--card)' }
 const lbl: React.CSSProperties = { display:'block', fontSize:13, fontWeight:500, color:'var(--text-secondary)', marginBottom:6 }
 
 export default function CustomersPage() {
@@ -116,7 +116,7 @@ export default function CustomersPage() {
           <div style={{position:'relative'}}>
             <svg style={{position:'absolute', left:10, top:10}} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
             <input placeholder="Search customers..." value={search} onChange={e => { setSearch(e.target.value); setPage(0) }}
-              style={{width:'100%', height:36, paddingLeft:34, paddingRight:12, borderRadius:8, border:'1px solid var(--border-light)', fontSize:13, outline:'none', boxSizing:'border-box', background:'white'}} />
+              style={{width:'100%', height:36, paddingLeft:34, paddingRight:12, borderRadius:8, border:'1px solid var(--border-light)', fontSize:13, outline:'none', boxSizing:'border-box', background:'var(--card)', color:'var(--text)'}} />
           </div>
         </div>
 
@@ -157,7 +157,7 @@ export default function CustomersPage() {
 
       {showModal && (
         <div style={{position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:16}}>
-          <div style={{background:'white', borderRadius:16, padding:'24px', width:'100%', maxWidth:480, maxHeight:'90vh', overflowY:'auto'}}>
+          <div style={{background:'var(--card)', borderRadius:16, padding:'24px', width:'100%', maxWidth:480, maxHeight:'90vh', overflowY:'auto'}}>
             <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20}}>
               <h2 style={{fontSize:18, fontWeight:700, color:'var(--text)'}}>Add Customer</h2>
               <button onClick={() => setShowModal(false)} style={{background:'none', border:'none', cursor:'pointer', color:'#9CA3AF', fontSize:24, lineHeight:1}}>×</button>
@@ -191,7 +191,7 @@ export default function CustomersPage() {
               </div>
               <div style={{display:'flex', gap:10}}>
                 <button onClick={() => setShowModal(false)}
-                  style={{flex:1, height:44, background:'white', border:'1px solid var(--border-light)', borderRadius:10, fontSize:14, color:'var(--text-secondary)', cursor:'pointer'}}>
+                  style={{flex:1, height:44, background:'var(--card)', border:'1px solid var(--border-light)', borderRadius:10, fontSize:14, color:'var(--text-secondary)', cursor:'pointer'}}>
                   Cancel
                 </button>
                 <button onClick={handleAdd} disabled={saving}

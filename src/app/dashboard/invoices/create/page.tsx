@@ -8,7 +8,7 @@ import { formatCurrency } from '@/lib/utils'
 
 const supabase = createClient()
 
-const field: React.CSSProperties = {width:'100%',height:44,padding:'0 12px',borderRadius:8,border:'1px solid var(--border-light)',fontSize:14,color:'var(--text)',outline:'none',boxSizing:'border-box',background:'white'}
+const field: React.CSSProperties = {width:'100%',height:44,padding:'0 12px',borderRadius:8,border:'1px solid var(--border-light)',fontSize:14,color:'var(--text)',outline:'none',boxSizing:'border-box',background:'var(--card)'}
 const lbl: React.CSSProperties = {display:'block',fontSize:13,fontWeight:500,color:'var(--text-secondary)',marginBottom:6}
 
 export default function CreateInvoicePage() {
@@ -222,7 +222,7 @@ export default function CreateInvoicePage() {
           <div style={{display:'flex', alignItems:'center', gap:6}}>
             <input type="number" min="0" max="100" step="0.5" value={taxRate || ''} onChange={e => setTaxRate(parseFloat(e.target.value) || 0)}
               placeholder="0"
-              style={{width:70, height:36, padding:'0 10px', borderRadius:8, border:'1px solid var(--border-light)', fontSize:13, textAlign:'right', outline:'none', color:'var(--text)', background:'white'}} />
+              style={{width:70, height:36, padding:'0 10px', borderRadius:8, border:'1px solid var(--border-light)', fontSize:13, textAlign:'right', outline:'none', color:'var(--text)', background:'var(--card)'}} />
             <span style={{fontSize:13, color:'var(--text-muted)'}}>%</span>
           </div>
         </div>
@@ -250,7 +250,7 @@ export default function CreateInvoicePage() {
         {/* Buttons */}
         <div style={{display:'flex', gap:10}}>
           <button onClick={() => handleSubmit('DRAFT')} disabled={isLoading}
-            style={{flex:1, height:44, background:'white', border:'1px solid var(--border-light)', borderRadius:10, fontSize:14, fontWeight:600, color:'var(--text-secondary)', cursor:'pointer', opacity:isLoading?0.7:1}}>
+            style={{flex:1, height:44, background:'var(--card)', border:'1px solid var(--border-light)', borderRadius:10, fontSize:14, fontWeight:600, color:'var(--text-secondary)', cursor:'pointer', opacity:isLoading?0.7:1}}>
             Save Draft
           </button>
           <button onClick={() => handleSubmit('UNPAID')} disabled={isLoading}
