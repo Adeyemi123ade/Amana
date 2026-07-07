@@ -13,14 +13,6 @@ export default async function DashboardLayout({ children }: { children: ReactNod
 
   if (error || !user) redirect('/sign-in')
 
-  // Block access until the OTP email-verification step has actually been completed.
-  // Supabase auto-confirm creates a live session at signUp() time, before the
-  // 6-digit code is checked — without this gate, anyone who backs out of or
-  // refreshes the /verify-email screen lands in the dashboard unverified.
-  if (user.user_metadata?.email_verified !== true) {
-    redirect('/verify-email')
-  }
-
   const { data: workspace } = await supabase
     .from('workspaces')
     .select('name, business_type')
