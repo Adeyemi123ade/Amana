@@ -25,6 +25,8 @@ function formatWhatsApp(raw: string, dialCode: string): string {
 
 type Step = 'business' | 'location' | 'online' | 'banking'
 
+const ONBOARD_DRAFT_KEY = 'amana_onboarding_draft'
+
 export default function BusinessInformationPage() {
   const router = useRouter()
   const [step, setStep] = useState<Step>('business')
@@ -34,20 +36,41 @@ export default function BusinessInformationPage() {
   const [errors, setErrors] = useState<Record<string,string>>({})
   const [customTitle, setCustomTitle] = useState('')
   const [userCountryCode, setUserCountryCode] = useState('NG')
+  const [userId, setUserId] = useState('')
 
-  // Load user country from registration
+  // Load user country from registration, and restore any in-progress draft
   useEffect(() => {
     const load = async () => {
       const { data: { user } } = await supabase.auth.getUser()
-      if (user?.user_metadata?.country) {
+      if (!user) return
+      setUserId(user.id)
+
+      // Restore draft progress for this exact user, if any (survives refresh/back button)
+      let restoredCountryCode: string | null = null
+      try {
+        const raw = sessionStorage.getItem(ONBOARD_DRAFT_KEY)
+        if (raw) {
+          const draft = JSON.parse(raw)
+          if (draft.userId === user.id) {
+            if (draft.step) setStep(draft.step)
+            if (draft.biz) setBiz(draft.biz)
+            if (draft.loc) { setLoc(draft.loc); restoredCountryCode = draft.loc.countryCode }
+            if (draft.online) setOnline(draft.online)
+            if (draft.bank) setBank(draft.bank)
+            if (draft.customTitle) setCustomTitle(draft.customTitle)
+          } else {
+            sessionStorage.removeItem(ONBOARD_DRAFT_KEY)
+          }
+        }
+      } catch {}
+
+      if (user.user_metadata?.country && !restoredCountryCode) {
         const country = COUNTRIES.find(c => c.code === user.user_metadata.country || c.name === user.user_metadata.country)
         if (country) setUserCountryCode(country.code)
       }
       // If workspace already exists, go to dashboard
-      if (user) {
-        const { data: ws } = await supabase.from('workspaces').select('id').eq('created_by', user.id).maybeSingle()
-        if (ws) { router.replace('/dashboard'); return }
-      }
+      const { data: ws } = await supabase.from('workspaces').select('id').eq('created_by', user.id).maybeSingle()
+      if (ws) { router.replace('/dashboard'); return }
     }
     load()
   }, [])
@@ -72,6 +95,14 @@ export default function BusinessInformationPage() {
     const curr = COUNTRY_CURRENCY_MAP[userCountryCode] || 'USD'
     setLoc(l => ({ ...l, currency: curr }))
   }, [userCountryCode])
+
+  // Persist progress so a refresh or back-button navigation doesn't lose completed steps
+  useEffect(() => {
+    if (!userId) return
+    try {
+      sessionStorage.setItem(ONBOARD_DRAFT_KEY, JSON.stringify({ userId, step, biz, loc, online, bank, customTitle }))
+    } catch {}
+  }, [userId, step, biz, loc, online, bank, customTitle])
 
   const selectedCountry = COUNTRIES.find(c => c.code === loc.countryCode) || COUNTRIES[0]
   const states = COUNTRY_STATES[loc.countryCode] || COUNTRY_STATES['DEFAULT'] || []
@@ -130,6 +161,7 @@ export default function BusinessInformationPage() {
       const { data: existing } = await supabase
         .from('workspaces').select('id').eq('created_by', user.id).maybeSingle()
       if (existing) {
+        try { sessionStorage.removeItem(ONBOARD_DRAFT_KEY) } catch {}
         await supabase.auth.updateUser({ data: { onboarding_complete: true } })
         router.push('/onboarding/theme')
         return
@@ -176,7 +208,8 @@ export default function BusinessInformationPage() {
       // Step 6: Mark onboarding complete in user metadata
       await supabase.auth.updateUser({ data: { onboarding_complete: true } })
 
-      // Step 7: Redirect to theme selection
+      // Step 7: Clear saved draft and redirect to theme selection
+      try { sessionStorage.removeItem(ONBOARD_DRAFT_KEY) } catch {}
       router.push('/onboarding/theme')
 
     } catch (e: any) {
