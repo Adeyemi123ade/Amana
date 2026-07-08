@@ -64,7 +64,7 @@ export default function SignInPage() {
       if (error) {
         setServerError(
           error.message.includes('Invalid')
-            ? 'That password does not match your account.'
+            ? 'The email or password you entered is incorrect. Please check and try again.'
             : 'Something went wrong. Please try again.'
         )
         return
