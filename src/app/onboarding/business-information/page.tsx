@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { COUNTRIES } from '@/lib/utils/countries'
-import { BUSINESS_TYPES, BUSINESS_TITLES, CURRENCIES, CURRENCY_NAMES, COUNTRY_CURRENCY_MAP, COUNTRY_BANKS, COUNTRY_STATES, STATE_CITIES } from '@/lib/utils/onboarding-data'
+import { BUSINESS_TYPES, BUSINESS_TITLES, CURRENCIES, COUNTRY_CURRENCY_MAP, COUNTRY_BANKS, COUNTRY_STATES, STATE_CITIES } from '@/lib/utils/onboarding-data'
 import { generateSlug } from '@/lib/utils'
 
 // Client created ONCE outside component
@@ -76,7 +76,6 @@ export default function BusinessInformationPage() {
   const selectedCountry = COUNTRIES.find(c => c.code === loc.countryCode) || COUNTRIES[0]
   const states = COUNTRY_STATES[loc.countryCode] || COUNTRY_STATES['DEFAULT'] || []
   const banks = COUNTRY_BANKS[bank.bankCountry] || COUNTRY_BANKS['DEFAULT']
-  const whatsappPreview = online.whatsapp ? formatWhatsApp(online.whatsapp, selectedCountry.dial) : ''
 
   const handleCountryChange = (code: string) => {
     const curr = COUNTRY_CURRENCY_MAP[code] || 'USD'
@@ -291,9 +290,6 @@ export default function BusinessInformationPage() {
                 <select value={loc.countryCode} onChange={e => handleCountryChange(e.target.value)} style={f}>
                   {COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.name}</option>)}
                 </select>
-                <p style={{fontSize:11, color:'#22C55E', marginTop:4}}>
-                  ✓ Currency automatically set to <strong>{CURRENCY_NAMES[loc.currency] || loc.currency}</strong>
-                </p>
               </div>
               <div>
                 <label style={lbl}>State / Province</label>
@@ -350,7 +346,6 @@ export default function BusinessInformationPage() {
                     onChange={e => setOnline({...online, whatsapp:e.target.value})}
                   />
                 </div>
-                {whatsappPreview && <p style={{fontSize:11, color:'#22C55E', marginTop:4}}>Will be saved as: <strong>{whatsappPreview}</strong></p>}
               </div>
               <div>
                 <label style={lbl}>LinkedIn</label>

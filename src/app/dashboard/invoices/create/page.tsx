@@ -169,7 +169,7 @@ export default function CreateInvoicePage() {
         <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:16, marginBottom:18}}>
           <div>
             <label style={lbl}>Invoice Number</label>
-            <input style={{...field, background:'var(--bg)', color:'#9CA3AF'}} value="Auto-generated" readOnly />
+            <input style={{...field, background:'var(--bg)', color:'#9CA3AF'}} value="" readOnly />
           </div>
           <div>
             <label style={lbl}>Due Date <span style={{color:'#EF4444'}}>*</span></label>
