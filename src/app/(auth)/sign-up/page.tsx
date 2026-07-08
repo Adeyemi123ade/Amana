@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
@@ -28,6 +28,22 @@ export default function SignUpPage() {
   const [pwdValue, setPwdValue] = useState('')
   const [selectedCountry, setSelectedCountry] = useState(COUNTRIES.find(c => c.code === 'NG') || COUNTRIES[0])
   const [phoneValue, setPhoneValue] = useState(selectedCountry.dial + ' ')
+  const [checking, setChecking] = useState(true)
+
+  // Defense-in-depth: if the browser's back button restores a cached copy of this page
+  // for a user who has already signed up (even if unverified), send them forward again
+  // instead of letting them resubmit the form and hit an "already registered" dead end.
+  useEffect(() => {
+    const check = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        router.replace(user.user_metadata?.email_verified === false ? '/verify-email' : '/dashboard')
+        return
+      }
+      setChecking(false)
+    }
+    check()
+  }, [router])
 
   const { register, handleSubmit, setValue, formState: { errors } } = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
@@ -138,6 +154,15 @@ export default function SignUpPage() {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  if (checking) {
+    return (
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'center', minHeight:'100vh' }}>
+        <span style={{ width:20, height:20, border:'2px solid #7C3AED', borderTopColor:'transparent', borderRadius:'50%', display:'inline-block', animation:'spin 0.8s linear infinite' }}/>
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      </div>
+    )
   }
 
   return (
