@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
+import BackForwardRefresh from '@/components/BackForwardRefresh'
 
 export const metadata: Metadata = {
   title: 'Amana — Revenue Operating System',
@@ -16,6 +17,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
       <body suppressHydrationWarning>
+        <BackForwardRefresh />
         {children}
       </body>
     </html>

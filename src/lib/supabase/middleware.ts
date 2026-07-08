@@ -149,5 +149,14 @@ export const updateSession = async (request: NextRequest) => {
     }
   }
 
+  // Logged in, on dashboard, but no workspace yet → onboarding
+  if (user && pathname.startsWith('/dashboard')) {
+    const { data: ws, error } = await supabase
+      .from('workspaces').select('id').eq('created_by', user.id).maybeSingle()
+    if (!error && !ws) {
+      return NextResponse.redirect(new URL('/onboarding/business-information', request.url))
+    }
+  }
+
   return supabaseResponse
 }
